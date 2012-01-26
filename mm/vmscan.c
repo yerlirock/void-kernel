@@ -655,7 +655,7 @@ void putback_lru_page(struct page *page)
 	VM_BUG_ON(PageLRU(page));
 #ifdef CONFIG_CLEANCACHE 
  	if (active) 
- 	SetPageWasActive(page); 
+		SetPageWasActive(page);
 #endif
 
 redo:
