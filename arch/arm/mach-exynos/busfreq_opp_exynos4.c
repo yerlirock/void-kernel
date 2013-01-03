@@ -384,42 +384,6 @@ static ssize_t show_time_in_state(struct device *device,
 	return len;
 }
 
-static ssize_t show_up_threshold(struct device *device,
-		 struct device_attribute *attr, char *buf)
-{
-	int len = 0;
-	len = sprintf(buf, "%d\n", up_threshold);
-
-	return len;
-}
-static ssize_t store_up_threshold(struct device *device,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
-{
-	int ret;
-
-	ret = sscanf(buf, "%d", &up_threshold);
-	return count;
-}
-
-static ssize_t show_ppmu_threshold(struct device *device,
-		struct device_attribute *attr, char *buf)
-{
-	int len = 0;
-	len = sprintf(buf, "%d\n", ppmu_threshold);
-
-	return len;
-}
-static ssize_t store_ppmu_threshold(struct device *device,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
-{
-	int ret;
-
-	ret = sscanf(buf, "%d", &ppmu_threshold);
-	return count;
-}
-
 static ssize_t show_idle_threshold(struct device *device,
 		struct device_attribute *attr, char *buf)
 {
@@ -539,8 +503,6 @@ static DEVICE_ATTR(curr_freq, S_IRUGO | S_IWUGO, show_level_lock, store_level_lo
 static DEVICE_ATTR(freq_table, S_IRUGO | S_IWUGO, show_freq_table, NULL);
 static DEVICE_ATTR(lock_list, S_IRUGO, show_locklist, NULL);
 static DEVICE_ATTR(time_in_state, S_IRUGO, show_time_in_state, NULL);
-static DEVICE_ATTR(up_threshold, S_IRUGO | S_IWUGO, show_up_threshold, store_up_threshold);
-static DEVICE_ATTR(ppmu_threshold, S_IRUGO | S_IWUGO, show_ppmu_threshold, store_ppmu_threshold);
 static DEVICE_ATTR(idle_threshold, S_IRUGO | S_IWUGO, show_idle_threshold, store_idle_threshold);
 static DEVICE_ATTR(up_cpu_threshold, S_IRUGO | S_IWUGO, show_up_cpu_threshold, store_up_cpu_threshold);
 static DEVICE_ATTR(max_cpu_threshold, S_IRUGO | S_IWUGO, show_max_cpu_threshold, store_max_cpu_threshold);
@@ -554,8 +516,6 @@ static struct attribute *busfreq_attributes[] = {
 	&dev_attr_freq_table.attr,
 	&dev_attr_lock_list.attr,
 	&dev_attr_time_in_state.attr,
-	&dev_attr_up_threshold.attr,
-	&dev_attr_ppmu_threshold.attr,
 	&dev_attr_idle_threshold.attr,
 	&dev_attr_up_cpu_threshold.attr,
 	&dev_attr_max_cpu_threshold.attr,
