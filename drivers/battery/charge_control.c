@@ -21,7 +21,7 @@
 #include <linux/mfd/max77693-private.h>
 #include <linux/battery/samsung_battery.h>
 
-#define MIN_SAFETY_CURR				100
+#define MIN_SAFETY_CURR				0
 #define MAX_SAFETY_CURR				2500
 
 #define MIN_SOFT_VOLT				3600000
