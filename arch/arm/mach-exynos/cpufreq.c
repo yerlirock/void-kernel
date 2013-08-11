@@ -214,7 +214,9 @@ int exynos_find_cpufreq_level_by_volt(unsigned int arm_volt,
 	/* find cpufreq level in volt_table */
 	for (i = exynos_info->min_support_idx;
 			i >= exynos_info->max_support_idx; i--) {
+		pr_info("exynos_find_cpufreq_level_by_volt: searching volt_table[%d](%d) >= %d", i, volt_table[i], arm_volt);
 		if (volt_table[i] >= arm_volt) {
+			pr_info("exynos_find_cpufreq_level_by_volt: found volt_table[%d](%d) >= %d", i, volt_table[i], arm_volt);
 			*level = (unsigned int)i;
 			return 0;
 		}
