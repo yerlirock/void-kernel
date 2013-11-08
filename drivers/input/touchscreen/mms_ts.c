@@ -402,7 +402,7 @@ static void change_dvfs_lock(struct work_struct *work)
 		pr_err("%s: dev change bud lock failed(%d)\n",\
 				__func__, __LINE__);
 	else
-		pr_info("[TSP] change_dvfs_lock");
+		pr_debug("[TSP] change_dvfs_lock");
 	mutex_unlock(&info->dvfs_lock);
 }
 static void set_dvfs_off(struct work_struct *work)
@@ -421,7 +421,7 @@ static void set_dvfs_off(struct work_struct *work)
 
 	exynos_cpufreq_lock_free(DVFS_LOCK_ID_TSP);
 	info->dvfs_lock_status = false;
-	pr_info("[TSP] DVFS Off!");
+	//pr_debug("[TSP] DVFS Off!");
 	mutex_unlock(&info->dvfs_lock);
 	}
 
@@ -462,7 +462,7 @@ static void set_dvfs_lock(struct mms_ts_info *info, uint32_t on)
 				msecs_to_jiffies(TOUCH_BOOSTER_CHG_TIME));
 
 			info->dvfs_lock_status = true;
-			pr_info("[TSP] DVFS On![%d]", info->cpufreq_level);
+			//pr_debug("[TSP] DVFS On![%d]", info->cpufreq_level);
 		}
 	} else if (on == 2) {
 		cancel_delayed_work(&info->work_dvfs_off);
@@ -522,7 +522,7 @@ static void release_all_fingers(struct mms_ts_info *info)
 	input_sync(info->input_dev);
 #if TOUCH_BOOSTER
 	set_dvfs_lock(info, 2);
-	pr_info("[TSP] dvfs_lock free.\n ");
+	pr_debug("[TSP] dvfs_lock free.\n ");
 #endif
 }
 
@@ -753,11 +753,8 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 					"pressure = %d\n", tmp[8]);
 		}
 #else
-		if (info->finger_state[id] == 0) {
+		if (info->finger_state[id] == 0)
 			info->finger_state[id] = 1;
-			dev_notice(&client->dev,
-				"finger [%d] down, palm %d\n", id, palm);
-		}
 #endif
 	}
 	input_sync(info->input_dev);
