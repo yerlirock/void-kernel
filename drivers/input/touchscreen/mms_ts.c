@@ -50,6 +50,8 @@
 
 #include <asm/unaligned.h>
 
+#include "../keyboard/cypress/cypress-touchkey.h"
+
 #ifdef CONFIG_MACH_SUPERIOR_KOR_SKT
 #define FW_465GS37
 #endif

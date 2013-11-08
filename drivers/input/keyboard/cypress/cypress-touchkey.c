@@ -83,6 +83,11 @@ static int touchkey_keycode[] = { 0,
 };
 static const int touchkey_count = sizeof(touchkey_keycode) / sizeof(int);
 
+struct touchkey_i2c *tkey_i2c_local;
+struct timer_list touch_led_timer;
+int touch_led_timeout = 3; // timeout for the touchkey backlight in secs
+int touch_led_disabled = 0; // 1= force disable the touchkey backlight
+
 #if defined(TK_HAS_AUTOCAL)
 static u16 raw_data0;
 static u16 raw_data1;
@@ -900,8 +905,33 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 		return IRQ_HANDLED;
 	}
 
-	if (pressed)
+	if (pressed) {
 		set_touchkey_debug('P');
+
+        // enable lights on keydown
+        if (touch_led_disabled == 0) {
+            if (touchkey_led_status == TK_CMD_LED_OFF) {
+                pr_info("[Touchkey] %s: keydown - LED ON\n", __func__);
+                i2c_touchkey_write(tkey_i2c->client, (u8 *) &ledCmd[0], 1);
+                touchkey_led_status = TK_CMD_LED_ON;
+            }
+            if (timer_pending(&touch_led_timer) == 1) {
+                mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
+            }
+        }
+        
+    } else {
+        // touch led timeout on keyup
+        if (touch_led_disabled == 0) {
+            if (timer_pending(&touch_led_timer) == 0) {
+                pr_info("[Touchkey] %s: keyup - add_timer\n", __func__);
+                touch_led_timer.expires = jiffies + (HZ * touch_led_timeout);
+                add_timer(&touch_led_timer);
+            } else {
+                mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
+            }
+        }
+    }
 
 	if (get_tsp_status() && pressed)
 		printk(KERN_DEBUG "[TouchKey] touchkey pressed"
@@ -1637,6 +1667,8 @@ static struct attribute *touchkey_attributes[] = {
 	&dev_attr_autocal_enable.attr,
 	&dev_attr_autocal_stat.attr,
 #endif
+	&dev_attr_timeout.attr,
+    &dev_attr_force_disable.attr,
 	NULL,
 };
 
@@ -1677,11 +1709,12 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 		printk(KERN_ERR "[Touchkey] failed to allocate tkey_i2c.\n");
 		return -ENOMEM;
 	}
+    tkey_i2c_local = tkey_i2c;
 
 	input_dev = input_allocate_device();
 
 	if (!input_dev) {
-		printk(KERN_ERR"[Touchkey] failed to allocate input device\n");
+		printk(KERN_ERR "[Touchkey] failed to allocate input device\n");
 		kfree(tkey_i2c);
 		return -ENOMEM;
 	}
@@ -1710,7 +1743,7 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 
 	ret = input_register_device(input_dev);
 	if (ret) {
-		printk(KERN_ERR"[Touchkey] failed to register input device\n");
+		printk(KERN_ERR "[Touchkey] failed to register input device\n");
 		input_free_device(input_dev);
 		kfree(tkey_i2c);
 		return err;
@@ -1770,8 +1803,7 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 				IRQF_DISABLED | IRQF_TRIGGER_FALLING |
 				IRQF_ONESHOT, tkey_i2c->name, tkey_i2c);
 	if (ret < 0) {
-		printk(KERN_ERR
-			"[Touchkey]: failed to request irq(%d) - %d\n",
+		printk(KERN_ERR "[Touchkey]: failed to request irq(%d) - %d\n",
 			tkey_i2c->irq, ret);
 		input_unregister_device(input_dev);
 		touchkey_probe = false;
@@ -1783,8 +1815,7 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 #if defined(TK_HAS_FIRMWARE_UPDATE)
 	ret = touchkey_firmware_update(tkey_i2c);
 	if (ret < 0) {
-		printk(KERN_ERR
-			"[Touchkey]: failed firmware updating process (%d)\n",
+		printk(KERN_ERR "[Touchkey]: failed firmware updating process (%d)\n",
 			ret);
 		input_unregister_device(input_dev);
 		touchkey_probe = false;
@@ -1804,6 +1835,17 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 	touchkey_autocalibration(tkey_i2c);
 #endif
 	set_touchkey_debug('K');
+
+    // init workqueue
+    tkey_i2c->wq = create_singlethread_workqueue("tkey_i2c_wq");
+    if (!tkey_i2c->wq) {
+        ret = -ENOMEM;
+        pr_err("%s: could not create workqueue\n", __func__);
+    }
+
+    /* this is the thread function we run on the work queue */
+	INIT_WORK(&tkey_i2c->work, touch_led_timedout_work);
+
 	return 0;
 }
 
@@ -1840,13 +1882,17 @@ static int __init touchkey_init(void)
 	ret = i2c_add_driver(&touchkey_i2c_driver);
 
 	if (ret) {
-		printk(KERN_ERR
-	       "[TouchKey] registration failed, module not inserted.ret= %d\n",
+		printk(KERN_ERR "[TouchKey] registration failed, module not inserted.ret= %d\n",
 	       ret);
 	}
 #ifdef TEST_JIG_MODE
 	i2c_touchkey_write(tkey_i2c->client, &get_touch, 1);
 #endif
+
+    // init the touchled timer
+    init_timer(&touch_led_timer);
+    touch_led_timer.function = touch_led_timedout;
+
 	return ret;
 }
 
