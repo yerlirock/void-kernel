@@ -32,6 +32,7 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/cpumask.h>
+#include <linux/sched.h>
 #include <linux/io.h>
 #include <linux/delay.h>
 
