@@ -916,30 +916,6 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 
 	if (pressed) {
 		set_touchkey_debug('P');
-
-        // enable lights on keydown
-        if (touch_led_disabled == 0) {
-            if (touchkey_led_status == TK_CMD_LED_OFF) {
-                pr_debug("[TouchKey] %s: keydown - LED ON\n", __func__);
-                i2c_touchkey_write(tkey_i2c->client, (u8 *) &ledCmd[0], 1);
-                touchkey_led_status = TK_CMD_LED_ON;
-            }
-            if (timer_pending(&touch_led_timer) == 1) {
-                mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
-            }
-        }
-        
-    } else {
-        // touch led timeout on keyup
-        if (touch_led_disabled == 0) {
-            if (timer_pending(&touch_led_timer) == 0) {
-                pr_debug("[TouchKey] %s: keyup - add_timer\n", __func__);
-                touch_led_timer.expires = jiffies + (HZ * touch_led_timeout);
-                add_timer(&touch_led_timer);
-            } else {
-                mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
-            }
-        }
     }
 
 	if (get_tsp_status() && pressed)
@@ -1192,6 +1168,17 @@ static ssize_t touch_update_read(struct device *dev,
 		count = sprintf(buf, "Fail\n");
 
 	return count;
+}
+
+static ssize_t touchkey_led_control_show(struct device *dev,
+        struct device_attribute *attr, char *buf)
+{
+    int ret;
+
+    ret = sprintf(buf, "%d\n", touchkey_led_status);
+    pr_info("[Touchkey] %s: touchkey_led_status=%d\n", __func__, touchkey_led_status);
+
+    return ret;
 }
 
 static ssize_t touchkey_led_control(struct device *dev,
@@ -2040,6 +2027,7 @@ static int __init touchkey_init(void)
 
 static void __exit touchkey_exit(void)
 {
+	printk(KERN_DEBUG "[TouchKey] %s\n", __func__);
 	i2c_del_driver(&touchkey_i2c_driver);
 }
 
