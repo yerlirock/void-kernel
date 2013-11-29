@@ -872,15 +872,6 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 		printk(KERN_DEBUG "[TouchKey] pressed:%d\n",
 			pressed);
 #endif
-
-		#if defined(CONFIG_TARGET_LOCALE_KOR)
-		if (g_debug_tkey == true) {
-			printk(KERN_DEBUG "[TouchKey] keycode[%d]=%d pressed:%d\n",
-			keycode_type, touchkey_keycode[keycode_type], pressed);
-		} else {
-			printk(KERN_DEBUG "[TouchKey] pressed:%d\n", pressed);
-		}
-		#endif
 	}
 	set_touchkey_debug('A');
 	return IRQ_HANDLED;
