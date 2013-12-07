@@ -1,5 +1,6 @@
 /*
  * Author: andip71, 21.04.2013
+ *         arter97 (clear on earlysuspend), 08.12.2013
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,10 +13,21 @@
  *
  */
 
+#include <linux/earlysuspend.h>
+#include <linux/ioctl.h>
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
+#include <linux/syscalls.h>
 #include "logger_interface.h"
 
+/*
+ * logger_mode
+ *
+ * 0 : disable writing to Android logcat
+ * 1 :  enable writing to Android logcat
+ * 2 :  enable writing to Android logcat and clear(flush) on earlysuspend
+ *
+ */
 int logger_mode;
 
 /* sysfs interface for logger mode */
@@ -23,13 +35,18 @@ int logger_mode;
 static ssize_t logger_mode_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	// print current mode
-	if (logger_mode == 0)
-	{
-		return sprintf(buf, "logger mode: %d (disabled)", logger_mode);
-	}
-	else
-	{
-		return sprintf(buf, "logger mode: %d (enabled)", logger_mode);
+	switch (logger_mode) {
+		case 0:
+			return sprintf(buf, "logger mode: %d (disabled)\n", logger_mode);
+			break;
+		case 1:
+			return sprintf(buf, "logger mode: %d (enabled)\n", logger_mode);
+			break;
+		case 2:
+			return sprintf(buf, "logger mode: %d (enabled and clear on earlysuspend)\n", logger_mode);
+			break;
+		default:
+			return sprintf(buf, "unable to read logger mode\n");
 	}
 }
 
@@ -42,13 +59,28 @@ static ssize_t logger_mode_store(struct kobject *kobj, struct kobj_attribute *at
 	ret = sscanf(buf, "%d", &val);
 
 	// check value and store if valid
-	if ((val == 0) || (val == 1))
+	if ((val == 0) || (val == 1) || (val == 2))
 	{
 		logger_mode = val;
 	}
 
 	return count;
 }
+
+static void logger_early_suspend(struct early_suspend *handler)
+{
+	if (logger_mode == 2) {
+		pr_info("%s: flushing Android logcat\n", __func__);
+		sys_ioctl(sys_open("/dev/log/events",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
+		sys_ioctl(sys_open("/dev/log/main",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
+		sys_ioctl(sys_open("/dev/log/radio",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
+		sys_ioctl(sys_open("/dev/log/system",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
+	}
+}
+
+static struct early_suspend logger_suspend = {
+	.suspend = logger_early_suspend,
+};
 
 /* Initialize logger_mode sysfs folder */
 
@@ -85,6 +117,9 @@ int logger_mode_init(void)
 
 	// initialize logger mode to 1 (enabled) as default
 	logger_mode = 1;
+
+	// register early_suspend for logger_mode = 2
+	register_early_suspend(&logger_suspend);
 
 	return (logger_mode_retval);
 }
