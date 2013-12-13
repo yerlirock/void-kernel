@@ -1539,7 +1539,11 @@ void s3c_fb_set_busfreq(struct s3cfb_global *fbdev, unsigned int num_of_win)
 	dev_dbg(fbdev->dev, "%s : nWin=%d, busfreq = %d\n", __func__,
 			num_of_win, fb_busfreq_table[num_of_win]);
 
+#if defined(CONFIG_CPU_EXYNOS4212) || defined(CONFIG_CPU_EXYNOS4412)
+#ifdef CONFIG_BUSFREQ_OPP
 	dev_lock(fbdev->bus_dev, fbdev->dev, fb_busfreq_table[num_of_win]);
+#endif
+#endif
 }
 static void s3c_fd_fence_wait(struct s3cfb_global *fbdev, struct sync_fence *fence)
 {
