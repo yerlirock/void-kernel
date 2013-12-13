@@ -37,25 +37,7 @@ bool early_suspend_logger_mode = false;
 static ssize_t logger_mode_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	// print current mode
-	switch (logger_mode) {
-		case 0:
-			if (early_suspend_logger_mode)
-				return sprintf(buf, "logger mode: 3 (enabled but disable & clear on earlysuspend)\n");
-			else
-				return sprintf(buf, "logger mode: %d (disabled)\n", logger_mode);
-			break;
-		case 1:
-			return sprintf(buf, "logger mode: %d (enabled)\n", logger_mode);
-			break;
-		case 2:
-			return sprintf(buf, "logger mode: %d (enabled and clear on earlysuspend)\n", logger_mode);
-			break;
-		case 3:
-			return sprintf(buf, "logger mode: %d (enabled but disable & clear on earlysuspend)\n", logger_mode);
-			break;
-		default:
-			return sprintf(buf, "unable to read logger mode\n");
-	}
+	return sprintf(buf, "%d\n", logger_mode);
 }
 
 static ssize_t logger_mode_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
