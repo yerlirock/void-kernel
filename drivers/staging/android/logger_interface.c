@@ -1,6 +1,6 @@
 /*
  * Author: andip71, 21.04.2013
- *         arter97 (clear on earlysuspend), 08.12.2013
+ *         arter97 (earlysuspend), 08.12.2013
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -26,9 +26,11 @@
  * 0 : disable writing to Android logcat
  * 1 :  enable writing to Android logcat
  * 2 :  enable writing to Android logcat and clear(flush) on earlysuspend
+ * 3 :  enable writing to Android logcat but disable & clear(flush) on earlysuspend and re-enable on resume
  *
  */
 int logger_mode;
+bool early_suspend_logger_mode = false;
 
 /* sysfs interface for logger mode */
 
@@ -37,13 +39,19 @@ static ssize_t logger_mode_show(struct kobject *kobj, struct kobj_attribute *att
 	// print current mode
 	switch (logger_mode) {
 		case 0:
-			return sprintf(buf, "logger mode: %d (disabled)\n", logger_mode);
+			if (early_suspend_logger_mode)
+				return sprintf(buf, "logger mode: 3 (enabled but disable & clear on earlysuspend)\n");
+			else
+				return sprintf(buf, "logger mode: %d (disabled)\n", logger_mode);
 			break;
 		case 1:
 			return sprintf(buf, "logger mode: %d (enabled)\n", logger_mode);
 			break;
 		case 2:
 			return sprintf(buf, "logger mode: %d (enabled and clear on earlysuspend)\n", logger_mode);
+			break;
+		case 3:
+			return sprintf(buf, "logger mode: %d (enabled but disable & clear on earlysuspend)\n", logger_mode);
 			break;
 		default:
 			return sprintf(buf, "unable to read logger mode\n");
@@ -59,7 +67,7 @@ static ssize_t logger_mode_store(struct kobject *kobj, struct kobj_attribute *at
 	ret = sscanf(buf, "%d", &val);
 
 	// check value and store if valid
-	if ((val == 0) || (val == 1) || (val == 2))
+	if ((val == 0) || (val == 1) || (val == 2) || (val == 3))
 	{
 		logger_mode = val;
 	}
@@ -69,17 +77,32 @@ static ssize_t logger_mode_store(struct kobject *kobj, struct kobj_attribute *at
 
 static void logger_early_suspend(struct early_suspend *handler)
 {
-	if (logger_mode == 2) {
+	if ((logger_mode == 2) || (logger_mode == 3)) {
 		pr_info("%s: flushing Android logcat\n", __func__);
 		sys_ioctl(sys_open("/dev/log/events",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
 		sys_ioctl(sys_open("/dev/log/main",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
 		sys_ioctl(sys_open("/dev/log/radio",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
 		sys_ioctl(sys_open("/dev/log/system",	O_RDWR | O_NDELAY, 0), _IO(0xAE, 4), 0);
 	}
+	if (logger_mode == 3) {
+		pr_info("%s: disabling Android logcat\n", __func__);
+		early_suspend_logger_mode = true;
+		logger_mode = 0;
+	}
+}
+
+static void logger_late_resume(struct early_suspend *handler)
+{
+	if ((logger_mode == 0) && early_suspend_logger_mode) {
+		pr_info("%s: re-enabling Android logcat\n", __func__);
+		early_suspend_logger_mode = false;
+		logger_mode = 3;
+	}
 }
 
 static struct early_suspend logger_suspend = {
 	.suspend = logger_early_suspend,
+	.resume = logger_late_resume,
 };
 
 /* Initialize logger_mode sysfs folder */
