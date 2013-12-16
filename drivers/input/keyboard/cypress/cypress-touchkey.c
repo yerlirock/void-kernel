@@ -1336,8 +1336,6 @@ else
 
 	touchkey_led_status = data;
 
-	printk("[Touchkey] %s: new status = %d\n", __func__, touchkey_led_status);
-
 	return size;
 }
 
