@@ -357,7 +357,7 @@ static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
  * ASV group voltage table
  */
 
-#define NO_ABB_LIMIT	L8
+#define NO_ABB_LIMIT	L13
 
 static const unsigned int asv_voltage_4212[CPUFREQ_LEVEL_END][13] = {
 	/*   ASV0,    ASV1,    ASV2,    ASV3,	 ASV4,	  ASV5,	   ASV6,    ASV7,    ASV8,    ASV9,   ASV10,   ASV11    ASV12 */
@@ -657,42 +657,11 @@ static void exynos4x12_set_frequency(unsigned int old_index,
 }
 
 /* Get maximum cpufreq index of chip */
-static unsigned int get_max_cpufreq_idx(void)
-{
-	int index = -EINVAL;
-
-#if defined(CONFIG_EXYNOS4X12_800MHZ_SUPPORT)
-	index = L8;
-#elif defined(CONFIG_EXYNOS4X12_400MHZ_SUPPORT)
-	index = L12;
-#else
-	if (soc_is_exynos4212()) {
-		index = L1;
-	} else if (soc_is_exynos4412()) {
-		/* exynos4x12 prime supports 1.6GHz */
-		if (samsung_rev() >= EXYNOS4412_REV_2_0)
-			index = L0;
-		else {
-		/* exynos4x12 supports only 1.4GHz and 1.1GHz */
-			if (exynos_armclk_max != 1400000)
-				index = L6;
-			else
-				index = L0;
-		}
-	}
-#endif
-
-	return index;
-}
-
 static void __init set_volt_table(void)
 {
 	unsigned int i, tmp;
 
-	max_support_idx = get_max_cpufreq_idx();
-
-	for (i = 0; i < max_support_idx; i++)
-		exynos4x12_freq_table[i].frequency = CPUFREQ_ENTRY_INVALID;
+	max_support_idx = L0;
 
 	pr_info("DVFS : VDD_ARM Voltage table set with %d Group\n", exynos_result_of_asv);
 
