@@ -10,6 +10,7 @@
 
 #include <linux/module.h>
 
+#include <linux/earlysuspend.h>
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/interrupt.h>
@@ -75,8 +76,13 @@ struct gpio_keys_drvdata {
 static void sync_system(struct work_struct *work);
 static DECLARE_WORK(sync_system_work, sync_system);
 
+static bool suspended = false;
+
 static void sync_system(struct work_struct *work)
 {
+	if (suspended)
+		msleep(5000);
+
 	pr_info("%s +\n", __func__);
 	sys_sync();
 	pr_info("%s -\n", __func__);
@@ -765,12 +771,33 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 			printk(KERN_DEBUG"[keys]PWR %d\n", !!state);
 			if (!!state == 1) {
 				/* sys_sync(); */
-				pr_info("%s: KEY_POWER pressed, calling sys_sync()\n", __func__);
+				if (suspended) {
+					pr_info("%s: KEY_POWER pressed, calling sys_sync() in 5 sec...\n", __func__);
+				} else {
+					pr_info("%s: KEY_POWER pressed, calling sys_sync()\n", __func__);
+				}
 				queue_work(sync_work_queue, &sync_system_work);
 			}
 		}
 	}
 }
+
+static void gpio_keys_early_suspend(struct early_suspend *handler)
+{
+	suspended = true;
+	return;
+}
+
+static void gpio_keys_late_resume(struct early_suspend *handler)
+{
+	suspended = false;
+	return;
+}
+
+static struct early_suspend gpio_suspend = {
+	.suspend = gpio_keys_early_suspend,
+	.resume = gpio_keys_late_resume,
+};
 
 static void gpio_keys_work_func(struct work_struct *work)
 {
@@ -1266,6 +1293,7 @@ static struct platform_driver gpio_keys_device_driver = {
 
 static int __init gpio_keys_init(void)
 {
+	register_early_suspend(&gpio_suspend);
 	return platform_driver_register(&gpio_keys_device_driver);
 }
 
