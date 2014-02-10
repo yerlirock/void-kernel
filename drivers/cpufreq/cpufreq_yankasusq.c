@@ -185,7 +185,6 @@ static unsigned int get_nr_run_avg(void)
 #define DEF_START_DELAY				(0)
 
 #define UP_THRESHOLD_AT_MIN_FREQ		(40)
-#define FREQ_FOR_RESPONSIVENESS			(200000)
 
 #define HOTPLUG_DOWN_INDEX			(0)
 #define HOTPLUG_UP_INDEX			(1)
@@ -1392,11 +1391,6 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	if (hotplug_yank_history->num_hist  == max_hotplug_rate)
 		hotplug_yank_history->num_hist = 0;
 
-	/* Check for frequency increase */
-	if (policy->cur < FREQ_FOR_RESPONSIVENESS) {
-		up_threshold = UP_THRESHOLD_AT_MIN_FREQ;
-	}
-
 	if (max_load_freq > up_threshold * policy->cur) {
 		int inc = (policy->max * dbs_tuners_ins.freq_step) / 100;
 		/* Yank555.lu : Keep CPU freq. to the current CPU freq. max */
@@ -1441,10 +1435,6 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 		down_thres = UP_THRESHOLD_AT_MIN_FREQ
 			- dbs_tuners_ins.down_differential;
-
-		if (freq_next < FREQ_FOR_RESPONSIVENESS
-			&& (max_load_freq / freq_next) > down_thres)
-			freq_next = FREQ_FOR_RESPONSIVENESS;
 
 		if (policy->cur == freq_next)
 			return;
