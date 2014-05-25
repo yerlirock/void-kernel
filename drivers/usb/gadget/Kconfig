@@ -1052,6 +1052,13 @@ config USB_ANDROID_SAMSUNG_SIDESYNC
 	  If you enable this option,
 	  SIDESYNC feature will be enabled.
 
+config USB_ANDROID_FOR_RECOVERY
+	boolean "Android USB gadget for recovery environment"
+	depends on USB_G_ANDROID
+	help
+	  Forcefully sets Android USB gadget to AOSP
+	  and ignores rom_feature_set.
+
 config USB_DUN_SUPPORT
 	boolean "DUN support function"
 	depends on USB_G_ANDROID

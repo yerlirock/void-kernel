@@ -51,7 +51,11 @@ g_dbgp-y			:= dbgp.o
 g_nokia-y			:= nokia.o
 g_webcam-y			:= webcam.o
 g_ncm-y				:= ncm.o
-g_android-y			:= android.o
+ifeq ($(CONFIG_USB_ANDROID_FOR_RECOVERY),y)
+	g_android-y := android_recovery.o
+else
+	g_android-y := android.o
+endif
 g_slp-y				:= slp.o
 
 obj-$(CONFIG_USB_ZERO)		+= g_zero.o

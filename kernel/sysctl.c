@@ -230,7 +230,9 @@ extern struct ctl_table epoll_table[];
 int sysctl_legacy_va_layout;
 #endif
 
+#ifndef CONFIG_USB_ANDROID_FOR_RECOVERY
 extern int late_init_android_gadget(int romtype);
+#endif
 extern int mfc_late_init(void);
 int
 rom_feature_set_sysctl(struct ctl_table *table, int write,
@@ -252,8 +254,10 @@ rom_feature_set_sysctl(struct ctl_table *table, int write,
 			return 0;
 		}
 		rom_feature_set_save = rom_feature_set;
+#ifndef CONFIG_USB_ANDROID_FOR_RECOVERY
 		printk("Initializing USB with rom_feature_set: %d\n", rom_feature_set);
 		late_init_android_gadget(rom_feature_set);
+#endif
 		mfc_late_init();
 	}
 	return 0;
