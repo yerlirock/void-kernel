@@ -1,9 +1,9 @@
 /*
- * Author: andip71, 14.01.2014
- * 
+ * Author: andip71, 10.02.2014
+ *
  * Modifications: Yank555.lu 20.08.2013
  *
- * Version 1.6.5
+ * Version 1.6.6
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    	sound implementation,
@@ -24,10 +24,10 @@
 
 /*
  * Change log:
- * 
+ *
  * 1.6.5 (14.01.2014)
  *   - Allow speaker level minimum of 20
- * 
+ *
  */
 
 #include <sound/soc.h>
@@ -492,7 +492,7 @@ bool check_for_dapm(enum snd_soc_dapm_type dapm_type, char* widget_name)
 	struct snd_soc_dapm_widget *w;
 
 	/* Iterate widget list and find power mode of given widget per its name */
-	list_for_each_entry(w, &codec->card->widgets, list) 
+	list_for_each_entry(w, &codec->card->widgets, list)
 	{
 		if (w->dapm != &codec->dapm)
 			continue;
@@ -1176,11 +1176,11 @@ static void set_mono_downmix(void)
 	unsigned int val;
 
 // P4Note has stereo speakers, so also allow mono without headphones attached
-#ifndef CONFIG_MACH_P4NOTE 
+#ifndef CONFIG_MACH_P4NOTE
 	if (!is_call && is_headphone && (mono_downmix == ON))
 #else
 	if (!is_call  && (mono_downmix == ON))
-#endif  
+#endif
 	{
 		if (!is_mono_downmix)
 		{
