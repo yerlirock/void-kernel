@@ -476,11 +476,7 @@ static ssize_t show_mdnie_property(struct device *dev,
 {
 	struct mdnie_effect *effect = (struct mdnie_effect*)(attr);
 
-
-	if(is_switch(effect->reg))
-		return sprintf(buf, "%d", effect->value);
-
-	return sprintf(buf, "%s %d", effect->delta ? "delta" : "override", effect->value);
+	return sprintf(buf, "%d\n", effect->value);
 };
 
 static ssize_t store_mdnie_property(struct device *dev,
@@ -538,7 +534,7 @@ refresh:
 static ssize_t show_##_name(struct device *dev,					\
 				    struct device_attribute *attr, char *buf)	\
 {										\
-	return sprintf(buf, "%d", _var);					\
+	return sprintf(buf, "%d\n", _var);					\
 };										\
 static ssize_t store_##_name(struct device *dev,				\
 				     struct device_attribute *attr,		\
