@@ -1278,6 +1278,7 @@ static int check_down(void)
 }
 
 static bool arter97_prev_lock = false;
+extern unsigned long avg_nr_running(void);
 
 static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 {
