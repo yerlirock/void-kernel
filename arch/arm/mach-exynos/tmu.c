@@ -26,7 +26,6 @@
 #include <linux/gpio.h>
 #include <linux/slab.h>
 #include <linux/kobject.h>
-#include <linux/cpufreq.h>
 
 #include <asm/irq.h>
 
@@ -548,7 +547,6 @@ static void exynos4_handler_tmu_state(struct work_struct *work)
 	static int auto_refresh_changed;
 	static int check_handle;
 	int trend = 0;
-	int cpu = 0;
 
 	mutex_lock(&tmu_lock);
 
@@ -603,15 +601,6 @@ static void exynos4_handler_tmu_state(struct work_struct *work)
 			pr_debug("check_handle = %d\n", check_handle);
 			notify_change_of_tmu_state(info);
 			pr_info("normal: free cpufreq_limit & interrupt enable.\n");
-
-			for_each_online_cpu(cpu) {
-				struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
-				if (policy) {
-					cpufreq_driver_target(policy, policy->cur,
-						CPUFREQ_RELATION_H);
-					cpufreq_cpu_put(policy);
-				}
-			}
 
 			/* clear to prevent from interfupt by peindig bit */
 			__raw_writel(INTCLEARALL,
