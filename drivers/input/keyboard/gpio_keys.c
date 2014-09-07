@@ -764,7 +764,7 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 		}
 
 		//mdnie negative effect toggle by gm
-		if(button->code == HOME_KEY_VAL) {
+		if(!suspended && (button->code == HOME_KEY_VAL)) {
 			if(state) {
 				if(get_time_inms() - homekey_lasttime < 300) {
 					homekey_count++;
