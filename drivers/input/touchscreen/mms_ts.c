@@ -442,6 +442,7 @@ static void set_dvfs_off(struct work_struct *work)
 
 static bool first_touch = false;
 static unsigned int freq = TOUCH_BOOSTER_FREQ_SECOND;
+extern bool exynos_cpufreq_lock_disable;
 static void set_dvfs_off_first(struct work_struct *work)
 {
 	struct mms_ts_info *info = container_of(work,
@@ -798,17 +799,19 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 #endif
 
 #if TOUCH_BOOSTER
-	if (!first_touch && (touch_is_pressed == 1)) {
-		freq = TOUCH_BOOSTER_FREQ_FIRST;
-		exynos_cpufreq_lock_free(DVFS_LOCK_ID_TSP);
-		exynos_cpufreq_get_level(freq, &info->cpufreq_level);
-		exynos_cpufreq_lock(DVFS_LOCK_ID_TSP, info->cpufreq_level);
-		first_touch = true;
-		schedule_delayed_work(&info->work_dvfs_off_first, msecs_to_jiffies(TOUCH_BOOSTER_OFF_TIME_FIRST));
-	} else if (touch_is_pressed == 0) {
-		first_touch = false;
+	if (!exynos_cpufreq_lock_disable) {
+		if (!first_touch && (touch_is_pressed == 1)) {
+			freq = TOUCH_BOOSTER_FREQ_FIRST;
+			exynos_cpufreq_lock_free(DVFS_LOCK_ID_TSP);
+			exynos_cpufreq_get_level(freq, &info->cpufreq_level);
+			exynos_cpufreq_lock(DVFS_LOCK_ID_TSP, info->cpufreq_level);
+			first_touch = true;
+			schedule_delayed_work(&info->work_dvfs_off_first, msecs_to_jiffies(TOUCH_BOOSTER_OFF_TIME_FIRST));
+		} else if (touch_is_pressed == 0) {
+			first_touch = false;
+		}
+		set_dvfs_lock(info, !!touch_is_pressed);
 	}
-	set_dvfs_lock(info, !!touch_is_pressed);
 #endif
 out:
 	return IRQ_HANDLED;
