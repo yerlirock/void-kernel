@@ -45,7 +45,7 @@ static struct regulator *arm_regulator;
 static struct cpufreq_freqs freqs;
 
 static bool exynos_cpufreq_disable;
-static bool exynos_cpufreq_lock_disable;
+bool exynos_cpufreq_lock_disable;
 static bool exynos_cpufreq_init_done;
 static DEFINE_MUTEX(set_freq_lock);
 static DEFINE_MUTEX(set_cpu_freq_lock);
