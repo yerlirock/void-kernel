@@ -763,7 +763,7 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 
 		if ((button->code == KEY_POWER) || (button->code == HOME_KEY_VAL)) {
 			printk(KERN_DEBUG"[keys]PWR %d\n", !!state);
-			if (!!state == 1) {
+			if (state) {
 				/* sys_sync(); */
 				if (suspended) {
 					if (button->code == KEY_POWER)
