@@ -1047,8 +1047,8 @@ enum nl80211_commands {
  *	driving the peer link management state machine.
  *	@NL80211_MESH_SETUP_USERSPACE_AMPE must be enabled.
  *
- * @NL80211_ATTR_WOWLAN_SUPPORTED: indicates, as part of the wiphy capabilities,
- *	the supported WoWLAN triggers
+ * @NL80211_ATTR_WOWLAN_TRIGGERS_SUPPORTED: indicates, as part of the wiphy
+ *	capabilities, the supported WoWLAN triggers
  * @NL80211_ATTR_WOWLAN_TRIGGERS: used by %NL80211_CMD_SET_WOWLAN to
  *	indicate which WoW triggers should be enabled. This is also
  *	used by %NL80211_CMD_GET_WOWLAN to get the currently enabled WoWLAN
@@ -2508,6 +2508,16 @@ struct nl80211_wowlan_pattern_support {
  *
  *	In %NL80211_ATTR_WOWLAN_TRIGGERS_SUPPORTED, it is a binary attribute
  *	carrying a &struct nl80211_wowlan_pattern_support.
+ * @NL80211_WOWLAN_TRIG_GTK_REKEY_SUPPORTED: Not a real trigger, and cannot be
+ *	used when setting, used only to indicate that GTK rekeying is supported
+ *	by the device (flag)
+ * @NL80211_WOWLAN_TRIG_GTK_REKEY_FAILURE: wake up on GTK rekey failure (if
+ *	done by the device) (flag)
+ * @NL80211_WOWLAN_TRIG_EAP_IDENT_REQUEST: wake up on EAP Identity Request
+ *	packet (flag)
+ * @NL80211_WOWLAN_TRIG_4WAY_HANDSHAKE: wake up on 4-way handshake (flag)
+ * @NL80211_WOWLAN_TRIG_RFKILL_RELEASE: wake up when rfkill is released
+ *	(on devices that have rfkill in the device) (flag)
  * @NUM_NL80211_WOWLAN_TRIG: number of wake on wireless triggers
  * @MAX_NL80211_WOWLAN_TRIG: highest wowlan trigger attribute number
  */
@@ -2517,6 +2527,11 @@ enum nl80211_wowlan_triggers {
 	NL80211_WOWLAN_TRIG_DISCONNECT,
 	NL80211_WOWLAN_TRIG_MAGIC_PKT,
 	NL80211_WOWLAN_TRIG_PKT_PATTERN,
+	NL80211_WOWLAN_TRIG_GTK_REKEY_SUPPORTED,
+	NL80211_WOWLAN_TRIG_GTK_REKEY_FAILURE,
+	NL80211_WOWLAN_TRIG_EAP_IDENT_REQUEST,
+	NL80211_WOWLAN_TRIG_4WAY_HANDSHAKE,
+	NL80211_WOWLAN_TRIG_RFKILL_RELEASE,
 
 	/* keep last */
 	NUM_NL80211_WOWLAN_TRIG,
@@ -2629,5 +2644,111 @@ enum nl80211_plink_state {
 	NUM_NL80211_PLINK_STATES,
 	MAX_NL80211_PLINK_STATES = NUM_NL80211_PLINK_STATES - 1
 };
+
+#define NL80211_KCK_LEN			16
+#define NL80211_KEK_LEN			16
+#define NL80211_REPLAY_CTR_LEN		8
+
+/**
+ * enum nl80211_rekey_data - attributes for GTK rekey offload
+ * @__NL80211_REKEY_DATA_INVALID: invalid number for nested attributes
+ * @NL80211_REKEY_DATA_KEK: key encryption key (binary)
+ * @NL80211_REKEY_DATA_KCK: key confirmation key (binary)
+ * @NL80211_REKEY_DATA_REPLAY_CTR: replay counter (binary)
+ * @NUM_NL80211_REKEY_DATA: number of rekey attributes (internal)
+ * @MAX_NL80211_REKEY_DATA: highest rekey attribute (internal)
+ */
+enum nl80211_rekey_data {
+	__NL80211_REKEY_DATA_INVALID,
+	NL80211_REKEY_DATA_KEK,
+	NL80211_REKEY_DATA_KCK,
+	NL80211_REKEY_DATA_REPLAY_CTR,
+
+	/* keep last */
+	NUM_NL80211_REKEY_DATA,
+	MAX_NL80211_REKEY_DATA = NUM_NL80211_REKEY_DATA - 1
+};
+
+/**
+ * enum nl80211_hidden_ssid - values for %NL80211_ATTR_HIDDEN_SSID
+ * @NL80211_HIDDEN_SSID_NOT_IN_USE: do not hide SSID (i.e., broadcast it in
+ *	Beacon frames)
+ * @NL80211_HIDDEN_SSID_ZERO_LEN: hide SSID by using zero-length SSID element
+ *	in Beacon frames
+ * @NL80211_HIDDEN_SSID_ZERO_CONTENTS: hide SSID by using correct length of SSID
+ *	element in Beacon frames but zero out each byte in the SSID
+ */
+enum nl80211_hidden_ssid {
+	NL80211_HIDDEN_SSID_NOT_IN_USE,
+	NL80211_HIDDEN_SSID_ZERO_LEN,
+	NL80211_HIDDEN_SSID_ZERO_CONTENTS
+};
+
+/**
+ * enum nl80211_sta_wme_attr - station WME attributes
+ * @__NL80211_STA_WME_INVALID: invalid number for nested attribute
+ * @NL80211_STA_WME_UAPSD_QUEUES: bitmap of uapsd queues. the format
+ *	is the same as the AC bitmap in the QoS info field.
+ * @NL80211_STA_WME_MAX_SP: max service period. the format is the same
+ *	as the MAX_SP field in the QoS info field (but already shifted down).
+ * @__NL80211_STA_WME_AFTER_LAST: internal
+ * @NL80211_STA_WME_MAX: highest station WME attribute
+ */
+enum nl80211_sta_wme_attr {
+	__NL80211_STA_WME_INVALID,
+	NL80211_STA_WME_UAPSD_QUEUES,
+	NL80211_STA_WME_MAX_SP,
+
+	/* keep last */
+	__NL80211_STA_WME_AFTER_LAST,
+	NL80211_STA_WME_MAX = __NL80211_STA_WME_AFTER_LAST - 1
+};
+
+/**
+ * enum nl80211_pmksa_candidate_attr - attributes for PMKSA caching candidates
+ * @__NL80211_PMKSA_CANDIDATE_INVALID: invalid number for nested attributes
+ * @NL80211_PMKSA_CANDIDATE_INDEX: candidate index (u32; the smaller, the higher
+ *	priority)
+ * @NL80211_PMKSA_CANDIDATE_BSSID: candidate BSSID (6 octets)
+ * @NL80211_PMKSA_CANDIDATE_PREAUTH: RSN pre-authentication supported (flag)
+ * @NUM_NL80211_PMKSA_CANDIDATE: number of PMKSA caching candidate attributes
+ *	(internal)
+ * @MAX_NL80211_PMKSA_CANDIDATE: highest PMKSA caching candidate attribute
+ *	(internal)
+ */
+enum nl80211_pmksa_candidate_attr {
+	__NL80211_PMKSA_CANDIDATE_INVALID,
+	NL80211_PMKSA_CANDIDATE_INDEX,
+	NL80211_PMKSA_CANDIDATE_BSSID,
+	NL80211_PMKSA_CANDIDATE_PREAUTH,
+
+	/* keep last */
+	NUM_NL80211_PMKSA_CANDIDATE,
+	MAX_NL80211_PMKSA_CANDIDATE = NUM_NL80211_PMKSA_CANDIDATE - 1
+};
+
+/**
+ * enum nl80211_tdls_operation - values for %NL80211_ATTR_TDLS_OPERATION
+ * @NL80211_TDLS_DISCOVERY_REQ: Send a TDLS discovery request
+ * @NL80211_TDLS_SETUP: Setup TDLS link
+ * @NL80211_TDLS_TEARDOWN: Teardown a TDLS link which is already established
+ * @NL80211_TDLS_ENABLE_LINK: Enable TDLS link
+ * @NL80211_TDLS_DISABLE_LINK: Disable TDLS link
+ */
+enum nl80211_tdls_operation {
+	NL80211_TDLS_DISCOVERY_REQ,
+	NL80211_TDLS_SETUP,
+	NL80211_TDLS_TEARDOWN,
+	NL80211_TDLS_ENABLE_LINK,
+	NL80211_TDLS_DISABLE_LINK,
+};
+
+/*
+ * enum nl80211_ap_sme_features - device-integrated AP features
+ * Reserved for future use, no bits are defined in
+ * NL80211_ATTR_DEVICE_AP_SME yet.
+enum nl80211_ap_sme_features {
+};
+ */
 
 #endif /* __LINUX_NL80211_H */
