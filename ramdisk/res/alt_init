@@ -1,0 +1,184 @@
+#!/res/busybox sh
+
+export ORIG_PATH="$PATH"
+export PATH=/res/asset:$PATH
+
+cd /
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -o rw,remount rootfs
+
+mkdir /dev/input /dev/block
+
+rm -f init
+mv -f /res/init /
+
+while ! test -d /sys/dev/block/179:9 ; do
+	sleep 0.1
+done
+
+mknod /dev/block/mmcblk0 b 179 0
+mknod /dev/block/mmcblk0p12 b 179 12
+
+mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p12 /data
+mount -t f2fs -o noatime,nodiratime,discard,nobarrier,nosuid,nodev /dev/block/mmcblk0p12 /data
+
+chattr -i /data/app
+chattr -i /data/app-asec
+chattr -i /data/app-lib
+chattr -i /data/app-private
+chattr -i /data/dalvik-cache
+chattr -i /data/data
+chattr -i /data/local
+chattr -i /data/system
+
+VARIANT=$(cat /ro.hardware)
+
+# lpm mode
+if grep -q 1 /sys/class/power_supply/battery/batt_lp_charging ; then
+	mknod /dev/block/mmcblk0p9 b 179 9
+	mount -t ext4 -o ro,noatime,nodiratime,data=ordered,barrier=0,discard /dev/block/mmcblk0p9 /system
+	mount -t f2fs -o ro,noatime,nodiratime,discard /dev/block/mmcblk0p9 /system
+	echo "0" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/cm/sbin/* /sbin/
+	mv -f /ramdisks/cm/* /
+	cp -rp /ramdisks/cm/* /
+	cp -f lpm.rc init.rc
+	rm -f init.$VARIANT.rc
+	chmod 750 /init
+	export PATH="$ORIG_PATH"
+	exec /init
+fi
+
+mknod /dev/block/mmcblk0p8 b 179 8
+
+if [ -f /data/media/0/.arter97/btaltrom ] && [ -f /data/arter97_secondrom/system/build.prop ] ; then
+	umount -f /data
+	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p12 /arter97/data
+	mount -t f2fs -o noatime,nodiratime,discard,nobarrier,nosuid,nodev /dev/block/mmcblk0p12 /arter97/data
+	if [ "$(readlink /arter97/data/arter97_secondrom/system/lib/modules/dhd.ko)" != "/lib/modules/dhd.ko" ] ; then
+		rm -rf /arter97/data/arter97_secondrom/system/lib/modules
+		mkdir /arter97/data/arter97_secondrom/system/lib/modules
+		ln -s /lib/modules/dhd.ko /arter97/data/arter97_secondrom/system/lib/modules/dhd.ko
+	fi
+	chmod 755 /arter97/data/arter97_secondrom/system
+	chmod 771 /arter97/data/arter97_secondrom/data
+	chmod 771 /arter97/data/arter97_secondrom/cache
+	mount --bind /arter97/data/arter97_secondrom/system /system
+	mount --bind /arter97/data/arter97_secondrom/data /data
+	mount --bind /arter97/data/arter97_secondrom/cache /cache
+	mkdir /arter97/data/.arter97
+	mkdir /data/.arter97
+	rm -rf /data/.arter97/*
+	rm -rf /data/.arter97/.*
+	chmod 777 /arter97/data/.arter97
+	chmod 777 /data/.arter97
+	mount --bind /arter97/data/.arter97 /data/.arter97
+	mount --bind -o remount,suid,dev /system
+	if [ -f /arter97/data/media/0/.arter97/shared ]; then
+		rm -rf /arter97/data/arter97_secondrom/data/media/0/.arter97
+		cp -rp /arter97/data/arter97_secondrom/data/media/* /arter97/data/media/
+		rm -rf /data/media/*
+		mount --bind /arter97/data/media /data/media
+	fi
+	CUR_PATH=$PATH
+	export PATH=/sbin:/system/sbin:/system/bin:/system/xbin
+	export LD_LIBRARY_PATH=/vendor/lib:/system/lib
+	run-parts /arter97/data/arter97_secondrom/init.d
+	export PATH=$CUR_PATH
+else
+	rm -rf /arter97
+	mknod /dev/block/mmcblk0p9 b 179 9
+	mount -t ext4 -o ro,noatime,nodiratime,data=ordered,barrier=0,discard /dev/block/mmcblk0p9 /system
+	mount -t f2fs -o ro,noatime,nodiratime,discard /dev/block/mmcblk0p9 /system
+	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p8 /cache
+	mount -t f2fs -o noatime,nodiratime,discard,nobarrier,nosuid,nodev /dev/block/mmcblk0p8 /cache
+	if [ "$(readlink /system/lib/modules/dhd.ko)" != "/lib/modules/dhd.ko" ] ; then
+		mount -o rw,remount /system
+		rm -rf /system/lib/modules
+		mkdir /system/lib/modules
+		ln -s /lib/modules/dhd.ko /system/lib/modules/dhd.ko
+		mount -o ro,remount /system
+	fi
+fi
+
+mknod /dev/block/mmcblk0p3 b 179 3
+mknod /dev/block/mmcblk0p10 b 179 10
+mount -t ext4 -o noatime,nosuid,nodev,journal_async_commit,errors=panic /dev/block/mmcblk0p3 /efs
+mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p3 /efs
+mount -t ext4 -o noatime,nosuid,nodev,journal_async_commit,errors=panic /dev/block/mmcblk0p10 /preload
+mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
+
+rm -rf /dev/*
+
+# 0 = CyanogenMod 10.2
+# 1 = CyanogenMod 11
+# 2 = Samsung Android 4.3 stock-based
+# 3 = Samsung Android 4.4 stock-based
+
+ROMTYPE=0
+
+if [ -f /system/framework/multiwindow.jar ] ; then
+	if [ -f /system/priv-app/SystemUI.apk ] ; then
+		ROMTYPE=3
+	else
+		ROMTYPE=2
+	fi
+else
+	if [ -f /system/priv-app/SystemUI.apk ] ; then
+		ROMTYPE=1
+	fi
+fi
+
+if [[ $(cat /data/.arter97/insecure_adb) == "1" ]]; then
+	sed -i -e 's/ro.adb.secure=1/ro.adb.secure=0/g' -e 's/ro.secure=1/ro.secure=0/g' -e 's/ro.allow.mock.location=0/ro.allow.mock.location=1/g' /default.prop
+fi
+
+if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
+	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/cm/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/samsung/jellybean/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l \/data\/media \/mnt\/shell\/emulated' \
+	       -e '/SDCARDFS_SED2/c\service fuse_sdcard1 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/sdcard1 \/storage\/sdcard1' \
+	       -e '/SDCARDFS_SED3/c\service fuse_usbdisk0 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/usbdisk0 \/storage\/usbdisk0' /ramdisks/kitkat/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l -r \/data\/media \/mnt\/shell\/emulated' \
+	       -e '/SDCARDFS_SED2/c\service fuse_extSdCard \/system\/bin\/sdcard -u 1023 -g 1023 -w 1023 -d -f \/mnt\/media_rw\/extSdCard \/storage\/extSdCard' \
+	       -e '/SDCARDFS_SED3/c\service fuse_UsbDriveA \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveA \/storage\/UsbDriveA' \
+	       -e '/SDCARDFS_SED4/c\service fuse_UsbDriveB \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveB \/storage\/UsbDriveB' \
+	       -e '/SDCARDFS_SED5/c\service fuse_UsbDriveC \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveC \/storage\/UsbDriveC' \
+	       -e '/SDCARDFS_SED6/c\service fuse_UsbDriveD \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveD \/storage\/UsbDriveD' \
+	       -e '/SDCARDFS_SED7/c\service fuse_UsbDriveE \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveE \/storage\/UsbDriveE' \
+	       -e '/SDCARDFS_SED8/c\service fuse_UsbDriveF \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveF \/storage\/UsbDriveF' /ramdisks/samsung/kitkat/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_SED/c\service container \/system\/bin\/sdcard -u 1000 -g 1000 -r \/data\/container \/mnt\/shell\/container' /ramdisks/samsung/kitkat/init.container.rc
+
+	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/cm/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/kitkat/init.$VARIANT.rc
+fi
+
+case "$ROMTYPE" in
+	'0')
+	echo "7" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/cm/sbin/* /sbin/
+	mv -f /ramdisks/cm/* /
+	;;
+	'1')
+	echo "7" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/kitkat/sbin/* /sbin/
+	mv -f /ramdisks/kitkat/* /
+	;;
+	'2')
+	echo "2" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
+	mv -f /ramdisks/samsung/jellybean/* /
+	;;
+	'3')
+	echo "2" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
+	mv -f /ramdisks/samsung/kitkat/* /
+	;;
+esac
+
+chmod 750 /init
+
+export PATH="$ORIG_PATH"
+exec /init

@@ -1,0 +1,9 @@
+#!/res/busybox sh
+
+export PATH=/res/asset:$PATH
+
+if [[ $(getprop persist.sys.language) == "ko" ]]; then
+	source /res/customconfig/customconfig.xml.generate.lang_ko
+else
+	source /res/customconfig/customconfig.xml.generate.lang_en
+fi

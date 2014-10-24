@@ -1,0 +1,135 @@
+ui_print(" ");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo 1 > /sys/devices/system/cpu/cpu1/online");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo 1 > /sys/devices/system/cpu/cpu2/online");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo 1 > /sys/devices/system/cpu/cpu3/online");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo deadline > /sys/block/mmcblk0/queue/scheduler");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo deadline > /sys/block/mmcblk1/queue/scheduler");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo bfq > /sys/block/mmcblk0/queue/scheduler");
+run_program("/sbin/sh", "-c", "/sbin/busybox echo bfq > /sys/block/mmcblk1/queue/scheduler");
+ui_print(" - extracting installation files");
+package_extract_dir("setup","/tmp");
+set_perm_recursive(0, 0, 0755, 0755, "/tmp/arter97");
+
+run_program("/tmp/arter97/script/getprop.sh");
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "err"
+  then
+  ui_print(" ");
+  ui_print(" - error in determining device variant");
+  ui_print(" - try again in another recovery");
+  ui_print(" ");
+endif;
+assert(	file_getprop("/tmp/arter97/hardware.prop", "hardware") == "smdk4x12"	||
+	file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHW-M440S"	||
+	file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210S"	||
+	file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210K"	||
+	file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210L"	);
+
+ui_print(" - mounting system partition");
+run_program("/tmp/arter97/busybox", "mount", "/system");
+ui_print(" - mounting data partition");
+run_program("/tmp/arter97/busybox", "mount", "/data");
+
+ui_print(" - deleting old kernel modules");
+run_program("/tmp/arter97/busybox", "rm", "-r", "/system/lib/modules");
+ui_print(" - installing new kernel modules");
+run_program("/tmp/arter97/busybox", "mkdir", "/system/lib/modules");
+run_program("/tmp/arter97/busybox", "chown", "0.0", "/system/lib/modules");
+run_program("/tmp/arter97/busybox", "chmod", "755", "/system/lib/modules");
+symlink("/lib/modules/dhd.ko", "/system/lib/modules/dhd.ko");
+ui_print(" - installing mali r3p2 drivers");
+ui_print("              hostapd hotspot fix");
+ui_print("              aTweaks");
+ui_print("              aSwitch");
+ui_print("              CyanogenMod addon.d");
+delete("/system/bin/hostapd");
+delete("/system/xbin/hostapd");
+delete("/system/app/aTweaks.apk");
+delete("/data/app/com.arter97.atweaks.app.apk");
+delete("/data/app/com.arter97.atweaks.app-1.apk");
+delete("/data/app/com.arter97.atweaks.app-2.apk");
+delete("/data/app/com.arter97.atweaks.app-3.apk");
+delete("/data/app/com.arter97.atweaks.app-4.apk");
+delete("/data/app/com.arter97.atweaks.app-5.apk");
+delete("/data/app/com.arter97.atweaks.app-6.apk");
+delete("/data/app/com.arter97.atweaks.app-7.apk");
+delete("/data/app/com.arter97.atweaks.app-8.apk");
+delete("/data/app/com.arter97.atweaks.app-9.apk");
+delete("/system/app/aSwitch.apk");
+delete("/data/app/com.arter97.aswitch.apk");
+delete("/data/app/com.arter97.aswitch-1.apk");
+delete("/data/app/com.arter97.aswitch-2.apk");
+delete("/data/app/com.arter97.aswitch-3.apk");
+delete("/data/app/com.arter97.aswitch-4.apk");
+delete("/data/app/com.arter97.aswitch-5.apk");
+delete("/data/app/com.arter97.aswitch-6.apk");
+delete("/data/app/com.arter97.aswitch-7.apk");
+delete("/data/app/com.arter97.aswitch-8.apk");
+delete("/data/app/com.arter97.aswitch-9.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-1.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-2.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-3.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-4.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-5.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-6.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-7.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-8.apk");
+delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-9.apk");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0755, 0644, "/system/lib/egl");
+set_perm(0, 0, 0775, "/system/addon.d/97-kernel.sh");
+set_perm(0, 0, 0644, "/system/lib/libMali.so");
+set_perm(0, 0, 0644, "/system/lib/libUMP.so");
+set_perm(0, 0, 0775, "/system/bin/hostapd");
+set_perm(0, 0, 0644, "/system/app/aTweaks.apk");
+set_perm(0, 0, 0644, "/system/app/aSwitch.apk");
+run_program("/tmp/arter97/busybox", "cp", "-p", "/system/app/aSwitch.apk", "/data/arter97_secondrom/system/app/aSwitch.apk");
+run_program("/tmp/arter97/busybox", "cp", "-p", "/system/app/aTweaks.apk", "/data/arter97_secondrom/system/app/aTweaks.apk");
+ui_print(" - resetting aTweaks");
+ui_print("             aSwitch");
+run_program("/tmp/arter97/busybox", "rm", "-rf", "/data/.arter97");
+run_program("/tmp/arter97/busybox", "rm", "-rf", "/data/arter97_secondrom/data/.arter97");
+package_extract_file("img.tar.xz", "/tmp/img.tar.xz");
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "smdk4x12"
+  then
+  ui_print(" - flashing GT-I9300 boot.img");
+  run_program("/tmp/arter97/script/img.sh", "i9300.img");
+endif;
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHW-M440S"
+  then
+  ui_print(" - flashing SHW-M440S boot.img");
+  run_program("/tmp/arter97/script/img.sh", "m440s.img");
+endif;
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210S"
+  then
+  ui_print(" - flashing SHV-E210S boot.img");
+  run_program("/tmp/arter97/script/img.sh", "e210s.img");
+endif;
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210K"
+  then
+  ui_print(" - flashing SHV-E210K boot.img");
+  run_program("/tmp/arter97/script/img.sh", "e210k.img");
+endif;
+if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210L"
+  then
+  ui_print(" - flashing SHV-E210L boot.img");
+  run_program("/tmp/arter97/script/img.sh", "e210l.img");
+endif;
+ui_print(" - tuning file systems");
+run_program("/tmp/arter97/busybox", "fstrim", "-v", "/system");
+run_program("/tmp/arter97/busybox", "fstrim", "-v", "/data");
+run_program("/tmp/arter97/busybox", "fstrim", "-v", "/cache");
+
+ui_print(" - unmounting partition /data");
+unmount("/data");
+
+ui_print(" - unmounting partition /system");
+unmount("/system");
+
+ui_print(" - removing installation files");
+delete_recursive(/tmp/arter97);
+run_program("/sbin/sync");
+
+ui_print(" ");
+ui_print("finished");

@@ -1,0 +1,24 @@
+#!/res/busybox sh
+
+export PATH=/res/asset:$PATH
+
+if [ ! -f /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold ]; then
+	return 1;
+fi
+
+if [ -f $2 ]; then
+	FILEVAR=$(basename $2)
+
+	if [ -z $3 ]; then
+		evalcmd='eval echo \$$FILEVAR'
+		if [ "a`eval $evalcmd`" == "a" ]; then
+			eval $FILEVAR=`cat $2`
+			echo $FILEVAR=`cat $2` >> $DEFAULT_PROFILE
+		fi
+	else
+		echo $3 > $2
+		eval $FILEVAR=`cat $2`
+	fi
+
+	eval echo \$$FILEVAR
+fi

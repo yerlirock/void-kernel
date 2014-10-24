@@ -1,0 +1,189 @@
+#!/res/busybox sh
+
+export PATH=/res/asset:$PATH
+
+if [ -f $2 ]; then
+	FILEVAR=$(basename $2)
+
+	if [ -z $3 ]; then
+		evalcmd='eval echo \$$FILEVAR'
+		if [ "a`eval $evalcmd`" == "a" ]; then
+			ON=`cat $2`
+			if [ $ON -eq 0 ]; then
+				VAL="off"
+			else
+				VAL="on"
+			fi
+
+			eval $FILEVAR=$VAL
+			echo $FILEVAR=$VAL >> $DEFAULT_PROFILE
+		fi
+	else
+		case "$3" in
+			off)	echo 0 > $2	;;
+			on)	echo 1 > $2	;;
+		esac
+		eval $FILEVAR=$3
+	fi
+
+	if [ -f /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1 ]; then
+		yankmaxfreq=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq)
+		yanksnappy=$(cat /data/.arter97/yankasusqsnappy)
+		if [ "$yanksnappy" = "1" ]; then
+			case "$yankmaxfreq" in
+				'1800000')
+				echo "1800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1600000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1704000')
+				echo "1704000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1704000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1600000')
+				echo "1600000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1600000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1400000')
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1200000')
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1000000')
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+			esac
+		fi
+
+		if [ "$yanksnappy" = "0" ]; then
+			case "$yankmaxfreq" in
+				'1800000')
+				echo "1800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1600000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1704000')
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1704000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1600000')
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1600000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1400000')
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1400000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1200000')
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1200000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1100000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+				'1000000')
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_2
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_3
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_4
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_1_1
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_1
+				echo "1000000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_4_0
+				echo "900000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_3_0
+				echo "800000" > /sys/devices/system/cpu/cpufreq/yankasusq/hotplug_freq_2_0
+				;;
+			esac
+		fi
+	fi
+
+	eval echo \$$FILEVAR
+fi
+
