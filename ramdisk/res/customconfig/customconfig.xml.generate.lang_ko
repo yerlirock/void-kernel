@@ -4,14 +4,6 @@ export PATH=/res/asset:$PATH
 
 XML=$CONFIG_XML
 
-if [ ! -f /data/.arter97/zram ]; then
-  echo "0" > /data/.arter97/zram
-fi
-
-if [ ! -f /data/.arter97/zram_disksize ]; then
-  echo "100" > /data/.arter97/zram_disksize
-fi
-
 if [ ! -f /data/.arter97/sdcardfs ]; then
   echo "1" > /data/.arter97/sdcardfs
 fi
@@ -778,28 +770,6 @@ echo '
 
     </settingsPane>
 
-  </settingsTab>
-
-  <settingsTab name="메모리 압축">
-    <settingsPane description="zRam를 통한 메모리 압축을 설정합니다."
-		  name="메모리 관리">
-
-    </settingsPane>
-
-    <settingsPane description="일반적인 가상 메모리와는 달리 zRam은 RAM 자체에 압축된 스왑 공간을 할당시킵니다. 따라서 zRam은 일반적인 가상 메모리보다 훨씬 빠른 속도를 자랑합니다. 가상 메모리가 필요한 경우에만 사용하십시오. zRam관련 설정을 바꾸신 뒤에 재시작하셔야 적용됩니다."
-		  name="zRam">
-
-      <checkbox description="zRam을 활성화 또는 비활성화 합니다."
-                name="zRam"
-                action="generic01 /data/.arter97/zram"
-                label="zRam 활성화"/>
-
-      <seekBar  description="zRam이 사용할 RAM 용량을 설정합니다."
-                name="zRam 디스크 용량"
-                action="generic /data/.arter97/zram_disksize"
-                unit="MB" min="0" reversed="false" step="25" max="500"/>
-
-    </settingsPane>
   </settingsTab>
 
   <settingsTab name="기타">' >> $XML

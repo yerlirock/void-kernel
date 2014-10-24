@@ -4,14 +4,6 @@ export PATH=/res/asset:$PATH
 
 XML=$CONFIG_XML
 
-if [ ! -f /data/.arter97/zram ]; then
-  echo "0" > /data/.arter97/zram
-fi
-
-if [ ! -f /data/.arter97/zram_disksize ]; then
-  echo "100" > /data/.arter97/zram_disksize
-fi
-
 if [ ! -f /data/.arter97/sdcardfs ]; then
   echo "1" > /data/.arter97/sdcardfs
 fi
@@ -779,28 +771,6 @@ echo '
 
     </settingsPane>
 
-  </settingsTab>
-
-  <settingsTab name="zRam">
-    <settingsPane description="This tab allows you to control memory compression using zRam."
-		  name="Memory Management">
-
-    </settingsPane>
-
-    <settingsPane description="Unlike generic swapping, zRam stores all swap data compressed inside the RAM. zRam has the advantages of much more better speed than generic swapping. If you find yourself satisfied with zRam disabled, it is recommended to keep this disabled. Reboot is required to apply changes related to zRam."
-		  name="zRam">
-
-      <checkbox description="Enable or disable zRam."
-                name="zRam"
-                action="generic01 /data/.arter97/zram"
-                label="Enable zRam"/>
-
-      <seekBar  description="Sets the amounts of RAM for zRam to use."
-                name="zRam disk size"
-                action="generic /data/.arter97/zram_disksize"
-                unit="MB" min="0" reversed="false" step="25" max="500"/>
-
-    </settingsPane>
   </settingsTab>
 
   <settingsTab name="Misc">' >> $XML

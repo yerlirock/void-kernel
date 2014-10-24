@@ -59,29 +59,6 @@ for file in /sys/block/*/queue/iostats; do echo "0" > $file; done
 echo "0" > /sys/devices/virtual/sec/sec_touchkey/touch_led_on_screen_touch
 chmod 000 /sys/devices/virtual/sec/sec_touchkey/touch_led_on_screen_touch
 
-if [[ $(cat /data/.arter97/zram) == "1" ]]; then
-	swapoff /dev/block/zram0
-	swapoff /dev/block/zram1
-	swapoff /dev/block/zram2
-	swapoff /dev/block/zram3
-	echo "1" > /sys/block/zram0/reset
-	echo "1" > /sys/block/zram1/reset
-	echo "1" > /sys/block/zram2/reset
-	echo "1" > /sys/block/zram3/reset
-	echo $(($(cat /data/.arter97/zram_disksize)*1024*256)) > /sys/block/zram0/disksize
-	echo $(($(cat /data/.arter97/zram_disksize)*1024*256)) > /sys/block/zram1/disksize
-	echo $(($(cat /data/.arter97/zram_disksize)*1024*256)) > /sys/block/zram2/disksize
-	echo $(($(cat /data/.arter97/zram_disksize)*1024*256)) > /sys/block/zram3/disksize
-	mkswap /dev/block/zram0
-	mkswap /dev/block/zram1
-	mkswap /dev/block/zram2
-	mkswap /dev/block/zram3
-	swapon -p 2 /dev/block/zram0
-	swapon -p 2 /dev/block/zram1
-	swapon -p 2 /dev/block/zram2
-	swapon -p 2 /dev/block/zram3
-fi
-
 while ! pgrep com.android ; do
 	sleep 1
 done
