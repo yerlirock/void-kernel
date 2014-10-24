@@ -398,7 +398,7 @@ static ssize_t show_cpucore_table(struct kobject *kobj,
 {
 	ssize_t count = 0;
 	int i;
-	
+
 	for (i = CONFIG_NR_CPUS; i > 0; i--) {
 		count += sprintf(&buf[count], "%d ", i);
 	}

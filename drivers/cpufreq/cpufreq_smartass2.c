@@ -431,7 +431,7 @@ static void cpufreq_smartass_freq_change_time_work(struct work_struct *work)
 			dprintk(SMARTASS_DEBUG_ALG,"smartassQ @ %d ramp down: ramp_dir=%d ideal=%d\n",
 				old_freq,ramp_dir,this_smartass->ideal_speed);
 		}
-		else { 
+		else {
 			/* ramp_dir==0 ?! Could the timer change its mind about a queued ramp up/down
 		         * before the work task gets to run?
 		         * This may also happen if we refused to ramp up because the nr_running()==1 */

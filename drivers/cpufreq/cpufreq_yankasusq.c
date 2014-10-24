@@ -4,7 +4,7 @@
  *  Modified : Jean-Pierre Rasquin <yank555.lu@gmail.com>
  *
  *  Introducing cpu frequency limitations based on the number of cores online.
- * 
+ *
  *  Based on pegasusq governor
  *  Copyright (C)  2011 Samsung Electronics co. ltd
  *    ByungChang Cha <bc.cha@samsung.com>
@@ -840,7 +840,7 @@ static ssize_t store_cpu_max_freq_2(struct kobject *a, struct attribute *b,
 
 	set_cpu_max_freq_current(); /* Update update current CPU freq. limit as necessary */
 
-	return count;				
+	return count;
 }
 
 /* Yank555.lu : CPU freq. limit running on 3 cores */
@@ -868,7 +868,7 @@ static ssize_t store_cpu_max_freq_3(struct kobject *a, struct attribute *b,
 
 	set_cpu_max_freq_current(); /* Update update current CPU freq. limit as necessary */
 
-	return count;				
+	return count;
 }
 
 /* Yank555.lu : CPU freq. limit running on 4 cores */
@@ -896,7 +896,7 @@ static ssize_t store_cpu_max_freq_4(struct kobject *a, struct attribute *b,
 
 	set_cpu_max_freq_current(); /* Update update current CPU freq. limit as necessary */
 
-	return count;				
+	return count;
 }
 
 /* Yank555.lu : CPU freq. limit when screen off */
@@ -924,7 +924,7 @@ static ssize_t store_cpu_max_freq_stdby(struct kobject *a, struct attribute *b,
 
 	set_cpu_max_freq_current(); /* Update update current CPU freq. limit as necessary */
 
-	return count;				
+	return count;
 }
 
 static ssize_t store_up_nr_cpus(struct kobject *a, struct attribute *b,
@@ -1551,7 +1551,7 @@ static void cpufreq_yankasusq_early_suspend(struct early_suspend *h)
 		cpufreq_max_limit_val = dbs_tuners_ins.cpu_max_freq_current;
 		printk(KERN_ERR "YankasusQ : standby CPU freq. lock set (%u)\n",cpufreq_max_limit_val);
 	}
-		
+
 #if EARLYSUSPEND_HOTPLUGLOCK
 	atomic_set(&g_hotplug_lock,
 	    (dbs_tuners_ins.min_cpu_lock) ? dbs_tuners_ins.min_cpu_lock : 1);

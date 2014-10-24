@@ -429,7 +429,7 @@ static ssize_t store_scaling_max_freq
 
 	/* Yank555.lu : set cpufreq_max_limit accordingly if dvfs limit is defined */
 #ifdef CONFIG_DVFS_LIMIT
-	/* 
+	/*
 	 * Keep scaling_max linked to cpufreq_max_limit only if it was previously linked,
 	 * link will be re-established when cpufreq_max_limit is released again, this will
 	 * enable Powersave mode to continue working as designed !
