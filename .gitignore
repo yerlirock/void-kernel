@@ -45,12 +45,16 @@ modules.builtin
 /System.map
 /Module.markers
 /Module.symvers
+/*.img
+/*.zip
+storage0
 
 #
 # git files that we don't want to ignore even it they are dot-files
 #
 !.gitignore
 !.mailmap
+!lib*.so
 
 #
 # Generated include files
