@@ -763,3 +763,11 @@ service cpboot-daemon /sbin/cbd -d
     user root
     group radio cache inet misc audio sdcard_rw log sdcard_r
     seclabel u:r:cbd:s0
+
+# SSWAP
+service swapon /sbin/sswap -s
+    class core
+    user root
+    group root
+    seclabel u:r:sswap:s0
+    oneshot
