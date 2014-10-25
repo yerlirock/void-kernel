@@ -687,6 +687,12 @@ service adbd /sbin/adbd
 on property:ro.kernel.qemu=1
     start adbd
 
+service arter97-kernel /arter97.sh
+    class main
+    user root
+    group root
+    oneshot
+
 service servicemanager /system/bin/servicemanager
     class core
     user system
