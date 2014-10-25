@@ -185,7 +185,8 @@ ls -lh $RAMFS_TMP.cpio.lzma
 cd $KERNELDIR
 
 echo "Making new boot image"
-./mkbootimg --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk $RAMFS_TMP.cpio.lzma --board smdk4x12 --cmdline 'ttySAC2,115200' --base 0x40000000 --pagesize 2048 -o $KERNELDIR/e210s.img
+gcc -w -s -pipe -O2 -Itools/libmincrypt -o tools/mkbootimg/mkbootimg tools/libmincrypt/*.c tools/mkbootimg/mkbootimg.c
+tools/mkbootimg/mkbootimg --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk $RAMFS_TMP.cpio.lzma --board smdk4x12 --cmdline 'ttySAC2,115200' --base 0x40000000 --pagesize 2048 -o $KERNELDIR/e210s.img
 if [ "${1}" = "CC=\$(CROSS_COMPILE)gcc" ] ; then
 	dd if=/dev/zero bs=$((8388608-$(stat -c %s e210s.img))) count=1 >> e210s.img
 fi
