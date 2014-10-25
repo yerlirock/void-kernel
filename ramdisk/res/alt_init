@@ -171,6 +171,22 @@ if grep -q lpcharge=1 /proc/cmdline ; then
 	LPM=1
 fi
 if [[ $LPM == "1" ]]; then
+	echo "ondemand" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	echo "1000000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	echo "200000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	echo "5" > /sys/module/intelli_plug/parameters/nr_run_profile_sel
+	echo "1" > /sys/devices/system/cpu/cpu0/online
+	echo "0" > /sys/devices/system/cpu/cpu1/online
+	echo "0" > /sys/devices/system/cpu/cpu2/online
+	echo "0" > /sys/devices/system/cpu/cpu3/online
+	chmod 000 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	chmod 000 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+	chmod 000 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+	chmod 000 /sys/devices/system/cpu/cpu0/online
+	chmod 000 /sys/devices/system/cpu/cpu1/online
+	chmod 000 /sys/devices/system/cpu/cpu2/online
+	chmod 000 /sys/devices/system/cpu/cpu3/online
+
 	mknod /dev/block/mmcblk0p9 b 179 9
 	mount -t ext4 -o ro,noatime,nodiratime,data=ordered,barrier=0,discard /dev/block/mmcblk0p9 /system
 	mount -t f2fs -o ro,noatime,nodiratime,discard /dev/block/mmcblk0p9 /system
