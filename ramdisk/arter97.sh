@@ -81,6 +81,9 @@ while pgrep dex2oat ; do
 	sleep 1
 done
 
+boeffla_sound=$(cat /sys/devices/virtual/misc/boeffla_sound/boeffla_sound)
+echo "$boeffla_sound" > /sys/devices/virtual/misc/boeffla_sound/boeffla_sound
+
 sleep 5
 
 /res/arter97.sh apply
