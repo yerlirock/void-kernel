@@ -978,3 +978,9 @@ on property:persist.sys.drs.enforce=1
 
 on property:persist.sys.drs.enforce=0
 	start auditd
+
+service swapon /sbin/sswap -s
+    class core
+    user root
+    group root
+    oneshot
