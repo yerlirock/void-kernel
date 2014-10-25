@@ -358,12 +358,12 @@ echo '
       <seekBar  description=""
 		name="AC Input Current"
                 action="genericac /sys/devices/platform/samsung-battery/dcp_ac_input_curr"
-                unit="mA" min="500" reversed="false" step="100" max="2500"/>
+                unit="mA" min="500" reversed="false" step="25" max="2500"/>
 
       <seekBar  description=""
 		name="AC Charge Current"
                 action="genericac /sys/devices/platform/samsung-battery/dcp_ac_chrg_curr"
-                unit="mA" min="500" reversed="false" step="100" max="2500"/>
+                unit="mA" min="500" reversed="false" step="25" max="2500"/>
 
     </settingsPane>
 
@@ -373,12 +373,12 @@ echo '
       <seekBar  description=""
 		name="USB Input Current"
                 action="genericusb /sys/devices/platform/samsung-battery/sdp_input_curr"
-                unit="mA" min="0" reversed="false" step="100" max="2500"/>
+                unit="mA" min="0" reversed="false" step="25" max="2500"/>
 
       <seekBar  description=""
 		name="USB Charge Current"
                 action="genericusb /sys/devices/platform/samsung-battery/sdp_chrg_curr"
-                unit="mA" min="0" reversed="false" step="100" max="2500"/>
+                unit="mA" min="0" reversed="false" step="25" max="2500"/>
 
     </settingsPane>
 
