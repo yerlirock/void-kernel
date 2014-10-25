@@ -291,7 +291,7 @@ echo "
       <spinner name=\"Internal storage scheduler\"
                action=\"iosched internal /sys/block/mmcblk0/queue/scheduler\">" >> $XML
 
-for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//' | tr ' ' '\n' | sort | tr '\n' ' '`; do
   echo "<spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
 done
 
@@ -302,7 +302,7 @@ echo "
       <spinner name=\"External SD card scheduler\"
                action=\"iosched sd /sys/block/mmcblk1/queue/scheduler\">" >> $XML
 
-for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//' | tr ' ' '\n' | sort | tr '\n' ' '`; do
   echo "<spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
 done
 

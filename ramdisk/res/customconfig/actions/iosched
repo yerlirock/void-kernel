@@ -7,8 +7,10 @@ FILEVAR=$2_iosched
 if [ -z $4 ]; then
 	evalcmd='eval echo \$$FILEVAR'
 	if [ "a`eval $evalcmd`" == "a" ]; then
-		sleep 2
 		VAL=`cat $3 | sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p'`
+		if [ -z $VAL ]; then
+			VAL=`cat $(echo $3 | sed s/mmcblk1/mmcblk0/g) | sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p'`
+		fi
 		eval $FILEVAR=$VAL
 		echo $FILEVAR=$VAL >> $DEFAULT_PROFILE
 	fi
