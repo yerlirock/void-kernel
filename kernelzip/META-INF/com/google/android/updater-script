@@ -116,11 +116,6 @@ if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "SHV-E210L"
   ui_print(" - flashing SHV-E210L boot.img");
   run_program("/tmp/arter97/script/img.sh", "e210l.img");
 endif;
-
-ui_print(" - installing camera firmwares");
-package_extract_dir("data", "/data");
-set_perm_recursive(1000, 1000, 0771, 0644, "/data/cfw");
-
 ui_print(" - tuning file systems");
 run_program("/tmp/arter97/busybox", "fstrim", "-v", "/system");
 run_program("/tmp/arter97/busybox", "fstrim", "-v", "/data");

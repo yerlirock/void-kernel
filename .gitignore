@@ -55,7 +55,6 @@ storage0
 !.gitignore
 !.mailmap
 !lib*.so
-!Slim*.bin
 
 #
 # Generated include files
