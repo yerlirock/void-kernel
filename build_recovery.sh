@@ -188,7 +188,7 @@ cd $RAMFS_TMP
 
 $KERNELDIR/ramdisk_fix_permissions.sh 2>/dev/null
 
-find . -name '*.sh' -exec chmod 777 {} \;
+find . -name '*.sh' -exec chmod 755 {} \;
 #clear git repositories in ramfs
 find . -name .git -exec rm -rf {} \;
 find . -name EMPTY_DIRECTORY -exec rm -rf {} \;
@@ -201,7 +201,8 @@ ls -lh $RAMFS_TMP.cpio.lzo
 cd $KERNELDIR
 
 echo "Making new boot image"
-./mkbootimg --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk $RAMFS_TMP.cpio.lzo --board smdk4x12 --cmdline 'ttySAC2,115200' --base 0x40000000 --pagesize 2048 -o $KERNELDIR/recovery.img
+gcc -w -s -pipe -O2 -Itools/libmincrypt -o tools/mkbootimg/mkbootimg tools/libmincrypt/*.c tools/mkbootimg/mkbootimg.c
+tools/mkbootimg/mkbootimg --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk $RAMFS_TMP.cpio.lzo --board smdk4x12 --cmdline 'ttySAC2,115200' --base 0x40000000 --pagesize 2048 -o $KERNELDIR/recovery.img
 if [ "${1}" = "CC=\$(CROSS_COMPILE)gcc" ] ; then
 	dd if=/dev/zero bs=$((8388608-$(stat -c %s recovery.img))) count=1 >> recovery.img
 fi
