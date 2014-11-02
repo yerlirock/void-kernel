@@ -28,7 +28,7 @@ echo '
             name="sched_mc" action="generic /sys/devices/system/cpu/sched_mc_power_savings" unit="" min="0" reversed="false" step="1" max="2"/>
      </settingsPane>
 
-    <settingsPane description="interactive가 기본값이며 지연 속도가 낮고 배터리에 최적화된 가버너입니다. pegasusq는 순정 커널에서 기본값으로 사용하는 가버너입니다. pegasusqplus는 AndreiLux의 Perseus 커널에서 가져온 pegasusq의 개선판 입니다. 좀 더 나은 배터리 수명을 위해서라면, yankasusq나 zzmoove를 권장합니다."
+    <settingsPane description="intelliactive가 기본값이며 지연 속도가 낮고 배터리에 최적화된 가버너입니다. pegasusq는 순정 커널에서 기본값으로 사용하는 가버너입니다. pegasusqplus는 AndreiLux의 Perseus 커널에서 가져온 pegasusq의 개선판 입니다. 좀 더 나은 배터리 수명을 위해서라면, yankasusq나 zzmoove를 권장합니다."
                   name="Active governor">' >> $XML
 echo "
       <spinner description=\"가버너 설정.\"

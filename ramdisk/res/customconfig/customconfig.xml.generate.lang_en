@@ -28,7 +28,7 @@ echo '
             name="sched_mc" action="generic /sys/devices/system/cpu/sched_mc_power_savings" unit="" min="0" reversed="false" step="1" max="2"/>
      </settingsPane>
 
-    <settingsPane description="interactive is default and recommended for low-latency performance and battery-life. pegasusq is the stock default. pegasusqplus is improved version of pegasusq by AndreiLux of the Perseus kernel. If you want to have a better experience for battery, change it to yankasusq or zzmoove."
+    <settingsPane description="intelliactive is default and recommended for low-latency performance and battery-life. pegasusq is the stock default. pegasusqplus is improved version of pegasusq by AndreiLux of the Perseus kernel. If you want to have a better experience for battery, change it to yankasusq or zzmoove."
                   name="Active governor">' >> $XML
 echo "
       <spinner description=\"Set active governor.\"
