@@ -29,25 +29,11 @@
 #include <linux/genhd.h>
 #include <linux/highmem.h>
 #include <linux/slab.h>
-#include <linux/lz4.h>
+#include <linux/lzo.h>
 #include <linux/string.h>
 #include <linux/vmalloc.h>
 
 #include "zram_drv.h"
-
-#define WMSIZE	LZ4_MEM_COMPRESS
-static int lz4_decompress_(const unsigned char *src, size_t src_len,
-							unsigned char *dst, size_t *dst_len)
-{
-	uint32_t dst_len_ = (uint32_t)*dst_len;
-	int ret = lz4_decompress_unknownoutputsize(src, src_len, dst, &dst_len_);
-	*dst_len = (size_t)dst_len_;
-	return ret;
-}
-#define COMPRESS(s, sl, d, dl, wm)	\
-	lz4_compress(s, sl, d, dl, wm)
-#define DECOMPRESS(s, sl, d, dl)	\
-	lz4_decompress_(s, sl, d, dl)
 
 /* Globals */
 static int zram_major;
@@ -265,7 +251,7 @@ static void zram_read(struct zram *zram, struct bio *bio)
 		cmem = kmap_atomic(zram->table[index].page, KM_USER1) +
 				zram->table[index].offset;
 
-		ret = DECOMPRESS(
+		ret = lzo1x_decompress_safe(
 			cmem + sizeof(*zheader),
 			xv_get_object_size(cmem) - sizeof(*zheader),
 			user_mem, &clen);
@@ -274,7 +260,7 @@ static void zram_read(struct zram *zram, struct bio *bio)
 		kunmap_atomic(cmem, KM_USER1);
 
 		/* Should NEVER happen. Return bio error if it does. */
-		if (unlikely(ret != 0)) {
+		if (unlikely(ret != LZO_E_OK)) {
 			pr_err("Decompression failed! err=%d, page=%u\n",
 				ret, index);
 			zram_stat64_inc(zram, &zram->stats.failed_reads);
@@ -333,12 +319,12 @@ static void zram_write(struct zram *zram, struct bio *bio)
 			continue;
 		}
 
-		ret = COMPRESS(user_mem, PAGE_SIZE, src, &clen,
+		ret = lzo1x_1_compress(user_mem, PAGE_SIZE, src, &clen,
 					zram->compress_workmem);
 
 		kunmap_atomic(user_mem, KM_USER0);
 
-		if (unlikely(ret != 0)) {
+		if (unlikely(ret != LZO_E_OK)) {
 			mutex_unlock(&zram->lock);
 			pr_err("Compression failed! err=%d\n", ret);
 			zram_stat64_inc(zram, &zram->stats.failed_writes);
@@ -525,7 +511,7 @@ int zram_init_device(struct zram *zram)
 
 	zram_set_disksize(zram, totalram_pages << PAGE_SHIFT);
 
-	zram->compress_workmem = kzalloc(WMSIZE, GFP_KERNEL);
+	zram->compress_workmem = kzalloc(LZO1X_MEM_COMPRESS, GFP_KERNEL);
 	if (!zram->compress_workmem) {
 		pr_err("Error allocating compressor working memory!\n");
 		ret = -ENOMEM;
