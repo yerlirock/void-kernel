@@ -1,17 +1,17 @@
 #!/bin/bash
 if [ ! "${1}" = "skip" ] ; then
 	./build_clean.sh
-	./build_kernel_i9300.sh CC='$(CROSS_COMPILE)gcc'
+	./build_kernel_i9300.sh CC='$(CROSS_COMPILE)gcc' "$@"
 	./build_clean.sh noimg
-	./build_kernel_m440s.sh CC='$(CROSS_COMPILE)gcc'
+	./build_kernel_m440s.sh CC='$(CROSS_COMPILE)gcc' "$@"
 	./build_clean.sh noimg
-	./build_kernel_e210s.sh CC='$(CROSS_COMPILE)gcc'
+	./build_kernel_e210s.sh CC='$(CROSS_COMPILE)gcc' "$@"
 	./build_clean.sh noimg
-	./build_kernel_e210k.sh CC='$(CROSS_COMPILE)gcc'
+	./build_kernel_e210k.sh CC='$(CROSS_COMPILE)gcc' "$@"
 	./build_clean.sh noimg
-	./build_kernel_e210l.sh CC='$(CROSS_COMPILE)gcc'
+	./build_kernel_e210l.sh CC='$(CROSS_COMPILE)gcc' "$@"
 	./build_clean.sh noimg
-	./build_recovery.sh CC='$(CROSS_COMPILE)gcc'
+	./build_recovery.sh CC='$(CROSS_COMPILE)gcc' "$@"
 fi
 
 mv recovery.img recoveryzip/
