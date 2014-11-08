@@ -98,20 +98,24 @@ rm -rf /dev/*
 
 # 0 = CyanogenMod 10.2
 # 1 = CyanogenMod 11
-# 2 = Samsung Android 4.3 stock-based
-# 3 = Samsung Android 4.4 stock-based
+# 2 = Android 5.0 Lollipop
+# 3 = Samsung Android 4.3 stock-based
+# 4 = Samsung Android 4.4 stock-based
 
 ROMTYPE=0
 
 if [ -f /system/framework/multiwindow.jar ] ; then
 	if [ -f /system/priv-app/SystemUI.apk ] ; then
-		ROMTYPE=3
+		ROMTYPE=4
 	else
-		ROMTYPE=2
+		ROMTYPE=3
 	fi
 else
 	if [ -f /system/priv-app/SystemUI.apk ] ; then
 		ROMTYPE=1
+	fi
+	if [ -f /system/priv-app/SystemUI/SystemUI.apk ] ; then
+		ROMTYPE=2
 	fi
 fi
 
@@ -151,11 +155,16 @@ case "$ROMTYPE" in
 	mv -f /ramdisks/kitkat/* /
 	;;
 	'2')
+	echo "7" > /proc/sys/kernel/rom_feature_set
+	mv -f /ramdisks/lollipop/sbin/* /sbin/
+	mv -f /ramdisks/lollipop/* /
+	;;
+	'3')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
 	mv -f /ramdisks/samsung/jellybean/* /
 	;;
-	'3')
+	'4')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/samsung/kitkat/* /
