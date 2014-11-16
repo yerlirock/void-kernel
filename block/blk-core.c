@@ -1467,7 +1467,7 @@ static inline void __generic_make_request(struct bio *bio)
 			goto end_io;
 		}
 
-		if (unlikely(!(bio->bi_rw & (REQ_DISCARD | REQ_SANITIZE)) &&
+		if (unlikely(!(bio->bi_rw & REQ_DISCARD) &&
 			     nr_sectors > queue_max_hw_sectors(q))) {
 			printk(KERN_ERR "bio too big device %s (%u > %u)\n",
 			       bdevname(bio->bi_bdev, b),
@@ -1517,14 +1517,6 @@ static inline void __generic_make_request(struct bio *bio)
 		    (!blk_queue_discard(q) ||
 		     ((bio->bi_rw & REQ_SECURE) &&
 		      !blk_queue_secdiscard(q)))) {
-			err = -EOPNOTSUPP;
-			goto end_io;
-		}
-
-		if ((bio->bi_rw & REQ_SANITIZE) &&
-		    (!blk_queue_sanitize(q))) {
-			pr_info("%s - got a SANITIZE request but the queue "
-			       "doesn't support sanitize requests", __func__);
 			err = -EOPNOTSUPP;
 			goto end_io;
 		}
@@ -1619,8 +1611,7 @@ void submit_bio(int rw, struct bio *bio)
 	 * If it's a regular read/write or a barrier with data attached,
 	 * go through the normal accounting stuff before submission.
 	 */
-	if (bio_has_data(bio) &&
-	    (!(rw & (REQ_DISCARD | REQ_SANITIZE)))) {
+	if (bio_has_data(bio) && !(rw & REQ_DISCARD)) {
 		if (rw & WRITE) {
 			count_vm_events(PGPGOUT, count);
 		} else {
@@ -1666,7 +1657,7 @@ EXPORT_SYMBOL(submit_bio);
  */
 int blk_rq_check_limits(struct request_queue *q, struct request *rq)
 {
-	if (rq->cmd_flags & (REQ_DISCARD | REQ_SANITIZE))
+	if (rq->cmd_flags & REQ_DISCARD)
 		return 0;
 
 	if (blk_rq_sectors(rq) > queue_max_sectors(q) ||
