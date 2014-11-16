@@ -96,4 +96,6 @@ fi
 touch /dev/bootdone
 tinyplay /system/etc/sound/silence.wav -D 0 -d 0 -p 880
 
+/res/dumper.sh
+
 sync
