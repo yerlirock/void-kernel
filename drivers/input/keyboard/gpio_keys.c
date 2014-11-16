@@ -33,7 +33,6 @@
 #include <linux/fake_shut_down.h>
 #endif
 #include <../kernel/power/power.h>
-#include <mach/cpufreq.h>
 
 #ifdef CONFIG_TOUCH_WAKE
 #include <linux/touch_wake.h>
@@ -77,19 +76,7 @@ struct gpio_keys_drvdata {
 static void sync_system(struct work_struct *work);
 static DECLARE_WORK(sync_system_work, sync_system);
 
-static void gpio_boost(struct work_struct *work);
-static DECLARE_WORK(gpio_boost_work, gpio_boost);
-struct workqueue_struct *gpio_boost_queue;
-struct delayed_work boost_off;
-
 static bool suspended = false;
-
-static void gpio_boost(struct work_struct *work)
-{
-	pr_info("%s: locking cpufreq for late_resume boost\n", __func__);
-	exynos_cpufreq_lock(DVFS_LOCK_ID_LATE_RESUME, 1);
-	schedule_delayed_work(&boost_off, msecs_to_jiffies(2500));
-}
 
 static void sync_system(struct work_struct *work)
 {
@@ -754,10 +741,6 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 		}
 
 #endif
-
-		if (suspended && ((button->code == KEY_POWER) || (button->code == HOME_KEY_VAL)) && state)
-			queue_work(gpio_boost_queue, &gpio_boost_work);
-
 		input_event(input, type, button->code, !!state);
 		input_sync(input);
 
@@ -1309,17 +1292,9 @@ static struct platform_driver gpio_keys_device_driver = {
 	}
 };
 
-static void set_boost_off(struct work_struct *work)
-{
-	pr_info("%s: freeing late_resume cpufreq lock\n", __func__);
-	exynos_cpufreq_lock_free(DVFS_LOCK_ID_LATE_RESUME);
-}
-
 static int __init gpio_keys_init(void)
 {
 	register_early_suspend(&gpio_suspend);
-	gpio_boost_queue = create_singlethread_workqueue("gpio_boost_work");
-	INIT_DELAYED_WORK(&boost_off, set_boost_off);
 	return platform_driver_register(&gpio_keys_device_driver);
 }
 
