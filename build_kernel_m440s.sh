@@ -53,6 +53,8 @@ rm -rf ramdisks/samsung/jellybean/e210l
 rm -rf ramdisks/samsung/jellybean/m440s
 rm -rf ramdisks/samsung/jellybean/i9300
 
+rm -rf ramdisks/samsung/kitkat/e210l
+
 echo "SHW-M440S" > ro.hardware
 
 find . -name "*smdk4x12*" | grep -v asset | while read file; do mv -f "$file" "$(echo $file | sed s/smdk4x12/SHW-M440S/g)"; done

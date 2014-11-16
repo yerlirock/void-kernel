@@ -35,6 +35,8 @@ rm -rf ramdisks/samsung/jellybean/e210l
 rm -rf ramdisks/samsung/jellybean/m440s
 rm -rf ramdisks/samsung/jellybean/i9300
 
+rm -rf ramdisks/samsung/kitkat/e210l
+
 echo "smdk4x12" > ro.hardware
 
 find . -name '*.sh' -exec chmod 755 {} \;
