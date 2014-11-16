@@ -19,17 +19,6 @@ lib/egl/libGLESv1_CM_mali.so
 lib/egl/libGLESv2_mali.so
 lib/libMali.so
 lib/libUMP.so
-vendor/firmware/SlimISP_BH.bin
-vendor/firmware/SlimISP_GD.bin
-vendor/firmware/SlimISP_GH.bin
-vendor/firmware/SlimISP_GK.bin
-vendor/firmware/SlimISP_JH.bin
-vendor/firmware/SlimISP_PH.bin
-vendor/firmware/SlimISP_WH.bin
-vendor/firmware/SlimISP_ZD.bin
-vendor/firmware/SlimISP_ZH.bin
-vendor/firmware/SlimISP_ZK.bin
-vendor/firmware/SlimISP_ZM.bin
 EOF
 }
 
