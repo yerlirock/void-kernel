@@ -1,5 +1,5 @@
-internal_iosched=bfq
-sd_iosched=bfq
+internal_iosched=deadline
+sd_iosched=noop
 internal_read_ahead_kb=256
 sd_read_ahead_kb=512
 enable_mask=2
