@@ -21,7 +21,7 @@ done
 mknod /dev/block/mmcblk0 b 179 0
 mknod /dev/block/mmcblk0p12 b 179 12
 
-mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p12 /data
+mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,errors=panic /dev/block/mmcblk0p12 /data
 mount -t f2fs -o noatime,nodiratime,discard,background_gc=on,nosuid,nodev /dev/block/mmcblk0p12 /data
 
 chattr -i /data/app
@@ -39,7 +39,7 @@ mknod /dev/block/mmcblk0p8 b 179 8
 
 if [ -f /data/media/0/.arter97/btaltrom ] && [ -f /data/arter97_secondrom/system/build.prop ] ; then
 	umount -f /data
-	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p12 /arter97/data
+	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,errors=panic /dev/block/mmcblk0p12 /arter97/data
 	mount -t f2fs -o noatime,nodiratime,discard,background_gc=on,nosuid,nodev /dev/block/mmcblk0p12 /arter97/data
 	if [ "$(readlink /arter97/data/arter97_secondrom/system/lib/modules/dhd.ko)" != "/lib/modules/dhd.ko" ] ; then
 		rm -rf /arter97/data/arter97_secondrom/system/lib/modules
@@ -76,7 +76,7 @@ else
 	mknod /dev/block/mmcblk0p9 b 179 9
 	mount -t ext4 -o ro,noatime,nodiratime,data=ordered,barrier=0,discard /dev/block/mmcblk0p9 /system
 	mount -t f2fs -o ro,noatime,nodiratime,discard /dev/block/mmcblk0p9 /system
-	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p8 /cache
+	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,errors=panic /dev/block/mmcblk0p8 /cache
 	mount -t f2fs -o noatime,nodiratime,discard,background_gc=on,nosuid,nodev /dev/block/mmcblk0p8 /cache
 	if [ "$(readlink /system/lib/modules/dhd.ko)" != "/lib/modules/dhd.ko" ] ; then
 		mount -o rw,remount /system
@@ -89,9 +89,9 @@ fi
 
 mknod /dev/block/mmcblk0p3 b 179 3
 mknod /dev/block/mmcblk0p10 b 179 10
-mount -t ext4 -o noatime,nosuid,nodev,journal_async_commit,errors=panic /dev/block/mmcblk0p3 /efs
+mount -t ext4 -o noatime,nosuid,nodev,errors=panic /dev/block/mmcblk0p3 /efs
 mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p3 /efs
-mount -t ext4 -o noatime,nosuid,nodev,journal_async_commit,errors=panic /dev/block/mmcblk0p10 /preload
+mount -t ext4 -o noatime,nosuid,nodev,errors=panic /dev/block/mmcblk0p10 /preload
 mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
 
 rm -rf /dev/*
@@ -199,7 +199,7 @@ if [[ $LPM == "1" ]]; then
 	mknod /dev/block/mmcblk0p9 b 179 9
 	mount -t ext4 -o ro,noatime,nodiratime,data=ordered,barrier=0,discard /dev/block/mmcblk0p9 /system
 	mount -t f2fs -o ro,noatime,nodiratime,discard /dev/block/mmcblk0p9 /system
-	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,journal_async_commit,errors=panic /dev/block/mmcblk0p12 /data
+	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=0,discard,nosuid,nodev,noauto_da_alloc,errors=panic /dev/block/mmcblk0p12 /data
 	mount -t f2fs -o noatime,nodiratime,discard,background_gc=on,nosuid,nodev /dev/block/mmcblk0p12 /data
 
 	if [ -e /system/bin/playlpm ]; then
