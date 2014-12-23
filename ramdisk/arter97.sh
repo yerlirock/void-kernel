@@ -98,4 +98,12 @@ tinyplay /system/etc/sound/silence.wav -D 0 -d 0 -p 880
 
 /res/dumper.sh
 
+if [ -e /arter97 ] ; then
+	fstrim -v /arter97/data
+else
+	fstrim -v /system
+	fstrim -v /cache
+	fstrim -v /data
+fi
+
 sync
