@@ -114,7 +114,7 @@ static bool is_incall = false;
 static bool prev_incall_state = false;
 static bool bootdone = false;
 
-#define INCALL_BOOST_FREQ 600000
+#define INCALL_BOOST_FREQ 1000000
 
 /*****************************************/
 // Internal function declarations
