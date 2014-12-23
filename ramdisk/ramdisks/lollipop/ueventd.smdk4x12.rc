@@ -86,8 +86,8 @@
 
 /dev/ttySAC*	          0660	 root	    system
 /dev/umts*                0660   system     radio
-/dev/lte*                 0660   system     radio
-/dev/cdma*                0660   system     radio
+/dev/lte*                 0660   system     radio 
+/dev/cdma*                0660   system     radio 
 /dev/link_pm              0660   system     radio
 
 # sensor sysfs properties

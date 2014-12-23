@@ -55,12 +55,6 @@ service gpsd /system/bin/gpsd -c /system/etc/gps.xml
     user gps
     group system inet sdcard_rw
 
-service dmb /system/bin/dmbserver
-    class main
-    user system
-    group radio inet misc audio camera graphics net_bt net_bt_admin sdcard_rw
-    oneshot
-
 # TVout
 service TvoutService_C /system/bin/bintvoutservice
     class main
