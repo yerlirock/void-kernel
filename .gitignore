@@ -53,7 +53,7 @@ storage0
 #
 !.gitignore
 !.mailmap
-!lib*.so
+!*.so
 
 #
 # Generated include files

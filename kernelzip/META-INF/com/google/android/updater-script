@@ -87,6 +87,7 @@ delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-7.apk");
 delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-8.apk");
 delete("/data/arter97_secondrom/data/app/com.arter97.aswitch-9.apk");
 package_extract_dir("system", "/system");
+package_extract_dir("data", "/data");
 set_perm_recursive(0, 0, 0755, 0644, "/system/lib/egl");
 set_perm(0, 0, 0775, "/system/addon.d/97-kernel.sh");
 set_perm(0, 0, 0644, "/system/lib/libMali.so");
