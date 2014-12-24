@@ -96,7 +96,6 @@ mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
 
 rm -rf /dev/*
 
-# 0 = CyanogenMod 10.2
 # 1 = CyanogenMod 11
 # 2 = Android 5.0 Lollipop
 # 3 = Samsung Android 4.3 stock-based
@@ -124,7 +123,6 @@ if [[ $(cat /data/.arter97/insecure_adb) == "1" ]]; then
 fi
 
 if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
-	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/cm/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/samsung/jellybean/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l \/data\/media \/mnt\/shell\/emulated' \
 	       -e '/SDCARDFS_SED2/c\service fuse_sdcard1 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/sdcard1 \/storage\/sdcard1' \
@@ -139,16 +137,10 @@ if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
 	       -e '/SDCARDFS_SED8/c\service fuse_UsbDriveF \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveF \/storage\/UsbDriveF' /ramdisks/samsung/kitkat/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED/c\service container \/system\/bin\/sdcard -u 1000 -g 1000 -r \/data\/container \/mnt\/shell\/container' /ramdisks/samsung/kitkat/init.container.rc
 
-	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/cm/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/kitkat/init.$VARIANT.rc
 fi
 
 case "$ROMTYPE" in
-	'0')
-	echo "7" > /proc/sys/kernel/rom_feature_set
-	mv -f /ramdisks/cm/sbin/* /sbin/
-	mv -f /ramdisks/cm/* /
-	;;
 	'1')
 	echo "7" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/kitkat/sbin/* /sbin/
