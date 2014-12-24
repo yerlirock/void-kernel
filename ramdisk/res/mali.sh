@@ -2,7 +2,7 @@
 
 export PATH=/res/asset:$PATH
 
-if [ -f /arter97/data ]; then
+if [ -e /arter97/data ]; then
 	return 0
 fi
 
