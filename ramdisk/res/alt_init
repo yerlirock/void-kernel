@@ -155,7 +155,7 @@ case "$ROMTYPE" in
 	mv -f /ramdisks/kitkat/* /
 	;;
 	'2')
-	echo "6" > /proc/sys/kernel/rom_feature_set
+	echo "7" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
 	;;
