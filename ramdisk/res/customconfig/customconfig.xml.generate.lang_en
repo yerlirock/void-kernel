@@ -96,11 +96,7 @@ echo '
       <spinnerItem name="Disable" value="5"/>' >> $XML
 
 echo "
-      </spinner>
-      <checkbox description=\"Enabling this option puts 2-cores online when screen is touched.\"
-               name=\"Touch boost\"
-               action=\"generic01 /sys/module/intelli_plug/parameters/touch_boost_active\"
-               label=\"Enable touch boost\"/>" >> $XML
+      </spinner>" >> $XML
 
 echo '
     </settingsPane>

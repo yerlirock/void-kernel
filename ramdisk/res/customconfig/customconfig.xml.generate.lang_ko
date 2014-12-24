@@ -96,11 +96,7 @@ echo '
       <spinnerItem name="비활성화" value="5"/>' >> $XML
 
 echo "
-      </spinner>
-      <checkbox description=\"이 옵션이 활성화되면 터치시에 CPU 코어 2개를 활성화시킵니다.\"
-               name=\"Touch boost\"
-               action=\"generic01 /sys/module/intelli_plug/parameters/touch_boost_active\"
-               label=\"Touch boost 활성화\"/>" >> $XML
+      </spinner>" >> $XML
 
 echo '
     </settingsPane>
