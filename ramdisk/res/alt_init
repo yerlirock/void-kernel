@@ -163,7 +163,7 @@ case "$ROMTYPE" in
 	/res/vnswap.sh $LPM
 	;;
 	'2')
-	echo "7" > /proc/sys/kernel/rom_feature_set
+	echo "6" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
 	/res/hwc.sh lollipop

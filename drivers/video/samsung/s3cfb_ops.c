@@ -1119,7 +1119,7 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 #endif
 
 #ifdef SUPPORT_LPM_PAN_DISPLAY
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 	/* support LPM (off charging mode) display based on FBIOPAN_DISPLAY */
 	s3cfb_check_var(var, fb);
 	s3cfb_set_par(fb);
@@ -1575,7 +1575,7 @@ void s3c_fb_update_regs(struct s3cfb_global *fbdev, struct s3c_reg_data *regs)
 	unsigned int shadow_regs = 0;
 	unsigned int clkval = 0;
 
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 	memset(&old_fence, 0, sizeof(old_fence));
 
 	for (i = 0; i < pdata->nr_wins; i++) {
@@ -1653,7 +1653,7 @@ SAMSUNGROM {
 		}
 	} while (wait_for_vsync);
 
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 		for (i = 0; i < pdata->nr_wins; i++) {
 			if (old_fence[i])
 				sync_fence_put(old_fence[i]);
@@ -1807,7 +1807,7 @@ static int s3c_fb_set_win_buffer(struct s3cfb_global *fbdev,
 		goto err_invalid;
 	}
 
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 	if (win_config->fence_fd >= 0) {
 		regs->fence[win_no] = sync_fence_fdget(win_config->fence_fd);
 		if (!regs->fence[win_no]) {
@@ -1944,7 +1944,7 @@ static int s3c_fb_set_win_config(struct s3cfb_global *fbdev,
 			fbdev->timeline_max++;
 			pt = sw_sync_pt_create(fbdev->timeline, fbdev->timeline_max);
 			fence = sync_fence_create("display", pt);
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 			if (fence != NULL) {
 				sync_fence_install(fence, fd);
 				win_data->fence = fd;
@@ -2017,7 +2017,7 @@ SAMSUNGROM {
 			fbdev->timeline_max++;
 			pt = sw_sync_pt_create(fbdev->timeline, fbdev->timeline_max);
 			fence = sync_fence_create("display", pt);
-SAMSUNGROM {
+if ((rom_feature_set == 2) || (rom_feature_set == 6)) {
 			if (fence != NULL) {
 				sync_fence_install(fence, fd);
 				win_data->fence = fd;
