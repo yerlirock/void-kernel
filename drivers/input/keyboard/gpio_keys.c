@@ -744,20 +744,14 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 		input_event(input, type, button->code, !!state);
 		input_sync(input);
 
-		if ((button->code == KEY_POWER) || (button->code == HOME_KEY_VAL)) {
+		if (button->code == KEY_POWER) {
 			printk(KERN_DEBUG"[keys]PWR %d\n", !!state);
 			if (state) {
 				/* sys_sync(); */
 				if (suspended) {
-					if (button->code == KEY_POWER)
-						pr_info("%s: KEY_POWER pressed, calling sys_sync() in 5 sec...\n", __func__);
-					else
-						pr_info("%s: KEY_HOME pressed, calling sys_sync() in 5 sec...\n", __func__);
+					pr_info("%s: KEY_POWER pressed, calling sys_sync() in 5 sec...\n", __func__);
 				} else {
-					if (button->code == KEY_POWER)
-						pr_info("%s: KEY_POWER pressed, calling sys_sync()\n", __func__);
-					else
-						pr_info("%s: KEY_HOME pressed, calling sys_sync()\n", __func__);
+					pr_info("%s: KEY_POWER pressed, calling sys_sync()\n", __func__);
 				}
 				queue_work(sync_work_queue, &sync_system_work);
 			}
