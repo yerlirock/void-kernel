@@ -801,6 +801,9 @@ echo '
 if [ ! -f /data/.arter97/insecure_adb ]; then
   echo "0" > /data/.arter97/insecure_adb
 fi
+if [ ! -f /data/.arter97/vnswap ]; then
+  echo "0" > /data/.arter97/vnswap
+fi
 
 echo '
       </spinner>
@@ -833,6 +836,15 @@ echo "
                 name=\"카메라 셔터 소리\"
                 action=\"generic01 /sys/devices/virtual/camera/rear/camera_speaker_enabled\"
                 label=\"카메라 셔터 소리\"/>
+
+    </settingsPane>
+
+    <settingsPane name=\"Vnswap on AOSP\" >
+
+      <checkbox description=\"내장 메모리를 사용하여 512 MB의 가상 메모리를 확보합니다. KitKat부터 zRam이 해당 기능으로 대체되었습니다. Touchwiz ROM들에선 기본적으로 활성화되어 있으며, 아래 스위치는 AOSP ROM들에서만 적용됩니다.\"
+                name=\"Vnswap on AOSP\"
+                action=\"generic01 /data/.arter97/vnswap\"
+                label=\"Vnswap on AOSP 활성화\"/>
 
     </settingsPane>
 

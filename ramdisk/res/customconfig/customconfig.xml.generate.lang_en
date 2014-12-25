@@ -802,6 +802,9 @@ echo '
 if [ ! -f /data/.arter97/insecure_adb ]; then
   echo "0" > /data/.arter97/insecure_adb
 fi
+if [ ! -f /data/.arter97/vnswap ]; then
+  echo "0" > /data/.arter97/vnswap
+fi
 
 echo '
       </spinner>
@@ -834,6 +837,15 @@ echo "
                 name=\"Camera shutter sound\"
                 action=\"generic01 /sys/devices/virtual/camera/rear/camera_speaker_enabled\"
                 label=\"Camera shutter sound\"/>
+
+    </settingsPane>
+
+    <settingsPane name=\"Vnswap on AOSP\" >
+
+      <checkbox description=\"Vnswap will extend the RAM by 512 MB with internal storage. zRam is replaced with vnswap ongoing from KitKat. Touchwiz ROMs already has this enabled, thus this switch only takes actions when you are on AOSP ROMs.\"
+                name=\"Vnswap on AOSP\"
+                action=\"generic01 /data/.arter97/vnswap\"
+                label=\"Enable vnswap on AOSP\"/>
 
     </settingsPane>
 

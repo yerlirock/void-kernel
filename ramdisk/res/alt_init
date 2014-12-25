@@ -140,18 +140,32 @@ if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
 	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/kitkat/init.$VARIANT.rc
 fi
 
+# lpm mode
+LPM=0
+if grep -q 1 /sys/class/power_supply/battery/batt_lp_charging ; then
+	LPM=1
+fi
+if grep -q lpcharge=1 /proc/cmdline ; then
+	LPM=1
+fi
+if cat /proc/last_kmsg | grep -q "Kernel panic"; then
+	LPM=0
+fi
+
 case "$ROMTYPE" in
 	'1')
 	echo "7" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/kitkat/* /
 	/res/hwc.sh kitkat
+	/res/vnswap.sh $LPM
 	;;
 	'2')
 	echo "7" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
 	/res/hwc.sh lollipop
+	/res/vnswap.sh $LPM
 	;;
 	'3')
 	echo "2" > /proc/sys/kernel/rom_feature_set
@@ -165,17 +179,6 @@ case "$ROMTYPE" in
 	;;
 esac
 
-# lpm mode
-LPM=0
-if grep -q 1 /sys/class/power_supply/battery/batt_lp_charging ; then
-	LPM=1
-fi
-if grep -q lpcharge=1 /proc/cmdline ; then
-	LPM=1
-fi
-if cat /proc/last_kmsg | grep -q "Kernel panic"; then
-	LPM=0
-fi
 if [[ $LPM == "1" ]]; then
 	echo "ondemand" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 	echo "1000000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
