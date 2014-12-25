@@ -26,6 +26,7 @@ if [[ $HWC == "0" ]]; then
 	done
 	cp -p /system/lib/gralloc.exynos4.so /system/lib/gralloc.smdk4x12.so
 	cp -p /system/lib/hwcomposer.exynos4.so /system/lib/hwcomposer.smdk4x12.so
+	cp -p /system/lib/camera.exynos4.so /system/lib/camera.smdk4x12.so
 	if [ ! -e /arter97/data ] ; then
 		mount -o ro,remount /system
 	fi
