@@ -21,7 +21,7 @@
 #include "sdcardfslp.h"
 
 /* Do not directly use this function. Use OVERRIDE_CRED() instead. */
-const struct cred * override_fsids_kitKat(struct sdcardfslp_sb_info* sbi)
+const struct cred * override_fsids_lolliPop(struct sdcardfslp_sb_info* sbi)
 {
 	struct cred * cred;
 	const struct cred * old_cred;
@@ -39,7 +39,7 @@ const struct cred * override_fsids_kitKat(struct sdcardfslp_sb_info* sbi)
 }
 
 /* Do not directly use this function, use REVERT_CRED() instead. */
-void revert_fsids_kitkat(const struct cred * old_cred)
+void revert_fsids_lollipop(const struct cred * old_cred)
 {
 	const struct cred * cur_cred;
 
@@ -58,8 +58,8 @@ static int sdcardfslp_create(struct inode *dir, struct dentry *dentry,
 	struct sdcardfslp_sb_info *sbi = SDCARDFSLP_SB(dentry->d_sb);
 	const struct cred *saved_cred = NULL;
 
-	int has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
-	if(!check_caller_access_to_name(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
+	int has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
+	if(!check_caller_access_to_name_lollipop(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  dentry: %s, task:%s\n",
 						 __func__, dentry->d_name.name, current->comm);
@@ -163,8 +163,8 @@ static int sdcardfslp_unlink(struct inode *dir, struct dentry *dentry)
 	struct sdcardfslp_sb_info *sbi = SDCARDFSLP_SB(dentry->d_sb);
 	const struct cred *saved_cred = NULL;
 
-	int has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
-	if(!check_caller_access_to_name(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
+	int has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
+	if(!check_caller_access_to_name_lollipop(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  dentry: %s, task:%s\n",
 						 __func__, dentry->d_name.name, current->comm);
@@ -282,8 +282,8 @@ static int sdcardfslp_mkdir(struct inode *dir, struct dentry *dentry, int mode)
 	int fullpath_namelen;
 	int touch_err = 0;
 
-	int has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
-	if(!check_caller_access_to_name(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
+	int has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
+	if(!check_caller_access_to_name_lollipop(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  dentry: %s, task:%s\n",
 						 __func__, dentry->d_name.name, current->comm);
@@ -322,12 +322,12 @@ static int sdcardfslp_mkdir(struct inode *dir, struct dentry *dentry, int mode)
 	}
 
 	/* if it is a local obb dentry, setup it with the base obbpath */
-	if(need_graft_path(dentry)) {
+	if(need_graft_path_lollipop(dentry)) {
 
-		err = setup_obb_dentry(dentry, &lower_path);
+		err = setup_obb_dentry_lollipop(dentry, &lower_path);
 		if(err) {
 			/* if the sbi->obbpath is not available, the lower_path won't be
-			 * changed by setup_obb_dentry() but the lower path is saved to
+			 * changed by setup_obb_dentry_lollipop() but the lower path is saved to
              * its orig_path. this dentry will be revalidated later.
 			 * but now, the lower_path should be NULL */
 			sdcardfslp_put_reset_lower_path(dentry);
@@ -415,8 +415,8 @@ static int sdcardfslp_rmdir(struct inode *dir, struct dentry *dentry)
 	const struct cred *saved_cred = NULL;
 	//char *path_s = NULL;
 
-	int has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
-	if(!check_caller_access_to_name(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
+	int has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
+	if(!check_caller_access_to_name_lollipop(dir, dentry->d_name.name, sbi->options.derive, 1, has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  dentry: %s, task:%s\n",
 						 __func__, dentry->d_name.name, current->comm);
@@ -514,10 +514,10 @@ static int sdcardfslp_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct sdcardfslp_sb_info *sbi = SDCARDFSLP_SB(old_dentry->d_sb);
 	const struct cred *saved_cred = NULL;
 
-	int has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
-	if(!check_caller_access_to_name(old_dir, old_dentry->d_name.name,
+	int has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
+	if(!check_caller_access_to_name_lollipop(old_dir, old_dentry->d_name.name,
 			sbi->options.derive, 1, has_rw) ||
-		!check_caller_access_to_name(new_dir, new_dentry->d_name.name,
+		!check_caller_access_to_name_lollipop(new_dir, new_dentry->d_name.name,
 			sbi->options.derive, 1, has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  new_dentry: %s, task:%s\n",
@@ -574,7 +574,7 @@ static int sdcardfslp_rename(struct inode *old_dir, struct dentry *old_dentry,
 		new_parent = dget_parent(new_dentry);
 		if(new_parent) {
 			if(old_dentry->d_inode) {
-				get_derived_permission(new_parent, old_dentry);
+				get_derived_permission_lollipop(new_parent, old_dentry);
 				fix_derived_permission(old_dentry->d_inode);
 			}
 			dput(new_parent);
@@ -718,7 +718,7 @@ static int sdcardfslp_getattr(struct vfsmount *mnt, struct dentry *dentry,
 	struct sdcardfslp_sb_info *sbi = SDCARDFSLP_SB(dentry->d_sb);
 
 	parent = dget_parent(dentry);
-	if(!check_caller_access_to_name(parent->d_inode, dentry->d_name.name,
+	if(!check_caller_access_to_name_lollipop(parent->d_inode, dentry->d_name.name,
 						sbi->options.derive, 0, 0)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 						 "  dentry: %s, task:%s\n",
@@ -774,9 +774,9 @@ static int sdcardfslp_setattr(struct dentry *dentry, struct iattr *ia)
 	/* no vfs_XXX operations required, cred overriding will be skipped. wj*/
 	if (!err) {
 		/* check the Android group ID */
-		has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
+		has_rw = get_caller_has_rw_locked_lollipop(sbi->pkgl_id, sbi->options.derive);
 		parent = dget_parent(dentry);
-		if(!check_caller_access_to_name(parent->d_inode, dentry->d_name.name,
+		if(!check_caller_access_to_name_lollipop(parent->d_inode, dentry->d_name.name,
 						sbi->options.derive, 1, has_rw)) {
 			printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
 							 "  dentry: %s, task:%s\n",

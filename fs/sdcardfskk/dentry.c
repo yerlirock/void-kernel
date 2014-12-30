@@ -47,7 +47,7 @@ static int sdcardfskk_d_revalidate(struct dentry *dentry, struct nameidata *nd)
 
 	/* check uninitialized obb_dentry and
 	 * whether the base obbpath has been changed or not */
-	if (is_obbpath_invalid(dentry)) {
+	if (is_obbpath_invalid_kitkat(dentry)) {
 		d_drop(dentry);
 		return 0;
 	}

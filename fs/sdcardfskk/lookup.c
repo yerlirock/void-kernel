@@ -194,7 +194,7 @@ int sdcardfskk_interpose(struct dentry *dentry, struct super_block *sb,
 	}
 
 	d_add(dentry, inode);
-	update_derived_permission(dentry);
+	update_derived_permission_kitkat(dentry);
 out:
 	return err;
 }
@@ -246,14 +246,14 @@ static struct dentry *__sdcardfskk_lookup(struct dentry *dentry,
 		 * if true, the lower_inode must be replaced with
 		 * the inode of the graft path */
 
-		if(need_graft_path(dentry)) {
+		if(need_graft_path_kitkat(dentry)) {
 
-			/* setup_obb_dentry()
+			/* setup_obb_dentry_kitkat()
  			 * The lower_path will be stored to the dentry's orig_path
 			 * and the base obbpath will be copyed to the lower_path variable.
 			 * if an error returned, there's no change in the lower_path
 			 * 		returns: -ERRNO if error (0: no error) */
-			err = setup_obb_dentry(dentry, &lower_nd.path);
+			err = setup_obb_dentry_kitkat(dentry, &lower_nd.path);
 
 			if(err) {
 				/* if the sbi->obbpath is not available, we can optionally
@@ -338,7 +338,7 @@ struct dentry *sdcardfskk_lookup(struct inode *dir, struct dentry *dentry,
 
 	parent = dget_parent(dentry);
 
-	if(!check_caller_access_to_name(parent->d_inode, dentry->d_name.name,
+	if(!check_caller_access_to_name_kitkat(parent->d_inode, dentry->d_name.name,
 						sbi->options.derive, 0, 0)) {
 		ret = ERR_PTR(-EACCES);
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
@@ -370,7 +370,7 @@ struct dentry *sdcardfskk_lookup(struct inode *dir, struct dentry *dentry,
 		fsstack_copy_attr_times(dentry->d_inode,
 					sdcardfskk_lower_inode(dentry->d_inode));
 		/* get drived permission */
-		get_derived_permission(parent, dentry);
+		get_derived_permission_kitkat(parent, dentry);
 		fix_derived_permission(dentry->d_inode);
 	}
 	/* update parent directory's atime */

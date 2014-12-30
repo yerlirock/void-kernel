@@ -218,11 +218,11 @@ static int sdcardfskk_open(struct inode *inode, struct file *file)
 		goto out_err;
 	}
 
-	has_rw = get_caller_has_rw_locked(sbi->pkgl_id, sbi->options.derive);
+	has_rw = get_caller_has_rw_locked_kitkat(sbi->pkgl_id, sbi->options.derive);
 
-	if(!check_caller_access_to_name(parent->d_inode, dentry->d_name.name,
+	if(!check_caller_access_to_name_kitkat(parent->d_inode, dentry->d_name.name,
 				sbi->options.derive,
-				open_flags_to_access_mode(file->f_flags), has_rw)) {
+				open_flags_to_access_mode_kitkat(file->f_flags), has_rw)) {
 		printk(KERN_INFO "%s: need to check the caller's gid in packages.list\n"
                          "	dentry: %s, task:%s\n",
 						 __func__, dentry->d_name.name, current->comm);

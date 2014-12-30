@@ -34,7 +34,7 @@ static void inherit_derived_state(struct inode *parent, struct inode *child)
 }
 
 /* helper function for derived state */
-void setup_derived_state(struct inode *inode, perm_t perm,
+void setup_derived_state_kitkat(struct inode *inode, perm_t perm,
                         userid_t userid, uid_t uid, gid_t gid, mode_t mode)
 {
 	struct sdcardfskk_inode_info *info = SDCARDFSKK_I(inode);
@@ -46,7 +46,7 @@ void setup_derived_state(struct inode *inode, perm_t perm,
 	info->d_mode = mode;
 }
 
-void get_derived_permission(struct dentry *parent, struct dentry *dentry)
+void get_derived_permission_kitkat(struct dentry *parent, struct dentry *dentry)
 {
 	struct sdcardfskk_sb_info *sbi = SDCARDFSKK_SB(dentry->d_sb);
 	struct sdcardfskk_inode_info *info = SDCARDFSKK_I(dentry->d_inode);
@@ -125,7 +125,7 @@ void get_derived_permission(struct dentry *parent, struct dentry *dentry)
 		 * and PERM_ANDROID_OBB */
 		case PERM_ANDROID_DATA:
 		case PERM_ANDROID_OBB:
-			appid = get_appid(sbi->pkgl_id, dentry->d_name.name);
+			appid = get_appid_kitkat(sbi->pkgl_id, dentry->d_name.name);
 			if (appid != 0) {
 				info->d_uid = multiuser_get_uid(parent_info->userid, appid);
 			}
@@ -142,7 +142,7 @@ void get_derived_permission(struct dentry *parent, struct dentry *dentry)
 }
 
 /* main function for updating derived permission */
-inline void update_derived_permission(struct dentry *dentry)
+inline void update_derived_permission_kitkat(struct dentry *dentry)
 {
 	struct dentry *parent;
 
@@ -159,14 +159,14 @@ inline void update_derived_permission(struct dentry *dentry)
 	} else {
 		parent = dget_parent(dentry);
 		if(parent) {
-			get_derived_permission(parent, dentry);
+			get_derived_permission_kitkat(parent, dentry);
 			dput(parent);
 		}
 	}
 	fix_derived_permission(dentry->d_inode);
 }
 
-int need_graft_path(struct dentry *dentry)
+int need_graft_path_kitkat(struct dentry *dentry)
 {
 	int ret = 0;
 	struct dentry *parent = dget_parent(dentry);
@@ -186,7 +186,7 @@ int need_graft_path(struct dentry *dentry)
 	return ret;
 }
 
-int is_obbpath_invalid(struct dentry *dent)
+int is_obbpath_invalid_kitkat(struct dentry *dent)
 {
 	int ret = 0;
 	struct sdcardfskk_dentry_info *di = SDCARDFSKK_D(dent);
@@ -226,7 +226,7 @@ int is_obbpath_invalid(struct dentry *dent)
 	return ret;
 }
 
-int is_base_obbpath(struct dentry *dentry)
+int is_base_obbpath_kitkat(struct dentry *dentry)
 {
 	int ret = 0;
 	struct dentry *parent = dget_parent(dentry);
@@ -256,7 +256,7 @@ int is_base_obbpath(struct dentry *dentry)
  * and the base obbpath will be copyed to the lower_path variable.
  * if an error returned, there's no change in the lower_path
  * returns: -ERRNO if error (0: no error) */
-int setup_obb_dentry(struct dentry *dentry, struct path *lower_path)
+int setup_obb_dentry_kitkat(struct dentry *dentry, struct path *lower_path)
 {
 	int err = 0;
 	struct sdcardfskk_sb_info *sbi = SDCARDFSKK_SB(dentry->d_sb);

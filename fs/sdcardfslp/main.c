@@ -236,7 +236,7 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 	}
 
 	if (sb_info->options.derive != DERIVE_NONE) {
-		pkgl_id = packagelist_create(sb_info->options.write_gid);
+		pkgl_id = packagelist_create_lollipop(sb_info->options.write_gid);
 		if(IS_ERR(pkgl_id))
 			goto out_freesbi;
 		else
@@ -269,7 +269,7 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 
 	/* link the upper and lower dentries */
 	sb->s_root->d_fsdata = NULL;
-	err = new_dentry_private_data_kitkat(sb->s_root);
+	err = new_dentry_private_data_lollipop(sb->s_root);
 	if (err)
 		goto out_freeroot;
 
@@ -282,7 +282,7 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 		/* setup permission policy */
 		switch(sb_info->options.derive) {
 			case DERIVE_NONE:
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_lollipop(sb->s_root->d_inode,
 					PERM_ROOT, 0, AID_ROOT, AID_SDCARD_RW, 00775);
 				sb_info->obbpath_s = NULL;
 				break;
@@ -290,7 +290,7 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 				/* Legacy behavior used to support internal multiuser layout which
 				 * places user_id at the top directory level, with the actual roots
 				 * just below that. Shared OBB path is also at top level. */
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_lollipop(sb->s_root->d_inode,
 				        PERM_LEGACY_PRE_ROOT, 0, AID_ROOT, AID_SDCARD_R, 00771);
 				/* initialize the obbpath string and lookup the path
 				 * sb_info->obb_path will be deactivated by path_put
@@ -307,7 +307,7 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 			case DERIVE_UNIFIED:
 				/* Unified multiuser layout which places secondary user_id under
 				 * /Android/user and shared OBB path under /Android/obb. */
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_lollipop(sb->s_root->d_inode,
 						PERM_ROOT, 0, AID_ROOT, AID_SDCARD_R, 00771);
 
 				sb_info->obbpath_s = kzalloc(PATH_MAX, GFP_KERNEL);
@@ -327,13 +327,13 @@ static int sdcardfslp_read_super(struct super_block *sb, const char *dev_name,
 	}
 	/* else error: fall through */
 
-	free_dentry_private_data_kitkat(sb->s_root);
+	free_dentry_private_data_lollipop(sb->s_root);
 out_freeroot:
 	dput(sb->s_root);
 out_sput:
 	/* drop refs we took earlier */
 	atomic_dec(&lower_sb->s_active);
-	packagelist_destroy(sb_info->pkgl_id);
+	packagelist_destroy_lollipop(sb_info->pkgl_id);
 out_freesbi:
 	kfree(SDCARDFSLP_SB(sb));
 	sb->s_fs_info = NULL;
@@ -398,7 +398,7 @@ static int __init init_sdcardfslp_fs(void)
 	err = sdcardfslp_init_dentry_cache();
 	if (err)
 		goto out;
-	err = packagelist_init();
+	err = packagelist_init_lollipop();
 	if (err)
 		goto out;
 	err = register_filesystem(&sdcardfslp_fs_type);
@@ -406,7 +406,7 @@ out:
 	if (err) {
 		sdcardfslp_destroy_inode_cache();
 		sdcardfslp_destroy_dentry_cache();
-		packagelist_exit();
+		packagelist_exit_lollipop();
 	}
 	return err;
 }
@@ -415,7 +415,7 @@ static void __exit exit_sdcardfslp_fs(void)
 {
 	sdcardfslp_destroy_inode_cache();
 	sdcardfslp_destroy_dentry_cache();
-	packagelist_exit();
+	packagelist_exit_lollipop();
 	unregister_filesystem(&sdcardfslp_fs_type);
 	pr_info("Completed sdcardfslp module unload\n");
 }

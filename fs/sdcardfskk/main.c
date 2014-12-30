@@ -236,7 +236,7 @@ static int sdcardfskk_read_super(struct super_block *sb, const char *dev_name,
 	}
 
 	if (sb_info->options.derive != DERIVE_NONE) {
-		pkgl_id = packagelist_create(sb_info->options.write_gid);
+		pkgl_id = packagelist_create_kitkat(sb_info->options.write_gid);
 		if(IS_ERR(pkgl_id))
 			goto out_freesbi;
 		else
@@ -282,7 +282,7 @@ static int sdcardfskk_read_super(struct super_block *sb, const char *dev_name,
 		/* setup permission policy */
 		switch(sb_info->options.derive) {
 			case DERIVE_NONE:
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_kitkat(sb->s_root->d_inode,
 					PERM_ROOT, 0, AID_ROOT, AID_SDCARD_RW, 00775);
 				sb_info->obbpath_s = NULL;
 				break;
@@ -290,7 +290,7 @@ static int sdcardfskk_read_super(struct super_block *sb, const char *dev_name,
 				/* Legacy behavior used to support internal multiuser layout which
 				 * places user_id at the top directory level, with the actual roots
 				 * just below that. Shared OBB path is also at top level. */
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_kitkat(sb->s_root->d_inode,
 				        PERM_LEGACY_PRE_ROOT, 0, AID_ROOT, AID_SDCARD_R, 00771);
 				/* initialize the obbpath string and lookup the path
 				 * sb_info->obb_path will be deactivated by path_put
@@ -307,7 +307,7 @@ static int sdcardfskk_read_super(struct super_block *sb, const char *dev_name,
 			case DERIVE_UNIFIED:
 				/* Unified multiuser layout which places secondary user_id under
 				 * /Android/user and shared OBB path under /Android/obb. */
-				setup_derived_state(sb->s_root->d_inode,
+				setup_derived_state_kitkat(sb->s_root->d_inode,
 						PERM_ROOT, 0, AID_ROOT, AID_SDCARD_R, 00771);
 
 				sb_info->obbpath_s = kzalloc(PATH_MAX, GFP_KERNEL);
@@ -333,7 +333,7 @@ out_freeroot:
 out_sput:
 	/* drop refs we took earlier */
 	atomic_dec(&lower_sb->s_active);
-	packagelist_destroy(sb_info->pkgl_id);
+	packagelist_destroy_kitkat(sb_info->pkgl_id);
 out_freesbi:
 	kfree(SDCARDFSKK_SB(sb));
 	sb->s_fs_info = NULL;
@@ -398,7 +398,7 @@ static int __init init_sdcardfskk_fs(void)
 	err = sdcardfskk_init_dentry_cache();
 	if (err)
 		goto out;
-	err = packagelist_init();
+	err = packagelist_init_kitkat();
 	if (err)
 		goto out;
 	err = register_filesystem(&sdcardfskk_fs_type);
@@ -406,7 +406,7 @@ out:
 	if (err) {
 		sdcardfskk_destroy_inode_cache();
 		sdcardfskk_destroy_dentry_cache();
-		packagelist_exit();
+		packagelist_exit_kitkat();
 	}
 	return err;
 }
@@ -415,7 +415,7 @@ static void __exit exit_sdcardfskk_fs(void)
 {
 	sdcardfskk_destroy_inode_cache();
 	sdcardfskk_destroy_dentry_cache();
-	packagelist_exit();
+	packagelist_exit_kitkat();
 	unregister_filesystem(&sdcardfskk_fs_type);
 	pr_info("Completed sdcardfskk module unload\n");
 }

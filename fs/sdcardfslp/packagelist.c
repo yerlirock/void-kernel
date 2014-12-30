@@ -77,7 +77,7 @@ static int contain_appid_key(struct packagelist_data *pkgl_dat, void *appid) {
 }
 
 /* Return if the calling UID holds sdcard_rw. */
-int get_caller_has_rw_locked(void *pkgl_id, derive_t derive) {
+int get_caller_has_rw_locked_lollipop(void *pkgl_id, derive_t derive) {
 	struct packagelist_data *pkgl_dat = (struct packagelist_data *)pkgl_id;
 	appid_t appid;
 	int ret;
@@ -94,7 +94,7 @@ int get_caller_has_rw_locked(void *pkgl_id, derive_t derive) {
 	return ret;
 }
 
-appid_t get_appid(void *pkgl_id, const char *app_name)
+appid_t get_appid_lollipop(void *pkgl_id, const char *app_name)
 {
 	struct packagelist_data *pkgl_dat = (struct packagelist_data *)pkgl_id;
 	struct hashtable_entry *hash_cur;
@@ -121,7 +121,7 @@ appid_t get_appid(void *pkgl_id, const char *app_name)
 /* Kernel has already enforced everything we returned through
  * derive_permissions_locked(), so this is used to lock down access
  * even further, such as enforcing that apps hold sdcard_rw. */
-int check_caller_access_to_name(struct inode *parent_node, const char* name,
+int check_caller_access_to_name_lollipop(struct inode *parent_node, const char* name,
 					derive_t derive, int w_ok, int has_rw) {
 
 	/* Always block security-sensitive files at root */
@@ -159,8 +159,8 @@ int check_caller_access_to_name(struct inode *parent_node, const char* name,
 }
 
 /* This function is used when file opening. The open flags must be
- * checked before calling check_caller_access_to_name() */
-int open_flags_to_access_mode(int open_flags) {
+ * checked before calling check_caller_access_to_name_lollipop() */
+int open_flags_to_access_mode_lollipop(int open_flags) {
 	if((open_flags & O_ACCMODE) == O_RDONLY) {
 		return 0; /* R_OK */
 	} else if ((open_flags & O_ACCMODE) == O_WRONLY) {
@@ -394,7 +394,7 @@ interruptable_sleep:
 	return res;
 }
 
-void * packagelist_create(gid_t write_gid)
+void * packagelist_create_lollipop(gid_t write_gid)
 {
 	struct packagelist_data *pkgl_dat;
         struct task_struct *packagelist_thread;
@@ -424,7 +424,7 @@ void * packagelist_create(gid_t write_gid)
 	return (void *)pkgl_dat;
 }
 
-void packagelist_destroy(void *pkgl_id)
+void packagelist_destroy_lollipop(void *pkgl_id)
 {
 	struct packagelist_data *pkgl_dat = (struct packagelist_data *)pkgl_id;
 	pid_t pkgl_pid = pkgl_dat->thread_id->pid;
@@ -436,7 +436,7 @@ void packagelist_destroy(void *pkgl_id)
 	kfree(pkgl_dat);
 }
 
-int packagelist_init(void)
+int packagelist_init_lollipop(void)
 {
 	hashtable_entry_cachep =
 		kmem_cache_create("packagelist_hashtable_entry",
@@ -449,7 +449,7 @@ int packagelist_init(void)
         return 0;
 }
 
-void packagelist_exit(void)
+void packagelist_exit_lollipop(void)
 {
 	if (hashtable_entry_cachep)
 		kmem_cache_destroy(hashtable_entry_cachep);

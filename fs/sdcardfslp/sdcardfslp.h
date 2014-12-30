@@ -85,14 +85,14 @@
  * placed at the beginning of a function, right after variable declaration.
  */
 #define OVERRIDE_CRED(sdcardfslp_sbi, saved_cred)		\
-	saved_cred = override_fsids_kitKat(sdcardfslp_sbi);	\
+	saved_cred = override_fsids_lolliPop(sdcardfslp_sbi);	\
 	if (!saved_cred) { return -ENOMEM; }
 
 #define OVERRIDE_CRED_PTR(sdcardfslp_sbi, saved_cred)	\
-	saved_cred = override_fsids_kitKat(sdcardfslp_sbi);	\
+	saved_cred = override_fsids_lolliPop(sdcardfslp_sbi);	\
 	if (!saved_cred) { return ERR_PTR(-ENOMEM); }
 
-#define REVERT_CRED(saved_cred)	revert_fsids_kitkat(saved_cred)
+#define REVERT_CRED(saved_cred)	revert_fsids_lollipop(saved_cred)
 
 #define DEBUG_CRED()		\
 	printk("KAKJAGI: %s:%d fsuid %d fsgid %d\n", 	\
@@ -140,9 +140,9 @@ struct sdcardfslp_sb_info;
 struct sdcardfslp_mount_options;
 
 /* Do not directly use this function. Use OVERRIDE_CRED() instead. */
-const struct cred * override_fsids_kitKat(struct sdcardfslp_sb_info* sbi);
+const struct cred * override_fsids_lolliPop(struct sdcardfslp_sb_info* sbi);
 /* Do not directly use this function, use REVERT_CRED() instead. */
-void revert_fsids_kitkat(const struct cred * old_cred);
+void revert_fsids_lollipop(const struct cred * old_cred);
 
 /* operations vectors defined in specific files */
 extern const struct file_operations sdcardfslp_main_fops;
@@ -159,8 +159,8 @@ extern int sdcardfslp_init_inode_cache(void);
 extern void sdcardfslp_destroy_inode_cache(void);
 extern int sdcardfslp_init_dentry_cache(void);
 extern void sdcardfslp_destroy_dentry_cache(void);
-extern int new_dentry_private_data_kitkat(struct dentry *dentry);
-extern void free_dentry_private_data_kitkat(struct dentry *dentry);
+extern int new_dentry_private_data_lollipop(struct dentry *dentry);
+extern void free_dentry_private_data_lollipop(struct dentry *dentry);
 extern struct dentry *sdcardfslp_lookup(struct inode *dir, struct dentry *dentry,
 				    struct nameidata *nd);
 extern int sdcardfslp_interpose(struct dentry *dentry, struct super_block *sb,
@@ -380,25 +380,25 @@ static inline void sdcardfslp_put_real_lower(const struct dentry *dent,
 }
 
 /* for packagelist.c */
-extern int get_caller_has_rw_locked(void *pkgl_id, derive_t derive);
-extern appid_t get_appid(void *pkgl_id, const char *app_name);
-extern int check_caller_access_to_name(struct inode *parent_node, const char* name,
+extern int get_caller_has_rw_locked_lollipop(void *pkgl_id, derive_t derive);
+extern appid_t get_appid_lollipop(void *pkgl_id, const char *app_name);
+extern int check_caller_access_to_name_lollipop(struct inode *parent_node, const char* name,
                                         derive_t derive, int w_ok, int has_rw);
-extern int open_flags_to_access_mode(int open_flags);
-extern void * packagelist_create(gid_t write_gid);
-extern void packagelist_destroy(void *pkgl_id);
-extern int packagelist_init(void);
-extern void packagelist_exit(void);
+extern int open_flags_to_access_mode_lollipop(int open_flags);
+extern void * packagelist_create_lollipop(gid_t write_gid);
+extern void packagelist_destroy_lollipop(void *pkgl_id);
+extern int packagelist_init_lollipop(void);
+extern void packagelist_exit_lollipop(void);
 
 /* for derived_perm.c */
-extern void setup_derived_state(struct inode *inode, perm_t perm,
+extern void setup_derived_state_lollipop(struct inode *inode, perm_t perm,
 			userid_t userid, uid_t uid, gid_t gid, mode_t mode);
-extern void get_derived_permission(struct dentry *parent, struct dentry *dentry);
-extern void update_derived_permission(struct dentry *dentry);
-extern int need_graft_path(struct dentry *dentry);
-extern int is_base_obbpath(struct dentry *dentry);
-extern int is_obbpath_invalid(struct dentry *dentry);
-extern int setup_obb_dentry(struct dentry *dentry, struct path *lower_path);
+extern void get_derived_permission_lollipop(struct dentry *parent, struct dentry *dentry);
+extern void update_derived_permission_lollipop(struct dentry *dentry);
+extern int need_graft_path_lollipop(struct dentry *dentry);
+extern int is_base_obbpath_lollipop(struct dentry *dentry);
+extern int is_obbpath_invalid_lollipop(struct dentry *dentry);
+extern int setup_obb_dentry_lollipop(struct dentry *dentry, struct path *lower_path);
 
 /* locking helpers */
 static inline struct dentry *lock_parent(struct dentry *dentry)

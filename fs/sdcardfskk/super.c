@@ -52,7 +52,7 @@ static void sdcardfskk_put_super(struct super_block *sb)
 	atomic_dec(&s->s_active);
 
 	if(spd->pkgl_id)
-		packagelist_destroy(spd->pkgl_id);
+		packagelist_destroy_kitkat(spd->pkgl_id);
 
 	kfree(spd);
 	sb->s_fs_info = NULL;

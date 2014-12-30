@@ -47,7 +47,7 @@ static int sdcardfslp_d_revalidate(struct dentry *dentry, struct nameidata *nd)
 
 	/* check uninitialized obb_dentry and
 	 * whether the base obbpath has been changed or not */
-	if (is_obbpath_invalid(dentry)) {
+	if (is_obbpath_invalid_lollipop(dentry)) {
 		d_drop(dentry);
 		return 0;
 	}
@@ -114,7 +114,7 @@ static void sdcardfslp_d_release(struct dentry *dentry)
 		sdcardfslp_put_reset_orig_path(dentry);
 	}
 	sdcardfslp_put_reset_lower_path(dentry);
-	free_dentry_private_data_kitkat(dentry);
+	free_dentry_private_data_lollipop(dentry);
 	return;
 }
 
