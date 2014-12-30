@@ -126,7 +126,7 @@ if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
 	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/samsung/jellybean/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l \/data\/media \/mnt\/shell\/emulated' \
 	       -e '/SDCARDFS_SED2/c\service fuse_sdcard1 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/sdcard1 \/storage\/sdcard1' \
-	       -e '/SDCARDFS_SED3/c\service fuse_usbdisk0 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/usbdisk0 \/storage\/usbdisk0' /ramdisks/kitkat/init.$VARIANT.rc
+	       -e '/SDCARDFS_SED3/c\service fuse_usbdisk0 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/usbdisk0 \/storage\/usbdisk0' /ramdisks/kitkat/init.$VARIANT.rc /ramdisks/lollipop/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l -r \/data\/media \/mnt\/shell\/emulated' \
 	       -e '/SDCARDFS_SED2/c\service fuse_extSdCard \/system\/bin\/sdcard -u 1023 -g 1023 -w 1023 -d -f \/mnt\/media_rw\/extSdCard \/storage\/extSdCard' \
 	       -e '/SDCARDFS_SED3/c\service fuse_UsbDriveA \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveA \/storage\/UsbDriveA' \
@@ -137,7 +137,7 @@ if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
 	       -e '/SDCARDFS_SED8/c\service fuse_UsbDriveF \/system\/bin\/sdcard -u 1023 -g 1023 -d -f \/mnt\/media_rw\/UsbDriveF \/storage\/UsbDriveF' /ramdisks/samsung/kitkat/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED/c\service container \/system\/bin\/sdcard -u 1000 -g 1000 -r \/data\/container \/mnt\/shell\/container' /ramdisks/samsung/kitkat/init.container.rc
 
-	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/kitkat/init.$VARIANT.rc
+	sed -i -e '/SDCARDFS_ONESHOT/d' /ramdisks/kitkat/init.$VARIANT.rc /ramdisks/lollipop/init.$VARIANT.rc
 fi
 
 # lpm mode
