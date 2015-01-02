@@ -8,9 +8,8 @@
 /dev/block/mmcblk0p10		/preload		ext4		noatime,nosuid,nodev		wait
 /dev/block/mmcblk0p12		/data			f2fs		noatime,nosuid,nodev,discard		wait
 
-/dev/block/mmcblk1p1		/external_sd		auto		defaults	wait
-
 # vold-managed volumes ("block device" is actually a sysfs devpath)
+/devices/platform/s3c-sdhci.2/mmc_host/mmc1		/storage/sdcard1		auto		defaults		voldmanaged=sdcard1:auto
 /devices/platform/s5p-ehci						/storage/usbdisk0		auto		defaults		voldmanaged=usbdisk0:auto
 
 # recovery
