@@ -67,6 +67,7 @@
 #define DEF_START_DELAY				(0)
 
 #define UP_THRESHOLD_AT_MIN_FREQ		(40)
+#define FREQ_FOR_RESPONSIVENESS			(500000)
 
 #define HOTPLUG_DOWN_INDEX			(0)
 #define HOTPLUG_UP_INDEX			(1)
@@ -986,6 +987,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	int num_hist = hotplug_history->num_hist;
 	int max_hotplug_rate = max(dbs_tuners_ins.cpu_up_rate,
 				   dbs_tuners_ins.cpu_down_rate);
+	int up_threshold = dbs_tuners_ins.up_threshold;
 
 	policy = this_dbs_info->cur_policy;
 
@@ -1061,6 +1063,11 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	if (hotplug_history->num_hist  == max_hotplug_rate)
 		hotplug_history->num_hist = 0;
 
+	/* Check for frequency increase */
+	if (policy->cur < FREQ_FOR_RESPONSIVENESS) {
+		up_threshold = UP_THRESHOLD_AT_MIN_FREQ;
+	}
+
 	if (max_load > dbs_tuners_ins.up_threshold) {
 		int inc = (policy->max * dbs_tuners_ins.freq_step) / 100;
 		int target = min(policy->max, policy->cur + inc);
@@ -1101,6 +1108,10 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 		down_thres = UP_THRESHOLD_AT_MIN_FREQ
 			- dbs_tuners_ins.down_differential;
+
+		if (freq_next < FREQ_FOR_RESPONSIVENESS
+			&& (max_load / freq_next) > down_thres)
+			freq_next = FREQ_FOR_RESPONSIVENESS;
 
 		if (policy->cur == freq_next)
 			return;
