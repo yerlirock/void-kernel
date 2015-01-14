@@ -1,7 +1,7 @@
 #!/bin/bash
 git fetch f2fs
 
-find . -not -path '*/\.*' -name '*f2fs*' | grep -v 'update_f2fs\|recovery' | while read f2fs; do rm -rf $f2fs; git checkout f2fs/dev -- $f2fs; done
+find . -not -path '*/\.*' -name '*f2fs*' | grep -v 'update_f2fs\|recovery\|ramdisk' | while read f2fs; do rm -rf $f2fs; git checkout f2fs/dev -- $f2fs; done
 
 rm -rf fs/f2fs
 git checkout f2fs/dev -- fs/f2fs
