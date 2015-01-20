@@ -1289,6 +1289,10 @@ out:
  */
 static int __init mobicore_init(void)
 {
+AOSPROM {
+	dev_info(mcd, "Skipping MobiCore Driver module initialization for AOSP ROM!\n");
+	return -ENODEV;
+}
 	int ret = 0;
 	dev_set_name(mcd, "mcd");
 
@@ -1382,6 +1386,9 @@ error:
  */
 static void __exit mobicore_exit(void)
 {
+AOSPROM {
+	return;
+}
 	MCDRV_DBG_VERBOSE(mcd, "enter");
 #ifdef MC_MEM_TRACES
 	mobicore_log_free();
