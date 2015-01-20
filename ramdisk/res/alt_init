@@ -154,15 +154,23 @@ if cat /proc/last_kmsg | grep -q "Kernel panic"; then
 	LPM=0
 fi
 
+HWC=7
+if strings /system/lib/hw/hwcomposer.smdk4x12.so | grep -q libExynosHWCService.so; then
+	HWC=6
+fi
+if strings /system/lib/hw/hwcomposer.exynos4.so | grep -q libExynosHWCService.so; then
+	HWC=6
+fi
+
 case "$ROMTYPE" in
 	'1')
-	echo "7" > /proc/sys/kernel/rom_feature_set
+	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/kitkat/* /
 	/res/vnswap.sh $LPM
 	;;
 	'2')
-	echo "6" > /proc/sys/kernel/rom_feature_set
+	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
 	/res/vnswap.sh $LPM
