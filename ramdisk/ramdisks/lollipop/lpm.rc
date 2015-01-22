@@ -42,10 +42,8 @@ service ueventd /sbin/ueventd
 service console /system/bin/sh
     console
 
-service healthd-charger /sbin/healthd -n
+service charger /sbin/healthd -c
     seclabel u:r:healthd:s0
-
-service lpm /system/bin/lpm
 
 # adbd is controlled by the persist.service.adb.enable system property
 service adbd /sbin/adbd
