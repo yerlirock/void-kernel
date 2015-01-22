@@ -9,7 +9,30 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -o rw,remount rootfs
 
-echo "0" > /proc/sys/kernel/hung_task_timeout_secs
+echo "-1000"	> /proc/1/oom_score_adj
+echo "0"	> /sys/fs/selinux/checkreqprot
+echo "1"	> /proc/sys/kernel/panic_on_oops
+echo "4"	> /proc/cpu/alignment
+echo "0"	> /proc/sys/kernel/hung_task_timeout_secs
+echo "10000000"	> /proc/sys/kernel/sched_latency_ns
+echo "2000000"	> /proc/sys/kernel/sched_wakeup_granularity_ns
+echo "1"	> /proc/sys/kernel/sched_compat_yield
+echo "0"	> /proc/sys/kernel/sched_child_runs_first
+echo "2"	> /proc/sys/kernel/randomize_va_space
+echo "2"	> /proc/sys/kernel/kptr_restrict
+echo "32768"	> /proc/sys/vm/mmap_min_addr
+echo "0 2147483647" > /proc/sys/net/ipv4/ping_group_range
+echo "300"	> /proc/sys/net/unix/max_dgram_qlen
+echo "950000"	> /proc/sys/kernel/sched_rt_runtime_us
+echo "1000000"	> /proc/sys/kernel/sched_rt_period_us
+echo "1"	> /proc/sys/net/ipv4/fwmark_reflect
+echo "1"	> /proc/sys/net/ipv6/fwmark_reflect
+echo "1"	> /proc/sys/net/ipv4/tcp_fwmark_accept
+echo "1"	> /proc/apanic_console
+echo "1"	> /proc/sys/vm/overcommit_memory
+echo "4"	> /proc/sys/vm/min_free_order_shift
+echo "200"	> /proc/sys/vm/dirty_expire_centisecs
+echo "5"	> /proc/sys/vm/dirty_background_ratio
 
 mkdir /dev/block
 
