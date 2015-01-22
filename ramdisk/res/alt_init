@@ -9,16 +9,13 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -o rw,remount rootfs
 
-mkdir /dev/input /dev/block
+echo "0" > /proc/sys/kernel/hung_task_timeout_secs
 
-rm -f init
-mv -f /res/init /
+mkdir /dev/block
 
 while ! test -d /sys/dev/block/179:9 ; do
 	sleep 0.1
 done
-
-echo "0" > /proc/sys/kernel/hung_task_timeout_secs
 
 mknod /dev/block/mmcblk0 b 179 0
 mknod /dev/block/mmcblk0p12 b 179 12
@@ -221,6 +218,8 @@ if [[ $LPM == "1" ]]; then
 	rm -f /init.$VARIANT.rc
 fi
 
+rm -f init
+mv -f /res/init /
 chmod 750 /init
 
 export PATH="$ORIG_PATH"
