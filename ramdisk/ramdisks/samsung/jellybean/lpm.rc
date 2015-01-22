@@ -42,7 +42,6 @@ on boot
 service debuggerd /system/bin/debuggerd
 
 service ueventd /sbin/ueventd
-        critical
 
 #service console /bin/sh
 service console /system/bin/sh

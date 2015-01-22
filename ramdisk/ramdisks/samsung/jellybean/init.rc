@@ -711,7 +711,6 @@ on property:selinux.reload_policy=1
 ##
 service ueventd /sbin/ueventd
     class core
-    critical
     seclabel u:r:ueventd:s0
 
 service console /system/bin/sh
@@ -760,7 +759,6 @@ service servicemanager /system/bin/servicemanager
     class core
     user system
     group system
-    critical
     onrestart restart zygote
     onrestart restart media
     onrestart restart surfaceflinger

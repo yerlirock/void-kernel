@@ -332,7 +332,6 @@ on property:persist.sys.storage_preload=0
 ##
 service ueventd /sbin/ueventd
     class core
-    critical
 
 service console /system/bin/sh
     class core

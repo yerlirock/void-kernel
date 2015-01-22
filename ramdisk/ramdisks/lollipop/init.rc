@@ -481,7 +481,6 @@ on property:sys.sysctl.tcp_def_init_rwnd=*
 ##
 service ueventd /sbin/ueventd
     class core
-    critical
     seclabel u:r:ueventd:s0
 
 service logd /system/bin/logd
@@ -493,7 +492,6 @@ service logd /system/bin/logd
 
 service healthd /sbin/healthd
     class core
-    critical
     seclabel u:r:healthd:s0
 
 service console /system/bin/sh
@@ -530,14 +528,12 @@ service arter97-kernel /arter97.sh
 
 service lmkd /system/bin/lmkd
     class core
-    critical
     socket lmkd seqpacket 0660 system system
 
 service servicemanager /system/bin/servicemanager
     class core
     user system
     group system
-    critical
     onrestart restart healthd
     onrestart restart zygote
     onrestart restart media

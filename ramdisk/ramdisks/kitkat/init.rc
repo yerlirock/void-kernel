@@ -457,17 +457,14 @@ on property:sys.sysctl.tcp_def_init_rwnd=*
 ##
 service ueventd /sbin/ueventd
     class core
-    critical
     seclabel u:r:ueventd:s0
 
 service healthd /sbin/healthd
     class core
-    critical
     seclabel u:r:healthd:s0
 
 service healthd-charger /sbin/healthd -n
     class charger
-    critical
     seclabel u:r:healthd:s0
 
 service console /system/bin/sh
@@ -505,7 +502,6 @@ service servicemanager /system/bin/servicemanager
     class core
     user system
     group system
-    critical
     onrestart restart healthd
     onrestart restart zygote
     onrestart restart media

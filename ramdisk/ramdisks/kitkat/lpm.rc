@@ -38,17 +38,14 @@ on init
 service debuggerd /system/bin/debuggerd
 
 service ueventd /sbin/ueventd
-    critical
 
 service console /system/bin/sh
     console
 
 service healthd-charger /sbin/healthd -n
-    critical
     seclabel u:r:healthd:s0
 
 service lpm /system/bin/lpm
-    critical
 
 # adbd is controlled by the persist.service.adb.enable system property
 service adbd /sbin/adbd

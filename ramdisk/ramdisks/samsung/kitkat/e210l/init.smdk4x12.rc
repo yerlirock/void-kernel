@@ -413,7 +413,6 @@ on property:sys.boot_completed=1
 ##
 service ueventd /sbin/ueventd
     class core
-    critical
 
 service console /system/bin/sh
     class core
@@ -709,7 +708,6 @@ on property:ro.bootmode=charger
 
 service playlpm /system/bin/lpm
     class sec-charger
-    critical
 
 #NPSMOBEX
 service mobex-daemon /system/bin/npsmobex
