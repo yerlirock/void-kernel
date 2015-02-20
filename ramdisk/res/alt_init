@@ -241,8 +241,6 @@ if [[ $LPM == "1" ]]; then
 	rm -f /init.$VARIANT.rc
 fi
 
-rm -f init
-mv -f /res/init /
 chmod 750 /init
 
 export PATH="$ORIG_PATH"
