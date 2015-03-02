@@ -805,6 +805,9 @@ fi
 if [ ! -f /data/.arter97/vnswap ]; then
   echo "0" > /data/.arter97/vnswap
 fi
+if [ ! -f /data/.arter97/preloadswap ]; then
+  echo "0" > /data/.arter97/preloadswap
+fi
 
 echo '
       </spinner>
@@ -846,6 +849,15 @@ echo "
                 name=\"Vnswap on AOSP\"
                 action=\"generic01 /data/.arter97/vnswap\"
                 label=\"Enable vnswap on AOSP\"/>
+
+    </settingsPane>
+
+    <settingsPane name=\"Hardswap on preload partition\" >
+
+      <checkbox description=\"Enabling this will create a swap device - approximately 560 MB - on the preload partition instead of using vnswap. This option is recommended when you know that your ROM does not use the preload partition and if you prefer hardswap instead of other swapping methods. On AOSP ROMs, this option is not recommended when you do not need vnswap already. To use the preload partition again, disable this option and do a preload partition wipe from the recovery. Enabling this will disable vnswap on both AOSP and Touchwiz.\"
+                name=\"Hardswap on preload partition\"
+                action=\"generic01 /data/.arter97/preloadswap\"
+                label=\"Enable hardswap\"/>
 
     </settingsPane>
 

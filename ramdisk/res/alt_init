@@ -187,23 +187,27 @@ case "$ROMTYPE" in
 	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/kitkat/* /
+	/res/preloadswap.sh $LPM
 	/res/vnswap.sh $LPM
 	;;
 	'2')
 	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
+	/res/preloadswap.sh $LPM
 	/res/vnswap.sh $LPM
 	;;
 	'3')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
 	mv -f /ramdisks/samsung/jellybean/* /
+	/res/preloadswap.sh $LPM
 	;;
 	'4')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/samsung/kitkat/* /
+	/res/preloadswap.sh $LPM
 	;;
 esac
 
