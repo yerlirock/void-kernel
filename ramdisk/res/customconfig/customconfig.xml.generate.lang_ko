@@ -844,7 +844,7 @@ echo "
 
     <settingsPane name=\"Vnswap on AOSP\" >
 
-      <checkbox description=\"내장 메모리를 사용하여 512 MB의 가상 메모리를 확보합니다. KitKat부터 zRam이 해당 기능으로 대체되었습니다. Touchwiz ROM들에선 기본적으로 활성화되어 있으며, 아래 스위치는 AOSP ROM들에서만 적용됩니다.\"
+      <checkbox description=\"내장 메모리를 사용하여 512 MB의 가상 메모리를 확보합니다. KitKat부터 zRam이 해당 기능으로 대체되었습니다. Touchwiz ROM들에선 기본적으로 활성화되어 있으며, 아래 스위치는 AOSP ROM들에서만 적용됩니다. 설정을 바꾸신 뒤에 재시작하셔야 적용됩니다.\"
                 name=\"Vnswap on AOSP\"
                 action=\"generic01 /data/.arter97/vnswap\"
                 label=\"Vnswap on AOSP 활성화\"/>
@@ -853,7 +853,7 @@ echo "
 
     <settingsPane name=\"Preload에 hardswap 생성\" >
 
-      <checkbox description=\"preload 파티션을 사용함으로써 약 560 MB의 가상 메모리를 확보합니다. 사용하시는 ROM이 preload를 사용하지 않고 vnswap보다 hardswap을 더 선호하실 때 활성화를 권장드립니다. AOSP ROM에선 가상 메모리 자체가 필요하지 않을 땐 사용하지 않는 것을 추천드립니다. Preload 파티션을 다시 사용하기 위해선 이 옵션을 비활성화하신 뒤 리커버리를 이용해 preload 파티션을 wipe 해주세요. 이 옵션이 활성화되면 AOSP와 Touchwiz 모두 vnswap이 비활성화 됩니다.\"
+      <checkbox description=\"preload 파티션을 사용함으로써 약 560 MB의 가상 메모리를 확보합니다. 사용하시는 ROM이 preload를 사용하지 않고 vnswap보다 hardswap을 더 선호하실 때 활성화를 권장드립니다. AOSP ROM에선 가상 메모리 자체가 필요하지 않을 땐 사용하지 않는 것을 추천드립니다. Preload 파티션을 다시 사용하기 위해선 이 옵션을 비활성화하신 뒤 리커버리를 이용해 preload 파티션을 wipe 해주세요. 이 옵션이 활성화되면 AOSP와 Touchwiz 모두 vnswap이 비활성화 됩니다. 설정을 바꾸신 뒤에 재시작하셔야 적용됩니다.\"
                 name=\"Preload에 hardswap 생성\"
                 action=\"generic01 /data/.arter97/preloadswap\"
                 label=\"Hardswap 활성화\"/>
