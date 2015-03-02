@@ -152,6 +152,7 @@ sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10
 sed -i -e 's/mknod \/dev\/block\/mmcblk0p13 b 179 12/mknod \/dev\/block\/mmcblk0p13 b 179 13/g' -e 's/mknod \/dev\/block\/mmcblk0p10 b 179 9/mknod \/dev\/block\/mmcblk0p10 b 179 10/g' -e 's/mknod \/dev\/block\/mmcblk0p9 b 179 8/mknod \/dev\/block\/mmcblk0p9 b 179 9/g' -e 's/mknod \/dev\/block\/mmcblk0p11 b 179 10/mknod \/dev\/block\/mmcblk0p11 b 179 11/g' res/alt_init
 find . -name "*rc*" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10/mmcblk0p11/g -e s/mmcblk0p9/mmcblk0p10/g -e s/mmcblk0p8/mmcblk0p9/g $file ; done
 find . -name "*fstab*" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10/mmcblk0p11/g -e s/mmcblk0p9/mmcblk0p10/g -e s/mmcblk0p8/mmcblk0p9/g $file ; done
+find . -name "*.sh" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10/mmcblk0p11/g -e s/mmcblk0p9/mmcblk0p10/g -e s/mmcblk0p8/mmcblk0p9/g $file ; done
 # so freaking-annoying HELL-G communication-fix
 echo "
 setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
