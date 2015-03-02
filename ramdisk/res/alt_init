@@ -113,8 +113,11 @@ mknod /dev/block/mmcblk0p3 b 179 3
 mknod /dev/block/mmcblk0p10 b 179 10
 mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p3 /efs
 mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p3 /efs
-mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p10 /preload
-mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
+
+if [[ $(cat /data/.arter97/preloadswap) != "1" ]]; then
+	mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p10 /preload
+	mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
+fi
 
 rm -rf /dev/*
 
