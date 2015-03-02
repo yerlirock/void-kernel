@@ -120,8 +120,6 @@ if [[ $(cat /data/.arter97/preloadswap) != "1" ]]; then
 	mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
 fi
 
-rm -rf /dev/*
-
 # 1 = CyanogenMod 11
 # 2 = Android 5.0 Lollipop
 # 3 = Samsung Android 4.3 stock-based
@@ -250,6 +248,8 @@ if [[ $LPM == "1" ]]; then
 	cp /lpm.rc /init.rc
 	rm -f /init.$VARIANT.rc
 fi
+
+rm -rf /dev/*
 
 chmod 750 /init
 
