@@ -33,6 +33,7 @@ echo "1"	> /proc/sys/vm/overcommit_memory
 echo "4"	> /proc/sys/vm/min_free_order_shift
 echo "200"	> /proc/sys/vm/dirty_expire_centisecs
 echo "5"	> /proc/sys/vm/dirty_background_ratio
+echo "130"	> /proc/sys/vm/swappiness
 
 mkdir /dev/block
 
@@ -205,12 +206,14 @@ case "$ROMTYPE" in
 	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
 	mv -f /ramdisks/samsung/jellybean/* /
 	/res/preloadswap.sh $LPM
+	/sbin/sswap -s
 	;;
 	'4')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/samsung/kitkat/* /
 	/res/preloadswap.sh $LPM
+	/sbin/sswap -s
 	;;
 esac
 

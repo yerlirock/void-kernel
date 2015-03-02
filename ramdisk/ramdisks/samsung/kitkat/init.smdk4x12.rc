@@ -174,9 +174,6 @@ on boot
     # setprop ro.radio.noril yes
     setprop ro.securestorage.knox false
 
-# SSWAP
-    write /proc/sys/vm/swappiness 130
-
 # mobicore
     mkdir /data/app/mcRegistry 0775 system system
     chmod 0700 /dev/mobicore
@@ -756,11 +753,3 @@ service cpboot-daemon /sbin/cbd -d
     user root
     group radio cache inet misc audio sdcard_rw log sdcard_r
     seclabel u:r:cbd:s0
-
-# SSWAP
-service swapon /sbin/sswap -s
-    class core
-    user root
-    group root
-    seclabel u:r:sswap:s0
-    oneshot
