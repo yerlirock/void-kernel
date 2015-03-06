@@ -50,6 +50,8 @@ service gpsd /system/bin/gpsd -c /system/etc/gps.xml
 
 # LMK
 on property:init.svc.bootanim=stopped
+    chmod 0664 /sys/module/lowmemorykiller/parameters/adj
+    chmod 0664 /sys/module/lowmemorykiller/parameters/minfree
     write /sys/module/lowmemorykiller/parameters/minfree 12288,15360,18432,21504,24576,30720
 
 # CyanogenMod Performance Profiles
