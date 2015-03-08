@@ -111,11 +111,11 @@ else
 fi
 
 mknod /dev/block/mmcblk0p3 b 179 3
-mknod /dev/block/mmcblk0p10 b 179 10
 mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p3 /efs
 mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p3 /efs
 
 if [[ $(cat /data/.arter97/preloadswap) != "1" ]]; then
+	mknod /dev/block/mmcblk0p10 b 179 10
 	mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p10 /preload
 	mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p10 /preload
 fi
@@ -189,29 +189,35 @@ case "$ROMTYPE" in
 	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/kitkat/* /
-	/res/preloadswap.sh $LPM
-	/res/vnswap.sh $LPM
+	if [[ $LPM == "1" ]]; then
+		rm /res/*swap*
+	fi
 	;;
 	'2')
 	echo "$HWC" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/lollipop/sbin/* /sbin/
 	mv -f /ramdisks/lollipop/* /
-	/res/preloadswap.sh $LPM
-	/res/vnswap.sh $LPM
+	if [[ $LPM == "1" ]]; then
+		rm /res/*swap*
+	fi
 	;;
 	'3')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
 	mv -f /ramdisks/samsung/jellybean/* /
-	/res/preloadswap.sh $LPM
-	/sbin/sswap -s
+	mv /res/vnswaptw.sh /res/vnswap.sh
+	if [[ $LPM == "1" ]]; then
+		rm /res/*swap*
+	fi
 	;;
 	'4')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/samsung/kitkat/* /
-	/res/preloadswap.sh $LPM
-	/sbin/sswap -s
+	mv /res/vnswaptw.sh /res/vnswap.sh
+	if [[ $LPM == "1" ]]; then
+		rm /res/*swap*
+	fi
 	;;
 esac
 

@@ -63,6 +63,9 @@ while ! pgrep com.android ; do
 	sleep 1
 done
 
+/res/preloadswap.sh
+/res/vnswap.sh
+
 sleep 5
 
 while pgrep bootanimation ; do
