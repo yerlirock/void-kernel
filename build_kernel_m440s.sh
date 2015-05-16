@@ -46,13 +46,6 @@ rm -rf $RAMFS_TMP.cpio
 cp -ax $RAMFS_SOURCE $RAMFS_TMP
 cd $RAMFS_TMP
 
-cp -rp ramdisks/samsung/jellybean/m440s/* ramdisks/samsung/jellybean/
-rm -rf ramdisks/samsung/jellybean/e210s
-rm -rf ramdisks/samsung/jellybean/e210k
-rm -rf ramdisks/samsung/jellybean/e210l
-rm -rf ramdisks/samsung/jellybean/m440s
-rm -rf ramdisks/samsung/jellybean/i9300
-
 rm -rf ramdisks/samsung/kitkat/e210l
 
 echo "SHW-M440S" > ro.hardware

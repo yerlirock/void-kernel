@@ -133,13 +133,6 @@ rm $RAMFS_TMP/sbin/cbd
 cp -p e210/cbd $RAMFS_TMP/sbin/
 cd $RAMFS_TMP
 
-cp -rp ramdisks/samsung/jellybean/e210l/* ramdisks/samsung/jellybean/
-rm -rf ramdisks/samsung/jellybean/e210s
-rm -rf ramdisks/samsung/jellybean/e210k
-rm -rf ramdisks/samsung/jellybean/e210l
-rm -rf ramdisks/samsung/jellybean/m440s
-rm -rf ramdisks/samsung/jellybean/i9300
-
 cp -rp ramdisks/samsung/kitkat/e210l/* ramdisks/samsung/kitkat/
 rm -rf ramdisks/samsung/kitkat/e210l
 

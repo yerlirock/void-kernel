@@ -122,17 +122,12 @@ fi
 
 # 1 = CyanogenMod 11
 # 2 = Android 5.0 Lollipop
-# 3 = Samsung Android 4.3 stock-based
-# 4 = Samsung Android 4.4 stock-based
+# 3 = Samsung Android 4.4 stock-based
 
 ROMTYPE=0
 
 if [ -f /system/framework/multiwindow.jar ] ; then
-	if [ -f /system/priv-app/SystemUI.apk ] ; then
-		ROMTYPE=4
-	else
-		ROMTYPE=3
-	fi
+	ROMTYPE=3
 else
 	if [ -f /system/priv-app/SystemUI.apk ] ; then
 		ROMTYPE=1
@@ -147,7 +142,6 @@ if [[ $(cat /data/.arter97/insecure_adb) == "1" ]]; then
 fi
 
 if [[ $(cat /data/.arter97/sdcardfs) == "0" ]]; then
-	sed -i -e '/SDCARDFS_SED/c\service sdcard \/system\/bin\/sdcard \/data\/media \/mnt\/shell\/emulated 1023 1023' /ramdisks/samsung/jellybean/init.$VARIANT.rc
 	sed -i -e '/SDCARDFS_SED1/c\service sdcard \/system\/bin\/sdcard -u 1023 -g 1023 -l \/data\/media \/mnt\/shell\/emulated' \
 	       -e '/SDCARDFS_SED2/c\service fuse_sdcard1 \/system\/bin\/sdcard -u 1023 -g 1023 \/mnt\/media_rw\/sdcard1 \/storage\/sdcard1' \
 	       -e '/SDCARDFS_SED3/c\service fuse_usbdisk0 \/system\/bin\/sdcard -u 1023 -g 1023 -w 1023 \/mnt\/media_rw\/usbdisk0 \/storage\/usbdisk0' /ramdisks/kitkat/init.$VARIANT.rc /ramdisks/lollipop/init.$VARIANT.rc
@@ -202,15 +196,6 @@ case "$ROMTYPE" in
 	fi
 	;;
 	'3')
-	echo "2" > /proc/sys/kernel/rom_feature_set
-	mv -f /ramdisks/samsung/jellybean/sbin/* /sbin/
-	mv -f /ramdisks/samsung/jellybean/* /
-	mv /res/vnswaptw.sh /res/vnswap.sh
-	if [[ $LPM == "1" ]]; then
-		rm /res/*swap*
-	fi
-	;;
-	'4')
 	echo "2" > /proc/sys/kernel/rom_feature_set
 	mv -f /ramdisks/samsung/kitkat/sbin/* /sbin/
 	mv -f /ramdisks/samsung/kitkat/* /
