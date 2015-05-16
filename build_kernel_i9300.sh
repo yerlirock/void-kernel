@@ -65,7 +65,7 @@ rm -rf $RAMFS_TMP/tmp/*
 
 rm *.ko 2>/dev/null
 find . -name "*.ko" -exec cp {} . \;
-ls *.ko | while read file; do /home/arter97/toolchain/bin/arm-linux-gnueabihf-strip --strip-unneeded $file ; done
+ls *.ko | while read file; do $(cat Makefile | grep CROSS_COMPILE | grep arm | awk '{print $3}')strip --strip-unneeded $file ; done
 cp -av *.ko $RAMFS_TMP/lib/modules/
 chmod 644 $RAMFS_TMP/lib/modules/*
 cd $RAMFS_TMP
