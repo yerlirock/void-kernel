@@ -154,19 +154,6 @@ find . -name "*rc*" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12
 find . -name "*fstab*" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10/mmcblk0p11/g -e s/mmcblk0p9/mmcblk0p10/g -e s/mmcblk0p8/mmcblk0p9/g $file ; done
 find . -name "*.sh" | grep -v asset | while read file; do sed -i -e s/mmcblk0p12/mmcblk0p13/g -e s/mmcblk0p11/mmcblk0p12/g -e s/mmcblk0p10/mmcblk0p11/g -e s/mmcblk0p9/mmcblk0p10/g -e s/mmcblk0p8/mmcblk0p9/g $file ; done
 # so freaking-annoying HELL-G communication-fix
-echo "
-setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
-setprop net.tcp.buffersize.wifi 524288,1048576,2097152,262144,524288,1048576
-setprop net.tcp.buffersize.lte 524288,1048576,2560000,524288,1048576,2560000
-setprop net.tcp.buffersize.umts 4094,87380,110208,4096,16384,110208
-setprop net.tcp.buffersize.hspa 4092,87380,704512,4096,16384,262144
-setprop net.tcp.buffersize.hsupa 4092,87380,704512,4096,16384,262144
-setprop net.tcp.buffersize.hsdpa 4092,87380,704512,4096,16384,110208
-setprop net.tcp.buffersize.hspap 4092,87380,704512,4096,16384,262144
-setprop net.tcp.buffersize.edge 4093,26280,35040,4096,16384,35040
-setprop net.tcp.buffersize.gprs 4092,8760,11680,4096,8760,11680
-setprop net.tcp.buffersize.evdo 4094,87380,262144,4096,16384,262144
-setprop net.tcp.buffersize.evdo_b 4096,87380,704512,4096,16384,262144" >> arter97.sh
 # Thanks to gal3(?), ckh469 in develoid
 # LG: goto hell
 

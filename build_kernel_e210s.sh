@@ -138,16 +138,6 @@ echo "SHV-E210S" > ro.hardware
 
 find . -name "*smdk4x12*" | grep -v asset | while read file; do mv -f "$file" "$(echo $file | sed s/smdk4x12/SHV-E210S/g)"; done
 find . -name "*rc*" | grep -v asset | while read file; do sed -i s/smdk4x12/SHV-E210S/g $file ; done
-echo "
-setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
-setprop net.tcp.buffersize.lte 4094,281250,1220608,4096,140625,1220608
-setprop net.tcp.buffersize.umts 4094,87380,1220608,4096,16384,1220608
-setprop net.tcp.buffersize.hspa 4094,87380,1220608,4096,16384,1220608
-setprop net.tcp.buffersize.hsupa 4094,87380,1220608,4096,16384,1220608
-setprop net.tcp.buffersize.hsdpa 4094,87380,1220608,4096,16384,1220608
-setprop net.tcp.buffersize.hspap 4094,87380,1220608,4096,16384,1220608
-setprop net.tcp.buffersize.edge 4093,26280,35040,4096,16384,35040
-setprop net.tcp.buffersize.gprs 4092,8760,11680,4096,8760,1" >> arter97.sh
 
 find . -name '*.sh' -exec chmod 755 {} \;
 
