@@ -275,7 +275,11 @@ void inflate_fast(z_streamp strm, unsigned start)
 			sfrom = (unsigned short *)(from - OFF);
 			loops = len >> 1;
 			do
+#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+			    PUP(sout) = PUP(sfrom);
+#else
 			    PUP(sout) = UP_UNALIGNED(sfrom);
+#endif
 			while (--loops);
 			out = (unsigned char *)sout + OFF;
 			from = (unsigned char *)sfrom + OFF;
