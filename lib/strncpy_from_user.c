@@ -6,7 +6,7 @@
 #include <asm/byteorder.h>
 #include <asm/word-at-a-time.h>
 
-#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && !defined(STATIC)
 #define IS_UNALIGNED(src, dst)	0
 #else
 #define IS_UNALIGNED(src, dst)	\
