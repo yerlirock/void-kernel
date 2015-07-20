@@ -110,6 +110,17 @@ else
 	fi
 fi
 
+if [ -f /data/.arter97/system-cache ]; then
+	rm -rf /data/dalvik-cache
+	mkdir -p /system/dalvik-cache /data/dalvik-cache
+	chown 0.0 /system/dalvik-cache
+	chmod 771 /system/dalvik-cache
+	chown 0.0 /data/dalvik-cache
+	chmod 771 /data/dalvik-cache
+	mount -o rw,remount /system
+	mount --bind /system/dalvik-cache /data/dalvik-cache
+fi
+
 mknod /dev/block/mmcblk0p3 b 179 3
 mount -t ext4 -o noatime,nosuid,nodev,errors=remount-ro /dev/block/mmcblk0p3 /efs
 mount -t f2fs -o noatime,nosuid,nodev /dev/block/mmcblk0p3 /efs
