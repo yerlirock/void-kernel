@@ -60,6 +60,9 @@ VARIANT=$(cat /ro.hardware)
 
 mknod /dev/block/mmcblk0p8 b 179 8
 
+mkdir /data/.arter97
+chmod 777 /data/.arter97
+
 if [ -f /data/media/0/.arter97/btaltrom ] && [ -f /data/arter97_secondrom/system/build.prop ] ; then
 	umount -f /data
 	mount -t ext4 -o noatime,nodiratime,data=ordered,barrier=1,nodiscard,nosuid,nodev,noauto_da_alloc,errors=remount-ro /dev/block/mmcblk0p12 /arter97/data
@@ -204,6 +207,11 @@ case "$ROMTYPE" in
 	mv -f /ramdisks/lollipop/* /
 	if [[ $LPM == "1" ]]; then
 		rm /res/*swap*
+	fi
+	. /res/customconfig/init.profile
+	echo "vnswap=on" >> /res/customconfig/init.profile
+	if [[ $(cat /data/.arter97/vnswap) != "0" ]]; then
+		echo "1" > /data/.arter97/vnswap
 	fi
 	;;
 	'3')
