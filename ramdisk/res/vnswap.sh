@@ -2,8 +2,6 @@
 
 export PATH=/res/asset:$PATH
 
-if [[ $(cat /data/.arter97/preloadswap) != "1" ]]; then
-	if [[ $(cat /data/.arter97/vnswap) == "1" ]]; then
-		/sbin/sswap -s
-	fi
+if [[ $(cat /data/.arter97/vnswap) == "1" ]]; then
+	/sbin/sswap
 fi
