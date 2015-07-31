@@ -151,14 +151,6 @@ config CPU_FREQ_DEFAULT_GOV_PEGASUSQ
 	bool "pegasusq"
 	select CPU_FREQ_GOV_PEGASUSQ
 
-config CPU_FREQ_DEFAULT_GOV_YANKASUSQ
-	bool "yankasusq"
-	select CPU_FREQ_GOV_YANKASUSQ
-
-config CPU_FREQ_DEFAULT_GOV_PEGASUSQPLUS
-	bool "pegasusqplus"
-	select CPU_FREQ_GOV_PEGASUSQPLUS
-
 config CPU_FREQ_DEFAULT_GOV_INTELLIACTIVE
 	bool "intelliactive"
 	select CPU_FREQ_GOV_INTELLIACTIVE
@@ -347,20 +339,6 @@ config CPU_FREQ_GOV_ADAPTIVE
 
 config CPU_FREQ_GOV_PEGASUSQ
 	tristate "'pegasusq' cpufreq policy governor"
-
-config CPU_FREQ_GOV_YANKASUSQ
-	tristate "'yankasusq' cpufreq policy governor"
-	help
-	  based on PegasusQ - This driver is work in progress
-
-config CPU_FREQ_GOV_PEGASUSQPLUS
-	tristate "'pegasusqplus' cpufreq policy governor"
-
-config CPU_FREQ_GOV_LULZACTIVEQ
-        tristate "'lulzactiveq' cpufreq governor"
-        depends on CPU_FREQ
-        help
-          'lulzactiveq' - hotplug mechanism added in lulzactive
 
 config CPU_FREQ_DVFS_MONITOR
 	bool "dvfs monitor"

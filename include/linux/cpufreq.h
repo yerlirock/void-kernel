@@ -386,15 +386,6 @@ extern struct cpufreq_governor cpufreq_gov_adaptive;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_PEGASUSQ)
 extern struct cpufreq_governor cpufreq_gov_pegasusq;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_pegasusq)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_PEGASUSQPLUS)
-extern struct cpufreq_governor cpufreq_gov_pegasusq;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_pegasusqplus)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_YANKASUSQ)
-extern struct cpufreq_governor cpufreq_gov_yankasusq;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_yankasusq)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_LULZACTIVEQ)
-extern struct cpufreq_governor cpufreq_gov_lulzactiveq;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_lulzactiveq)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_HOTPLUG)
 extern struct cpufreq_governor cpufreq_gov_hotplug;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_hotplug)

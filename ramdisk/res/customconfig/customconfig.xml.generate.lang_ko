@@ -28,12 +28,12 @@ echo '
             name="sched_mc" action="generic /sys/devices/system/cpu/sched_mc_power_savings" unit="" min="0" reversed="false" step="1" max="2"/>
      </settingsPane>
 
-    <settingsPane description="intelliactive가 기본값이며 지연 속도가 낮고 배터리에 최적화된 가버너입니다. pegasusq는 순정 커널에서 기본값으로 사용하는 가버너입니다. pegasusqplus는 AndreiLux의 Perseus 커널에서 가져온 pegasusq의 개선판 입니다. 좀 더 나은 배터리 수명을 위해서라면, yankasusq나 zzmoove를 권장합니다."
+    <settingsPane description="intelliactive가 기본값이며 지연 속도가 낮고 배터리에 최적화된 가버너입니다. pegasusq는 순정 커널에서 기본값으로 사용하는 가버너입니다. 좀 더 나은 배터리 수명을 위해서라면 zzmoove를 권장합니다."
                   name="Active governor">' >> $XML
 echo "
       <spinner description=\"가버너 설정.\"
                name=\"현재 가버너\"
-               action=\"genericyank /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
+               action=\"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
 
 for GOVERNOR in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
   echo "<spinnerItem name=\"$GOVERNOR\" value=\"$GOVERNOR\"/>" >> $XML
@@ -49,7 +49,7 @@ echo '
 echo "
       <spinner description=\"CPU 최대 주파수를 설정합니다.\"
                name=\"CPU 최대 주파수\"
-               action=\"cpugenericyank /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
+               action=\"cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
 
 echo '
       <spinnerItem name="1800 MHz" value="1800000"/>
@@ -79,7 +79,7 @@ echo '
       </spinner>
     </settingsPane>
 
-    <settingsPane description="Intelli-plug by faux123. 핫플러그가 구현되지 않은 CPU 가버너에서도 핫플러그를 활성화시킵니다. lulzactiveq, pegasusq, pegasusqplus, performance, powersave, userspace, yankasusq 이나 zzmoove 가버너가 선택되면 자동으로 비활성화됩니다."
+    <settingsPane description="Intelli-plug by faux123. 핫플러그가 구현되지 않은 CPU 가버너에서도 핫플러그를 활성화시킵니다. pegasusq, performance, powersave, userspace 이나 zzmoove 가버너가 선택되면 자동으로 비활성화됩니다."
                   name="Intelli-plug">' >> $XML
 
 echo "
@@ -152,92 +152,6 @@ echo "
                name=\"최소 CPU 코어 수\"
                action=\"generic /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock\"
                unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-echo '
-    </settingsPane>
-  </settingsTab>
-
-  <settingsTab name="PegasusQ +">
-
-    <settingsPane description="아래의 설정은 CPU의 active governor가 pegasusqplus로 설정되어야만 적용 및 저장됩니다"
-		  name="경고">
-
-    </settingsPane>
-' >> $XML
-
-echo "
-    <settingsPane description=\"가버너의 핫플러그 설정을 제어합니다.\"
-                  name=\"핫플러그 제어\">
-
-      <seekBar description=\"켜질 수 있는 최대의 CPU 코어 수를 설정합니다. 0은 비활성화 상태를 의미합니다.\"
-               name=\"최대 CPU 코어 수\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/pegasusqplus/max_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>
-
-      <seekBar description=\"켜질 수 있는 최소의 CPU 코어 수를 설정합니다. 0은 비활성화 상태를 의미합니다.\"
-               name=\"최소 CPU 코어 수\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/pegasusqplus/min_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-echo '
-    </settingsPane>
-  </settingsTab>
-
-  <settingsTab name="Yankasusq">
-
-    <settingsPane description="아래의 설정은 CPU의 active governor가 yankasusq로 설정되어야만 적용 및 저장됩니다"
-		  name="경고">
-
-    </settingsPane>
-
-    <settingsPane description=""
-                  name="CPU 주파수 스케일링 설정">' >> $XML
-
-echo "
-      <spinner description=\"화면이 꺼져있을 때의 최대 주파수를 설정합니다. 데스슬립이 발생할 경우에만 바꾸시는 것을 권장합니다.\"
-               name=\"Screen-off시의 CPU 최대 주파수\"
-               action=\"cpugeneric /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_stdby\">" >> $XML
-
-cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies | \
-tr ' ' '\n' | awk '{ print $1 }' | \
-while read FREQTEMP; do
-  if [ ! -z $FREQTEMP ]; then
-    echo '<spinnerItem name="'$FREQTEMP' MHz" value="'${FREQTEMP}'"/>' | while read FREQ; do echo "$FREQ" | sed -e 's/000 MHz/ MHz/g' >> $XML; done
-  fi
-done
-
-if [ ! -f /data/.arter97/yankasusqsnappy ]; then
-  echo "0" > /data/.arter97/yankasusqsnappy
-fi
-
-echo "
-      </spinner>
-
-      <checkbox description=\"1번째 코어가 최대 주파수까지 올라가는 것을 허용합니다. 비활성화할 경우 배터리 수명이 개선됩니다.\"
-               name=\"Snappy 1-core\"
-               action=\"generic01yank /data/.arter97/yankasusqsnappy\"
-               label=\"Snappy 1-core 활성화\"/>" >> $XML
-
-echo '
-      <checkbox description="I/O 작업을 CPU 주파수를 높일 수 있는 원인 중 하나로 설정합니다. 활성화되면 시스템의 반응속도가 향상됩니다."
-                name="I/O is busy"
-                action="generic01 /sys/devices/system/cpu/cpufreq/yankasusq/io_is_busy"
-                label="I/O is busy"/>' >> $XML
-
-echo "
-    </settingsPane>
-
-    <settingsPane description=\"가버너의 핫플러그 설정을 제어합니다.\"
-                  name=\"핫플러그 제어\">
-
-      <seekBar description=\"켜질 수 있는 최대의 CPU 코어 수를 설정합니다. 0은 비활성화 상태를 의미합니다.\"
-               name=\"최대 CPU 코어 수\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/yankasusq/max_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>
-
-      <seekBar description=\"켜질 수 있는 최소의 CPU 코어 수를 설정합니다. 0은 비활성화 상태를 의미합니다.\"
-               name=\"최소 CPU 코어 수\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/yankasusq/min_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-
 echo '
     </settingsPane>
   </settingsTab>

@@ -28,12 +28,12 @@ echo '
             name="sched_mc" action="generic /sys/devices/system/cpu/sched_mc_power_savings" unit="" min="0" reversed="false" step="1" max="2"/>
      </settingsPane>
 
-    <settingsPane description="intelliactive is default and recommended for low-latency performance and battery-life. pegasusq is the stock default. pegasusqplus is improved version of pegasusq by AndreiLux of the Perseus kernel. If you want to have a better experience for battery, change it to yankasusq or zzmoove."
+    <settingsPane description="intelliactive is default and recommended for low-latency performance and battery-life. pegasusq is the stock default. If you want to have a better experience for battery, change it to zzmoove."
                   name="Active governor">' >> $XML
 echo "
       <spinner description=\"Set active governor.\"
                name=\"Current governor\"
-               action=\"genericyank /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
+               action=\"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
 
 for GOVERNOR in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
   echo "<spinnerItem name=\"$GOVERNOR\" value=\"$GOVERNOR\"/>" >> $XML
@@ -49,7 +49,7 @@ echo '
 echo "
       <spinner description=\"Set the maximum frequency the CPU scales up to.\"
                name=\"CPU max frequency\"
-               action=\"cpugenericyank /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
+               action=\"cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
 
 echo '
       <spinnerItem name="1800 MHz" value="1800000"/>
@@ -79,7 +79,7 @@ echo '
       </spinner>
     </settingsPane>
 
-    <settingsPane description="Intelli-plug by faux123. This enables hotplugging for non-hotplug-implemented governors. Intelli-plug is automatically disabled when lulzactiveq, pegasusq, pegasusqplus, performance, powersave, userspace, yankasusq or zzmoove governor is selected."
+    <settingsPane description="Intelli-plug by faux123. This enables hotplugging for non-hotplug-implemented governors. Intelli-plug is automatically disabled when pegasusq, performance, powersave, userspace or zzmoove governor is selected."
                   name="Intelli-plug">' >> $XML
 
 echo "
@@ -152,92 +152,6 @@ echo "
                name=\"Minimum CPU lock\"
                action=\"generic /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock\"
                unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-echo '
-    </settingsPane>
-  </settingsTab>
-
-  <settingsTab name="PegasusQ +">
-
-    <settingsPane description="Below settings will work &amp; save only on active governor for CPU is properly set to pegasusqplus"
-		  name="Warning">
-
-    </settingsPane>
-' >> $XML
-
-echo "
-    <settingsPane description=\"Override hotplug decisions and limit core count to given boundaries. Priorities: hotplug lock > max CPU lock > min CPU lock\"
-                  name=\"HotPlug Configuration overrides\">
-
-      <seekBar description=\"Maximum allowed number of cores. 0 disables the setting.\"
-               name=\"Maximum CPU lock\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/pegasusqplus/max_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>
-
-      <seekBar description=\"Minimum allowed number of cores. 0 disables the setting.\"
-               name=\"Minimum CPU lock\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/pegasusqplus/min_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-echo '
-    </settingsPane>
-  </settingsTab>
-
-  <settingsTab name="Yankasusq">
-
-    <settingsPane description="Below settings will work &amp; save only on active governor for CPU is properly set to yankasusq"
-		  name="Warning">
-
-    </settingsPane>
-
-    <settingsPane description=""
-                  name="CPU frequency scaling">' >> $XML
-
-echo "
-      <spinner description=\"Set the maximum frequency the CPU scales up to screen-off. Only change this value if you have death-sleep issue.\"
-               name=\"CPU max screen-off frequency\"
-               action=\"cpugeneric /sys/devices/system/cpu/cpufreq/yankasusq/cpu_max_freq_stdby\">" >> $XML
-
-cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies | \
-tr ' ' '\n' | awk '{ print $1 }' | \
-while read FREQTEMP; do
-  if [ ! -z $FREQTEMP ]; then
-    echo '<spinnerItem name="'$FREQTEMP' MHz" value="'${FREQTEMP}'"/>' | while read FREQ; do echo "$FREQ" | sed -e 's/000 MHz/ MHz/g' >> $XML; done
-  fi
-done
-
-if [ ! -f /data/.arter97/yankasusqsnappy ]; then
-  echo "0" > /data/.arter97/yankasusqsnappy
-fi
-
-echo "
-      </spinner>
-
-      <checkbox description=\"Enable First core operating up to maximum CPU frequency. Disabling this will improve battery.\"
-               name=\"Snappy 1-core\"
-               action=\"generic01yank /data/.arter97/yankasusqsnappy\"
-               label=\"Enable Snappy 1-core\"/>" >> $XML
-
-echo '
-      <checkbox description="Considers I/O as CPU load. Enabling this will improve system responsiveness"
-                name="I/O is busy"
-                action="generic01 /sys/devices/system/cpu/cpufreq/yankasusq/io_is_busy"
-                label="I/O is busy"/>' >> $XML
-
-echo "
-    </settingsPane>
-
-    <settingsPane description=\"Override hotplug decisions and limit core count to given boundaries. Priorities: hotplug lock > max CPU lock > min CPU lock\"
-                  name=\"HotPlug Configuration overrides\">
-
-      <seekBar description=\"Maximum allowed number of cores. 0 disables the setting.\"
-               name=\"Maximum CPU lock\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/yankasusq/max_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>
-
-      <seekBar description=\"Minimum allowed number of cores. 0 disables the setting.\"
-               name=\"Minimum CPU lock\"
-               action=\"generic /sys/devices/system/cpu/cpufreq/yankasusq/min_cpu_lock\"
-               unit=\"core(s)\" min=\"0\" reversed=\"false\" step=\"1\" max=\"4\"/>" >> $XML
-
 echo '
     </settingsPane>
   </settingsTab>

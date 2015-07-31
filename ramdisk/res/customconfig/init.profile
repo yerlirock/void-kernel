@@ -12,7 +12,6 @@ boost_boot_cpu_freq=1400000
 io_is_busy=on
 max_cpu_lock=0
 min_cpu_lock=0
-yankasusqsnappy=off
 Dyn_fsync_active=on
 sdcardfs=on
 led_lowpower_current=5
