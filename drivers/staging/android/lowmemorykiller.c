@@ -191,7 +191,6 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 #endif
 	int other_file = global_page_state(NR_FILE_PAGES) -
 						global_page_state(NR_SHMEM);
-	struct sysinfo si;
 
 #if defined(CONFIG_ZRAM_FOR_ANDROID) || defined(CONFIG_ZSWAP)
 	other_file -= total_swapcache_pages;
@@ -216,11 +215,7 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 		return 0;
 #endif
 
-	si_meminfo(&si);
-	si_swapinfo(&si);
-
 	other_free += other_file;
-	other_free += si.freeswap;
 
 	if (lowmem_adj_size < array_size)
 		array_size = lowmem_adj_size;
