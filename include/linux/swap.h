@@ -334,7 +334,6 @@ extern struct page *swapin_readahead(swp_entry_t, gfp_t,
 extern long nr_swap_pages;
 extern long total_swap_pages;
 extern void si_swapinfo(struct sysinfo *);
-extern void si_swapinfo_single(struct sysinfo *, signed short);
 extern swp_entry_t get_swap_page(void);
 extern swp_entry_t get_swap_page_of_type(int);
 extern int valid_swaphandles(swp_entry_t, unsigned long *);
