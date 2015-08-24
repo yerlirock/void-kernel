@@ -132,7 +132,7 @@ if [[ $(cat /data/.arter97/preloadswap) != "1" ]]; then
 fi
 
 # 1 = CyanogenMod 11
-# 2 = Android 5.0 Lollipop
+# 2 = Android 5.1 Lollipop
 # 3 = Samsung Android 4.4 stock-based
 
 ROMTYPE=0
