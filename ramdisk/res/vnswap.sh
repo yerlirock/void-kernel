@@ -2,11 +2,6 @@
 
 export PATH=/res/asset:$PATH
 
-. /res/customconfig/init.profile
-if [ -e /data/.arter97/default.profile ]; then
-	. /data/.arter97/default.profile
-fi
-
-if [[ $vnswap == "on" ]]; then
+if [[ $(cat /data/.arter97/vnswap) == "1" ]]; then
 	/sbin/sswap
 fi

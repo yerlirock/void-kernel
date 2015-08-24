@@ -208,6 +208,7 @@ case "$ROMTYPE" in
 	if [[ $LPM == "1" ]]; then
 		rm /res/*swap*
 	fi
+	. /res/customconfig/init.profile
 	echo "vnswap=on" >> /res/customconfig/init.profile
 	if [[ $(cat /data/.arter97/vnswap) != "0" ]]; then
 		echo "1" > /data/.arter97/vnswap
