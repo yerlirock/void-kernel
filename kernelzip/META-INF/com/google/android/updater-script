@@ -98,9 +98,7 @@ run_program("/tmp/arter97/busybox", "cp", "-p", "/system/app/aSwitch.apk", "/dat
 run_program("/tmp/arter97/busybox", "cp", "-p", "/system/app/aTweaks.apk", "/data/arter97_secondrom/system/app/aTweaks.apk");
 ui_print(" - resetting aTweaks");
 ui_print("             aSwitch");
-run_program("/tmp/arter97/busybox", "rm", "-rf", "/data/.arter97");
-run_program("/tmp/arter97/busybox", "rm", "-rf", "/data/arter97_secondrom/data/.arter97");
-run_program("/tmp/arter97/busybox", "rm", "-rf", "/data/media/0/arter97");
+run_program("/tmp/arter97/script/reset.sh");
 package_extract_file("img.tar.xz", "/tmp/img.tar.xz");
 if file_getprop("/tmp/arter97/hardware.prop", "hardware") == "smdk4x12"
   then
