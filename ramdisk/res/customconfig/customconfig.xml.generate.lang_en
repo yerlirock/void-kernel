@@ -77,28 +77,6 @@ echo '
       </spinner>
     </settingsPane>
 
-    <settingsPane description="Intelli-plug by faux123. This enables hotplugging for non-hotplug-implemented governors. Intelli-plug is automatically disabled when pegasusq, performance, powersave, userspace or zzmoove governor is selected."
-                  name="Intelli-plug">' >> $XML
-
-echo "
-      <spinner description=\"Set the hotplugging profile for Intelli-plug.\"
-               name=\"Hotplugging profile\"
-               action=\"generic /sys/module/intelli_plug/parameters/nr_run_profile_sel\">" >> $XML
-
-echo '
-      <spinnerItem name="Balance" value="0"/>
-      <spinnerItem name="Performance" value="1"/>
-      <spinnerItem name="Conservative" value="2"/>
-      <spinnerItem name="Eco" value="3"/>
-      <spinnerItem name="Eco Extreme" value="4"/>
-      <spinnerItem name="Disable" value="5"/>' >> $XML
-
-echo "
-      </spinner>" >> $XML
-
-echo '
-    </settingsPane>
-
   </settingsTab>
 
   <settingsTab name="PegasusQ">

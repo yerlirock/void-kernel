@@ -77,28 +77,6 @@ echo '
       </spinner>
     </settingsPane>
 
-    <settingsPane description="Intelli-plug by faux123. 핫플러그가 구현되지 않은 CPU 가버너에서도 핫플러그를 활성화시킵니다. pegasusq, performance, powersave, userspace 이나 zzmoove 가버너가 선택되면 자동으로 비활성화됩니다."
-                  name="Intelli-plug">' >> $XML
-
-echo "
-      <spinner description=\"Intelli-plug가 사용할 프로파일 선택.\"
-               name=\"핫플러그 프로파일\"
-               action=\"generic /sys/module/intelli_plug/parameters/nr_run_profile_sel\">" >> $XML
-
-echo '
-      <spinnerItem name="Balance" value="0"/>
-      <spinnerItem name="Performance" value="1"/>
-      <spinnerItem name="Conservative" value="2"/>
-      <spinnerItem name="Eco" value="3"/>
-      <spinnerItem name="Eco Extreme" value="4"/>
-      <spinnerItem name="비활성화" value="5"/>' >> $XML
-
-echo "
-      </spinner>" >> $XML
-
-echo '
-    </settingsPane>
-
   </settingsTab>
 
   <settingsTab name="PegasusQ">
