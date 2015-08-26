@@ -651,19 +651,6 @@ service console /system/bin/sh
     disabled
     user shell
     group log
-## WTL_EDM_START
-## EDM AuditLog
-service edmaudit /system/bin/edmaudit
-	class main
-	user root
-
-## WTL_EDM_END
-
-service auditd /system/bin/auditd -k
-    class main
-    seclabel u:r:auditd:s0
-    disabled
-    oneshot
 
 service netlabels /system/bin/selinux-network.sh
     class core
@@ -832,7 +819,6 @@ service mdnsd /system/bin/mdnsd
 on property:init.svc.bootanim=stopped
     restorecon /data/media
     restorecon /data/media/obb
-    start auditd
     start freshsebool
     selinux_restore -b
 
