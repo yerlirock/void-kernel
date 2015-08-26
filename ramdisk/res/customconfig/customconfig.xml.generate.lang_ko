@@ -160,6 +160,7 @@ echo "
              <spinnerItem name=\"ZZperformance\" value=\"8\"/>
              <spinnerItem name=\"ZZinzane\" value=\"9\"/>
              <spinnerItem name=\"ZZgame\" value=\"10\"/>
+             <spinnerItem name=\"ZZrelax\" value=\"11\"/>
       </spinner>
     </settingsPane>
     <settingsPane description=\"가버너에서 조절가능한 값을 변경하여 가버너의 성격을 설정합니다.\"
