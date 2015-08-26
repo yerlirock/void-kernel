@@ -52,8 +52,6 @@ echo "
                action=\"cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
 
 echo '
-      <spinnerItem name="1800 MHz" value="1800000"/>
-      <spinnerItem name="1704 MHz" value="1704000"/>
       <spinnerItem name="1600 MHz" value="1600000"/>
       <spinnerItem name="1400 MHz" value="1400000"/>
       <spinnerItem name="1200 MHz" value="1200000"/>
@@ -673,7 +671,7 @@ if [ ! -f /data/.arter97/boost_boot ]; then
 fi
 
 if [ ! -f /data/.arter97/boost_boot_cpu_freq ]; then
-  echo "1704000" > /data/.arter97/boost_boot_cpu_freq
+  echo "1600000" > /data/.arter97/boost_boot_cpu_freq
 fi
 
 echo "
@@ -690,8 +688,6 @@ echo "
                action=\"cpugeneric /data/.arter97/boost_boot_cpu_freq\">" >> $XML
 
 echo '
-      <spinnerItem name="1800 MHz" value="1800000"/>
-      <spinnerItem name="1704 MHz" value="1704000"/>
       <spinnerItem name="1600 MHz" value="1600000"/>
       <spinnerItem name="1500 MHz" value="1500000"/>
       <spinnerItem name="1400 MHz" value="1400000"/>' >> $XML
