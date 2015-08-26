@@ -55,7 +55,7 @@ static struct workqueue_struct *intelliplug_boost_wq;
 unsigned int intelli_plug_active = 0;
 EXPORT_SYMBOL(intelli_plug_active);
 
-static unsigned int touch_boost_active = 0;
+static unsigned int touch_boost_active = 1;
 module_param(touch_boost_active, uint, 0644);
 
 static unsigned int nr_run_profile_sel = 0;
