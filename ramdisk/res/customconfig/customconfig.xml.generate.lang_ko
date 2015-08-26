@@ -154,7 +154,7 @@ echo '
   </settingsTab>
 
   <settingsTab name="저장소">
-    <settingsPane description="I/O 스케쥴러를 설정합니다. bfq를 권장합니다."
+    <settingsPane description="I/O 스케쥴러를 설정합니다."
                   name="I/O 스케쥴러">' >> $XML
 
 echo "
