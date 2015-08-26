@@ -87,6 +87,10 @@ done
 boeffla_sound=$(cat /sys/devices/virtual/misc/boeffla_sound/boeffla_sound)
 echo "$boeffla_sound" > /sys/devices/virtual/misc/boeffla_sound/boeffla_sound
 
+echo "1" > /sys/devices/system/cpu/cpu1/online
+echo "1" > /sys/devices/system/cpu/cpu2/online
+echo "1" > /sys/devices/system/cpu/cpu3/online
+
 sleep 5
 
 /res/arter97.sh apply
