@@ -118,8 +118,6 @@ static bool is_incall = false;
 static bool prev_incall_state = false;
 static bool bootdone = false;
 
-extern unsigned int intelli_plug_active;
-
 #define INCALL_BOOST_FREQ 1000000
 
 /*****************************************/
@@ -170,7 +168,7 @@ static void wm8994_incall_hook(void)
 {
 	// fall-out early when boot is not finished
 	// (a dirty workaround for early kernel-panic)
-	if (!bootdone || !intelli_plug_active)
+	if (!bootdone)
 		return;
 
 	is_incall = check_for_call();
