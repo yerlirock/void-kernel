@@ -103,23 +103,6 @@ echo '
 
   </settingsTab>
 
-  <settingsTab name="Undervolt">
-
-    <settingsPane description="CPU 전압을 줄이면 전력 소모가 감소할 수 있는 대신 전반적인 안정성이 떨어지게 됩니다. 오버클럭의 전압을 높이면 안정성이 개선될 수 있습니다. 전압을 너무 낮거나 높게 설정하게 되면 기기가 불안정 해질 수 있습니다. 사용을 권장하지 않습니다." 
-                  name="CPU 전압 조절">' >> $XML
-
-cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | sed -e 's/mhz//g;s/://g' | awk '{ print $1, $2 }' | while read FREQ UVOLT; do
-echo '      <seekBar  description="기본값: '$UVOLT'µV"
-	        name="'${FREQ}' MHz step" 
-                action="cpuvolt '${FREQ}'"
-                unit=" µV" min="600000" reversed="false" step="12500" max="1400000"/>"' >> $XML
-done
-
-echo '
-    </settingsPane>
-
-  </settingsTab>
-
   <settingsTab name="PegasusQ">
 
     <settingsPane description="아래의 설정은 CPU의 active governor가 pegasusq로 설정되어야만 적용 및 저장됩니다"

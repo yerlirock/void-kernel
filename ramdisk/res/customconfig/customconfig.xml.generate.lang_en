@@ -103,23 +103,6 @@ echo '
 
   </settingsTab>
 
-  <settingsTab name="Undervolt">
-
-    <settingsPane description="Decreasing voltage may lower power consumption of the CPU at the cost of overall instability. Increasing it on overclocked frequencies may improve stability. Too lowered voltages may cause instabilities and freezes. Use at your own risk!" 
-                  name="CPU voltage control">' >> $XML
-
-cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | sed -e 's/mhz//g;s/://g' | awk '{ print $1, $2 }' | while read FREQ UVOLT; do
-echo '      <seekBar  description="Default voltage: '$UVOLT'µV"
-	        name="'${FREQ}' MHz step" 
-                action="cpuvolt '${FREQ}'"
-                unit=" µV" min="600000" reversed="false" step="12500" max="1400000"/>"' >> $XML
-done
-
-echo '
-    </settingsPane>
-
-  </settingsTab>
-
   <settingsTab name="PegasusQ">
 
     <settingsPane description="Below settings will work &amp; save only on active governor for CPU is properly set to pegasusq"
