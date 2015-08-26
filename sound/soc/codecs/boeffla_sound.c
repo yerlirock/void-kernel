@@ -44,6 +44,8 @@
 #include <linux/mfd/wm8994/pdata.h>
 #include <linux/mfd/wm8994/gpio.h>
 
+#include <linux/cpu.h>
+#include <linux/cpumask.h>
 #include <mach/cpufreq.h>
 
 #include "wm8994.h"
@@ -114,11 +116,11 @@ static void incall_boost(struct work_struct *work);
 static DECLARE_WORK(incall_boost_work, incall_boost);
 struct workqueue_struct *incall_boost_queue;
 
-static bool is_incall = false;
+bool is_incall = false;
 static bool prev_incall_state = false;
 static bool bootdone = false;
 
-#define INCALL_BOOST_FREQ 1000000
+#define INCALL_BOOST_FREQ 1400000
 
 /*****************************************/
 // Internal function declarations
@@ -180,9 +182,18 @@ static void wm8994_incall_hook(void)
 
 static void incall_boost(struct work_struct *work)
 {
+	int cpu;
+
 	if (is_incall) {
 		pr_info("%s: locking cpufreq for incall boost\n", __func__);
 		exynos_cpufreq_lock_free(DVFS_LOCK_ID_INCALL);
+
+		for_each_cpu_not(cpu, cpu_online_mask) {
+			if (cpu == 0)
+				continue;
+			cpu_up(cpu);
+		}
+
 		exynos_cpufreq_lock(DVFS_LOCK_ID_INCALL, exynos_cpufreq_get_level_ret(INCALL_BOOST_FREQ));
 	} else {
 		pr_info("%s: freeing incall cpufreq lock\n", __func__);
