@@ -70,8 +70,7 @@ echo '
       <spinnerItem name="500 MHz" value="500000"/>
       <spinnerItem name="400 MHz" value="400000"/>
       <spinnerItem name="300 MHz" value="300000"/>
-      <spinnerItem name="200 MHz" value="200000"/>
-      <spinnerItem name="100 MHz" value="100000"/>' >> $XML
+      <spinnerItem name="200 MHz" value="200000"/>' >> $XML
 
 echo '
       </spinner>
