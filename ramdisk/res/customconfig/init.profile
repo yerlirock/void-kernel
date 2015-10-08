@@ -1,4 +1,4 @@
-internal_iosched=deadline
+internal_iosched=cfq
 sd_iosched=noop
 internal_read_ahead_kb=256
 sd_read_ahead_kb=512
