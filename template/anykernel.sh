@@ -31,7 +31,12 @@ chmod -R 755 $bin;
 mkdir -p $ramdisk $split_img;
 
 OUTFD=/proc/self/fd/$1;
+
+# ui_print <text>
 ui_print() { echo -e "ui_print $1\nui_print" > $OUTFD; }
+
+# contains <string> <substring>
+contains() { test "${1#*$2}" != "$1" && return 0 || return 1; }
 
 # dump boot and extract ramdisk
 dump_boot() {
