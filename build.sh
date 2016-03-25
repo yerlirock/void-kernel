@@ -2,7 +2,7 @@
 # build.sh -> build/rebuild kernel
 # build.sh zip -> create/recreate zip only
 
-ZIP="void-kernel-release2-$(git rev-parse --short HEAD)"
+ZIP="void-kernel-release2-$(git rev-parse --short HEAD)-n7100"
 EXCLUDE=".gitignore modules/placeholder"
 
 if [ ! "$1" = "zip" ]; then
