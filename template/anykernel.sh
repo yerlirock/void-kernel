@@ -3,7 +3,7 @@
 
 ## AnyKernel setup
 # EDIFY properties
-kernel.string=Stock Kernel
+kernel.string=Void Kernel
 do.devicecheck=1
 do.initd=0
 do.modules=1
