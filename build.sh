@@ -3,7 +3,7 @@
 # build.sh zip -> create/recreate zip only
 # build.sh .config -> build/rebuild kernel using .config
 
-ZIP="void-kernel-release2-$(git rev-parse --short HEAD)-n7100"
+ZIP="void-kernel-release3-$(git rev-parse --short HEAD)-n7100"
 EXCLUDE=".gitignore modules/placeholder"
 
 if [ ! "$1" = "zip" ]; then
