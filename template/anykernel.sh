@@ -218,6 +218,13 @@ dump_boot;
 
 # begin ramdisk changes
 
+# f2fs support
+sed -i '/f2fs/d' fstab.smdk4x12
+insert_line fstab.smdk4x12 "thereisnt" "before" "/system             ext4" "/dev/block/mmcblk0p13    /system             f2fs      ro,noatime,nodiratime,discard,background_gc=off           wait"
+insert_line fstab.smdk4x12 "thereisnt" "before" "/cache              ext4" "/dev/block/mmcblk0p12    /cache              f2fs      noatime,nodiratime,discard,background_gc=on,nosuid,nodev  wait,check"
+insert_line fstab.smdk4x12 "thereisnt" "before" "/preload            ext4" "/dev/block/mmcblk0p14    /preload            f2fs      noatime,nosuid,nodev                                      wait"
+insert_line fstab.smdk4x12 "thereisnt" "before" "/data               ext4" "/dev/block/mmcblk0p16    /data               f2fs      noatime,nodiratime,discard,background_gc=on,nosuid,nodev  wait,check,encryptable=footer"
+
 # init.smdk4x12.rc
 remove_section init.smdk4x12.rc "on early-init" "noop"
 remove_section init.smdk4x12.rc "on charger" "powersave"
@@ -228,12 +235,10 @@ remove_line init.smdk4x12.rc "write /sys/class/mdnie/mdnie/mode 0"
 
 # remove older modules
 if [ -e "lib/modules" ]; then
-    rm -rf "lib/modules";
-fi;
+    rm -rf "lib/modules"; fi
 mount -o remount,rw /system
 if [ -e "/system/lib/modules" ]; then
-    rm -rf "/system/lib/modules"
-fi;
+    rm -rf "/system/lib/modules"; fi
 mkdir -p "/system/lib/modules"
 mount -o remount,ro /system
 
