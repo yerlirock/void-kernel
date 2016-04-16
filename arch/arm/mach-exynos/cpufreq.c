@@ -858,7 +858,7 @@ late_initcall(exynos_cpufreq_init);
 /* sysfs interface for ASV level */
 ssize_t show_asv_level(struct cpufreq_policy *policy, char *buf) {
 
-	return sprintf(buf, "ASV level: %d\n",exynos_result_of_asv); 
+	return sprintf(buf, "%d\n",exynos_result_of_asv); 
 
 }
 
