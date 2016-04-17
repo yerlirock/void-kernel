@@ -1,0 +1,23 @@
+#!/system/bin/sh
+
+INPUT=/res/synapse/config.json.generate
+OUTPUT=/res/synapse/config.json
+ACTIONS=/res/synapse/actions
+
+if [ ! -f $OUTPUT ]; then
+	mount -t rootfs -o rw,remount rootfs
+	chmod -R 755 $ACTIONS
+	source $INPUT > $OUTPUT
+	mount -t rootfs -o ro,remount rootfs
+fi
+
+case "$1" in
+	config) cat $OUTPUT;;
+	configpath) echo $OUTPUT;;
+	actionpath) echo $ACTIONS;;
+	reset)
+		mount -t rootfs -o rw,remount rootfs
+		rm -f $OUTPUT
+		mount -t rootfs -o ro,remount rootfs
+	;;
+esac

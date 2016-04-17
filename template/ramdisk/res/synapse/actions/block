@@ -1,0 +1,8 @@
+case "$1" in
+	-s)
+		case "$3" in
+			-a) cat /sys/block/"$2"/queue/scheduler | busybox sed -e 's/\[//;s/\]//';;
+			-c) cat /sys/block/"$2"/queue/scheduler | busybox sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p';;
+		esac
+	;;
+esac

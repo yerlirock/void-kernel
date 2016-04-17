@@ -1,0 +1,596 @@
+cat << CTAG
+{
+	sections:[
+		{
+			name:General,
+			elements:[
+				{ SPane:{
+					title:"Kernel Version",
+					description:"$(cat /proc/version)"
+				}}
+			]
+		},
+		{
+			name:CPU,
+			elements:[
+				{ SLiveLabel:{
+					title:"CPU Temperature",
+					refresh:5000,
+					action:"echo \$(cat /sys/devices/platform/s5p-tmu/temperature) °C"
+				}},
+				{ SLiveLabel:{
+					title:"ASV Level",
+					description:"Chip quality. Level 0 is the worst, level 11 is the best.",
+					refresh:0,
+					action:"cat /sys/devices/system/cpu/cpu0/cpufreq/asv_level"
+				}},
+				{ SPane:{
+					title:"CPU Frequency Scaling"
+				}},
+				{ SSeekBar:{
+					title:"CPU Max Frequency",
+					description:"Set the maximum frequency the CPU scales up to",
+					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq),
+					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
+					values:{ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies); do echo $i:'"'$(($i / 1000)) MHz'"',; done) }
+				}},
+				{ SSeekBar:{
+					title:"CPU Min Frequency",
+					description:"Set the minimum frequency the CPU scales down to",
+					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq),
+					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
+					values:{ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies); do echo $i:'"'$(($i / 1000)) MHz'"',; done) }
+				}},
+				{ SOptionList:{
+					title:"CPU Governor",
+					description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available",
+					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor),
+					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+					values:[ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do echo $i,; done) ],
+					notify:[
+						{ on:APPLY,
+							do:[ REFRESH, CANCEL ],
+							to:"/sys/devices/system/cpu/cpufreq"
+						},
+						{ on:REFRESH,
+							do:REFRESH,
+							to:"/sys/devices/system/cpu/cpufreq"
+						}
+					]
+				}},
+				{ SPane:{
+					title:"Governor Tunables",
+					description:"Auto-generated controls for the current governor"
+				}},
+				{ STreeDescriptor:{
+					path:"/sys/devices/system/cpu/cpufreq",
+					generic:{ directory:
+						{ STreeDescriptor:{
+							generic:{ 
+								directory:{ },
+								element:{ SGeneric:{ title:"@NAME" }}
+							},
+							matched:{
+								elements:[
+									{ "sampling_rate":{
+										SSeekBar:{
+											title:"Sampling Rate",
+											min:10000, max:200000, step:10000, unit:"ms"
+										}
+									}},
+									{ "up_threshold":{
+										SSeekBar:{
+											title:"Up Threshold",
+											max:100, step:1
+										}
+									}},
+									{ "ignore_nice_load":{
+										SCheckBox:{
+											title:"Ignore Nice Load"
+										}
+									}},
+									{ "io_is_busy":{
+										SCheckBox:{
+											title:"I/O Is Busy"
+										}
+									}},
+									{ "freq_step":{
+										SSeekBar:{
+											title:"Freq Step",
+											max:100, step:1
+										}
+									}}
+								]
+							},
+							exclude:[ "cpucore_table" ]
+						}}
+					},
+				}},
+				{ SPane:{
+					title:"Busfreq"
+				}},
+				{ STreeDescriptor:{
+					path:"/sys/devices/system/cpu/busfreq",
+					generic:{
+						element:{ SGeneric:{ title:"@NAME" }}
+					},
+					matched:{
+						elements:[
+							{ "curr_freq":{
+								SLiveLabel:{
+									title:"Current Frequency",
+									refresh:1000
+								}
+							}},
+							{ "freq_table":{
+								SLiveLabel:{
+									title:"Frequencies Table",
+									refresh:0
+								}
+							}},
+							{ "lock_list":{
+								SLiveLabel:{
+									title:"Lock List",
+									refresh:0
+								}
+							}},
+							{ "time_in_state":{
+								SLiveLabel:{
+									title:"Time In State",
+									refresh:1000
+								}
+							}}
+						]
+					}
+				}}
+
+			]
+		},
+		{
+			name:Block,
+			elements:[
+				{ SPane:{
+					title:"Internal Storage"
+				}},
+				{ SOptionList:{
+					title:"Internal Storage Scheduler",
+					default:$(/res/synapse/actions/block -s mmcblk0 -c),
+					action:"generic /sys/block/mmcblk0/queue/scheduler",
+					values:[ $(for i in $(/res/synapse/actions/block -s mmcblk0 -a); do echo "$i,"; done) ]
+				}},
+				{ SSeekBar:{
+					title:"Internal Storage Read-Ahead",
+					description:"The read-ahead value on the internal phone memory",
+					min:128, max:2048, unit:"kB", step:128,
+					default:$(cat /sys/block/mmcblk0/queue/read_ahead_kb),
+					action:"generic /sys/block/mmcblk0/queue/read_ahead_kb"
+				}},
+				{ STreeDescriptor:{
+					path:"/sys/block/mmcblk0/queue",
+					generic:{
+						element:{ SGeneric:{ title:"@NAME" }}
+					},
+					matched:{
+						elements:[
+							{ "nr_requests":{
+								SSeekBar:{
+									title:"NR Requests",
+									description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer",
+									min:128, max:2048, step:128
+								}
+							}},
+							{ "rq_affinity":{
+								SSeekBar:{
+									title:"RQ Affinity",
+									description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1",
+									values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+								}
+							}},
+							{ "nomerges":{
+								SSeekBar:{
+									title:"No Merges",
+									description:"Types of merges (prioritization) the scheduler queue for this storage device allows",
+									values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
+								}
+							}},
+							{ "add_random":{
+								SCheckBox:{
+									label:"Add Random",
+									description:"Draw entropy from spinning (rotational) storage."
+								}
+							}},
+							{ "iostats":{
+								SCheckBox:{
+									label:"I/O Stats",
+									description:"Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps"
+								}
+							}},
+							{ "rotational":{
+								SCheckBox:{
+									label:"Rotational",
+									description:"Treat device as rotational storage."
+								}
+							}}
+						]
+					},
+					exclude:[ "iosched", "read_ahead_kb", "scheduler" ]
+				}},
+				{ SPane:{
+					title:"SD Card"
+				}},
+				{ SOptionList:{
+					title:"SD card Scheduler",
+					default:$(/res/synapse/actions/block -s mmcblk0 -c),
+					action:"generic /sys/block/mmcblk1/queue/scheduler",
+					values:[ $(for i in $(/res/synapse/actions/block -s mmcblk0 -a); do echo "$i,"; done) ]
+				}},
+				{ SSeekBar:{
+					title:"SD Card Read-Ahead",
+					description:"The read-ahead value on the external SD card",
+					min:128, max:2048, unit:"kB", step:128,
+					default:$(cat /sys/block/mmcblk1/queue/read_ahead_kb),
+					action:"generic /sys/block/mmcblk1/queue/read_ahead_kb"
+				}},
+				{ STreeDescriptor:{
+					path:"/sys/block/mmcblk1/queue",
+					generic:{
+						element:{ SGeneric:{ title:"@NAME" }}
+					},
+					matched:{
+						elements:[
+							{ "nr_requests":{
+								SSeekBar:{
+									title:"NR Requests",
+									description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer",
+									min:128, max:2048, step:128
+								}
+							}},
+							{ "rq_affinity":{
+								SSeekBar:{
+									title:"RQ Affinity",
+									description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1",
+									values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+								}
+							}},
+							{ "nomerges":{
+								SSeekBar:{
+									title:"No Merges",
+									description:"Types of merges (prioritization) the scheduler queue for this storage device allows",
+									values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
+								}
+							}},
+							{ "add_random":{
+								SCheckBox:{
+									label:"Add Random",
+									description:"Draw entropy from spinning (rotational) storage."
+								}
+							}},
+							{ "iostats":{
+								SCheckBox:{
+									label:"I/O Stats",
+									description:"Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps"
+								}
+							}},
+							{ "rotational":{
+								SCheckBox:{
+									label:"Rotational",
+									description:"Treat device as rotational storage."
+								}
+							}}
+						]
+					},
+					exclude:[ "iosched", "read_ahead_kb", "scheduler" ]
+				}}
+			]
+		},
+		{
+			name:Power,
+			elements:[
+				{ SPane:{
+					title:"Battery",
+				}},
+				{ SLiveLabel:{
+					title:"Capacity",
+					refresh:5000,
+					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/capacity)%"
+				}},
+				{ SLiveLabel:{
+					title:"Temperature",
+					refresh:5000,
+					action:"echo \$((\$(cat /sys/devices/platform/samsung-battery/power_supply/battery/temp) / 10 )) °C"
+				}},
+				{ SLiveLabel:{
+					title:"Status",
+					refresh:5000,
+					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/status"
+				}},
+				{ SLiveLabel:{
+					title:"Charge Type",
+					refresh:5000,
+					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/charge_type"
+				}},
+				{ SLiveLabel:{
+					title:"Health",
+					refresh:5000,
+					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/health"
+				}},
+				{ SLiveLabel:{
+					title:"Voltage Now",
+					refresh:5000,
+					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/voltage_now"
+				}},
+				{ SLiveLabel:{
+					title:"Current Now",
+					refresh:5000,
+					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/current_now) mA"
+				}},
+				{ SPane:{
+					title:"Charger Control"
+				}},
+				{ SSeekBar:{
+					title:"DCP and Mains AC Input Current",
+					description:"Dedicated Charging Port and Mains input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/dcp_ac_input_curr),
+					action:"generic /sys/devices/platform/samsung-battery/dcp_ac_input_curr"
+				}},
+				{ SSeekBar:{
+					title:"DCP and Mains AC Charge Current",
+					description:"Dedicated Charging Port and Mains charge current supplied to battery during charging",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/dcp_ac_chrg_curr),
+					action:"generic /sys/devices/platform/samsung-battery/dcp_ac_chrg_curr"
+				}},
+				{ SSeekBar:{
+					title:"SDP Input Current",
+					description:"Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/sdp_input_curr),
+					action:"generic /sys/devices/platform/samsung-battery/sdp_input_curr"
+				}},
+				{ SSeekBar:{
+					title:"SDP Charge Current",
+					description:"Standard Downstream Port charge current supplied to battery during charging",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/sdp_chrg_curr),
+					action:"generic /sys/devices/platform/samsung-battery/sdp_chrg_curr"
+				}},
+				{ SSeekBar:{
+					title:"CDP Input Current",
+					description:"Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/cdp_input_curr),
+					action:"generic /sys/devices/platform/samsung-battery/cdp_input_curr"
+				}},
+				{ SSeekBar:{
+					title:"CDP Charge Current",
+					description:"Charging Downstream Port and Mains charge current supplied to battery during charging",
+					max:2500, step:1, unit:"mA",
+					default:$(cat /sys/devices/platform/samsung-battery/cdp_chrg_curr),
+					action:"generic /sys/devices/platform/samsung-battery/cdp_chrg_curr"
+				}},
+				{ SSeekBar:{
+					title:"Charge Hard Voltage",
+					description:"Charger chip charge voltage supplied to the battery",
+					default:$(cat /sys/devices/platform/samsung-battery/batt_chrg_hard_volt),
+					action:"generic /sys/devices/platform/samsung-battery/batt_chrg_hard_volt",
+					values:{ 1:"4.2", 2:"4.35-default", 3:"4.4" }
+				}},
+				{ SSeekBar:{
+					title:"Charge Soft Voltage",
+					description:"Charge voltage the battery has to reach until the charger regulation turns off charging, as measured by the fuelgauge",
+					min:3600000, max:4500000, step:1,
+					default:$(cat /sys/devices/platform/samsung-battery/batt_chrg_soft_volt),
+					action:"generic /sys/devices/platform/samsung-battery/batt_chrg_soft_volt",
+				}},
+				{ SCheckBox:{
+					label:"Ignore 100mA Step Safety Margin",
+					description:"The charger chip is capable of detecting instabilities in the power supplied to the chip, it dinamically adjusts input currents until it reaches a stable power readout - at this point it reduces it further by an additional 100mA step as a safety margin. This ignores that margin",
+					default:$(cat /sys/devices/platform/samsung-battery/ignore_stable_margin),
+					action:"generic /sys/devices/platform/samsung-battery/ignore_stable_margin"
+				}},
+				{ SCheckBox:{
+					label:"Ignore Unstable Power Detection",
+					description:"This completely disables the unstable power detection.",
+					default:$(cat /sys/devices/platform/samsung-battery/ignore_unstable_power),
+					action:"generic /sys/devices/platform/samsung-battery/ignore_unstable_power"
+				}}
+				
+			]
+		},
+		{
+			name:Screen,
+			elements:[
+				{ SPane:{
+					title:"Touchwake"
+				}},
+				{ SCheckBox:{
+					label:"Tap2wake",
+					description:"Tap2wake keeps the digitizer of the display panel active after screen timeout so it can wake the device with a touch.",
+					default:$(cat /sys/devices/virtual/misc/touchwake/enabled),
+					action:"generic /sys/devices/virtual/misc/touchwake/enabled"
+				}},
+				{ SCheckBox:{
+					label:"DoubleTap2wake",
+					description:"The device will wake up only with two taps instead of one, you need to enable Tap2wake first!",
+					default:$(cat /sys/devices/virtual/misc/touchwake/knockon),
+					action:"generic /sys/devices/virtual/misc/touchwake/knockon"
+				}},
+				{ SSeekBar:{
+					title:"Delay",
+					description:"Timeout after the screen goes off, set 0 for infinite mode",
+					max:3600, step:1, unit:" s",
+					default:$(cat /sys/devices/virtual/misc/touchwake/delay),
+					action:"generic /sys/devices/virtual/misc/touchwake/delay"
+				}},
+				{ SSeekBar:{
+					title:"Charging Delay",
+					description:"Timeout after the screen goes off during charge, set 0 for infinite mode",
+					max:3600, step:1, unit:" s",
+					default:$(cat /sys/devices/virtual/misc/touchwake/charging_delay),
+					action:"generic /sys/devices/virtual/misc/touchwake/charging_delay"
+				}},
+				{ SCheckBox:{
+					label:"Keypower Mode",
+					description:"Enable Tap2wake/DoubleTap2wake also when the power key is pressed",
+					default:$(cat /sys/devices/virtual/misc/touchwake/keypower_mode),
+					action:"generic /sys/devices/virtual/misc/touchwake/keypower_mode"
+				}},
+				{ SPane:{
+					title:"mDNIe global controls",
+					description:"mobile Digital Natural Image engine control. Samsungs hardware image post-processor controls virtually any image manipulation. All control master switches, if left as delta controls, will negate the sequence setting if checked. Master sequence has SCR and CS enabled by default."
+				}},
+				{ SCheckBox:{
+					label:"Enable register hook",
+					description:"Register intercept acts like a hook and will enable catching scenario settings and modifying them through delta controls. If a scenario does not have a setting (register) in its base sequence, then it cannot be modified by the hook.",
+					action:"generic /sys/devices/virtual/misc/mdnie/hook_intercept"
+				}},
+				{ SCheckBox:{
+					label:"Enable master sequence",
+					description:"Enabling the master sequence will disable and ignore Samsungs profiles and scenarios, the ROM controls will be disabled.",
+					action:"generic /sys/devices/virtual/misc/mdnie/sequence_intercept"
+				}},
+				{ SPane:{
+					title:"Digital screen brightness",
+					description:"Uses mDNIe to bypass the backlight driver brightness and decrease brightness by reducing luminance on the the channel RGB values. It allows to reduce brightness beyond the stock minimum."
+				}},
+				{ SSeekBar:{
+					title:"Brightness reduction",
+					description:"The amount of luminance to be shaved off from the colour channel components.",
+					max:128,
+					default:$(cat /sys/devices/virtual/misc/mdnie/brightness_reduction),
+					action:"generic /sys/devices/virtual/misc/mdnie/brightness_reduction"
+				}},
+				{ SSeekBar:{
+					title:"Takeover point",
+					description:"The stock backlight driver ignores brightness values below 10 (0-255) and values below that point do not have any effect on brightness. The takeover point is the point in the brightness curve where the digital brightness reduction takes effect. The brightness reduction is weighted linearly from full configured value to zero on the range of zero brigtness to the takeover point. If the takeover point is beyond 10, then both hardware and digital brightness reduction can take place. This can help with having a less abrupt brightness curve caused by the digital reduction.",
+					max:64,
+					default:$(cat /sys/devices/virtual/misc/mdnie/brightness_takeover_point),
+					action:"generic /sys/devices/virtual/misc/mdnie/brightness_takeover_point"
+				}},
+				{ SSeekBar:{
+					title:"Auto-brightness input delta",
+					description:"Positive delta to be applied on top system brightness. Used only for the digital reduction logic during stock ROM auto-brightness activation, can be used to brighten back up the reduction value by shifting the interpreted brightness value without sacrificing minimum brightness in manual mode.",
+					max:64,
+					default:$(cat /sys/devices/virtual/misc/mdnie/brightness_input_delta),
+					action:"generic /sys/devices/virtual/misc/mdnie/brightness_input_delta"
+				}},
+				{ SPane:{
+					title:"Hook Control",
+					description:"Enable register hook first!"
+				}},
+				{ STreeDescriptor:{
+					path:"/sys/devices/virtual/misc/mdnie/hook_control",
+					generic:{
+						element:{ SGeneric:{ title:"@NAME" }}
+					}
+				}}
+			]
+		},
+		{
+			name:Led,
+			elements:[
+				{ SPane:{
+					title:"Brightness",
+					description:"The notification LED has two brightness modes, depending on the external brightness detected by the light sensor."
+				}},
+				{ SSeekBar:{
+					title:"Low Light Environment Brightness",
+					min:1, max:120, unit:"mA",
+					default:$(cat /sys/devices/virtual/sec/led/led_lowpower_current),
+					action:"generic /sys/devices/virtual/sec/led/led_lowpower_current"
+				}},
+				{ SSeekBar:{
+					title:"Bright Light Environment Brightness",
+					min:1, max:120, unit:"mA",
+					default:$(cat /sys/devices/virtual/sec/led/led_highpower_current),
+					action:"generic /sys/devices/virtual/sec/led/led_highpower_current"
+				}},
+				{ SPane:{
+					title:"LED Fading",
+				}},
+				{ SCheckBox:{
+					label:"Enable LED Fading",
+					description:"If disabled, the controller bypasses slope generation",
+					default:$(cat /sys/devices/virtual/sec/led/led_fade),
+					action:"generic /sys/devices/virtual/sec/led/led_fade"
+				}},
+				{ SSeekBar:{
+					title:"Fade-in Time Period",
+					description:"Sets the time period of the rising slope",
+					max:2000, unit:"ms", step:50,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_in_time),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_in_time"
+				}},
+				{ SSeekBar:{
+					title:"Fade-out Time Period",
+					description:"Sets the time period of the falling slope",
+					max:2000, unit:"ms", step:50,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_out_time),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_out_time"
+				}},
+				{ SSeekBar:{
+					title:"Fade DT1",
+					max:10, step:1,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
+				}},
+				{ SSeekBar:{
+					title:"Fade DT2",
+					max:10, step:1,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
+				}},
+				{ SSeekBar:{
+					title:"Fade DT3",
+					max:10, step:1,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
+				}},
+				{ SSeekBar:{
+					title:"Fade DT4",
+					max:10, step:1,
+					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
+					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
+				}},
+				{ SPane:{
+					title:"LED Blink",
+				}},
+				{ SSeekBar:{
+					title:"Blink Delay Period",
+					description:"Sets the time period of low retention at zero PWM level",
+					max:6000, unit:"ms", step:250,
+					default:$(cat /sys/devices/virtual/sec/led/led_blink_delay),
+					action:"generic /sys/devices/virtual/sec/led/led_blink_delay"
+				}}
+			]
+		},
+		{
+			name:Misc,
+			elements:[
+				{ SOptionList:{
+					title:"Logger Mode",
+					action:"generic /sys/kernel/logger_mode/logger_mode",
+					values:{ 0:"Disabled", 1:"Enabled", 2:"Enabled, clear on earlysuspend", 3:"Enabled, clear and disable on earlysuspend" }
+				}},
+				{ SOptionList:{
+					title:"TCP Congestion Control Algorithm",
+					action:"generic /proc/sys/net/ipv4/tcp_congestion_control",
+					values:[ $(for i in $(cat /proc/sys/net/ipv4/tcp_available_congestion_control); do echo $i,; done) ]
+				}},
+				{ SSeekBar:{
+					title:"Vibrator Intensity",
+					max:100,
+					default:$(cat /sys/vibrator/pwm_val),
+					action:"generic /sys/vibrator/pwm_val"
+				}},
+				{ SCheckBox:{
+					label:"Enable Touchkeys",
+					default:$(cat /sys/devices/virtual/sec/sec_touchkey/keypad_enable),
+					action:"generic /sys/devices/virtual/sec/sec_touchkey/keypad_enable"
+				}}
+			]
+		}
+	]
+}
+CTAG
