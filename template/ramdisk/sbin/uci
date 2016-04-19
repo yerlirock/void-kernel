@@ -15,10 +15,4 @@ case "$1" in
 	configpath) echo $OUTPUT;;
 	actionpath) echo $ACTIONS;;
 	reset) mountrw; rm -f $OUTPUT; mountro;;
-	debug) # debug options
-		case "$1" in
-			-rw) mountrw;;
-			-ro) mountro;;
-		esac
-	;;
 esac

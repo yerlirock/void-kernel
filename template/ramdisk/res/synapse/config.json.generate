@@ -42,6 +42,16 @@ cat << EOF0
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
 					values:{ $(freq_list) }
+				}},
+				{ SPane:{
+					title:"Advanced"
+				}},
+				{ SOptionList:{
+					title:"Idle Mode",
+					description:"This setting controls which idle modes are available for the CPU. Enabling more of them should potentially improve battery life.",
+					default:$(/res/synapse/actions/generic /sys/module/cpuidle_exynos4/parameters/enable_mask),
+					action:"generic /sys/module/cpuidle_exynos4/parameters/enable_mask",
+					values:{ 0:"IDLE only", 1:"AFTR only", 2:"IDLE + LPA", 3:"AFTR + LPA" }
 				}}
 			]
 		},
@@ -202,6 +212,38 @@ cat << EOF0
 
 			]
 		},
+		{
+			name:GPU,
+			elements:[
+				{ SLiveLabel:{
+					title:"Current GPU Frequency",
+					refresh:1000,
+					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_clk) MHz"
+				}},
+				{ SLiveLabel:{
+					title:"Current GPU Voltage",
+					refresh:1000,
+					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_vol) mV"
+				}},
+				{ SPane:{
+					title:"Debug",
+					description:"[1:2] Is messages with highest priority, indicate possible errors, [3:4] Is messages with medium priority, output important variables, [5:6] Is messages with low priority, used during extensive debugging.",
+				}},
+				{ SSeekBar:{
+					title:"Mali Debug Level",
+					max:6,
+					default:$(cat /sys/module/mali/parameters/mali_debug_level),
+					action:"generic /sys/module/mali/parameters/mali_debug_level"
+				}},
+				{ SSeekBar:{
+					title:"Ump Debug Level",
+					max:6,
+					default:$(cat /sys/module/ump/parameters/ump_debug_level),
+					action:"generic /sys/module/ump/parameters/ump_debug_level"
+				}}
+				
+			]
+		},
 $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); do
 	case "$BLOCK" in
 		mmcblk0) NAME="Internal Storage";;
@@ -214,9 +256,9 @@ $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); 
 			elements:[
 				{ SOptionList:{
 					title:"I/O Scheduler",
-					default:$(/res/synapse/actions/block -s $BLOCK -c),
-					action:"generic /sys/block/$BLOCK/queue/scheduler",
-					values:[ $(for i in $(/res/synapse/actions/block -s $BLOCK -a); do echo "$i,"; done) ]
+					default:$(/res/synapse/actions/block -s /sys/block/$BLOCK/queue/scheduler),
+					action:"block -s /sys/block/$BLOCK/queue/scheduler",
+					values:[ $(for i in $(/res/synapse/actions/block -a /sys/block/$BLOCK/queue/scheduler); do echo "$i,"; done) ]
 				}},
 				{ SSeekBar:{
 					title:"Read-Ahead",
@@ -431,10 +473,30 @@ done)
 					title:"mDNIe global controls",
 					description:"mobile Digital Natural Image engine control. Samsungs hardware image post-processor controls virtually any image manipulation. All control master switches, if left as delta controls, will negate the sequence setting if checked. Master sequence has SCR and CS enabled by default."
 				}},
+				{ SOptionList:{
+					title:"Mode",
+					description:"Set the mode for mDNIe.",
+					default:$(cat /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/mode),
+					action:"generic /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/mode",
+					values:{ 0:"Dynamic", 1:"Standard", 2:"Natural", 3:"Movie", 4:"Auto" }
+				}},
+				{ SOptionList:{
+					title:"Scenario",
+					description:"Set the scenario for mDNIe.",
+					default:$(cat /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/scenario),
+					action:"generic /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/scenario",
+					values:{ 0:"UI (stock)", 1:"Video", 2:"Video Warm", 3:"Video Cold", 4:"Camera", 5:"Navigation", 6:"Gallery", 7:"VT", 8:"Browser", 9:"eBook", 10:"Email" }
+				}},
+				{ SCheckBox:{
+					label:"Negative Mode",
+					description:"Enable or disable inverted colors.",
+					default:$(/res/synapse/actions/advanced -p , 1 /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/accessibility),
+					action:"advanced -p , 1 /sys/devices/platform/samsung-pd.2/mdnie/mdnie/mdnie/accessibility"
+				}},
 				{ SCheckBox:{
 					label:"Enable register hook",
 					description:"Register intercept acts like a hook and will enable catching scenario settings and modifying them through delta controls. If a scenario does not have a setting (register) in its base sequence, then it cannot be modified by the hook.",
-					default:(cat /sys/devices/virtual/misc/mdnie/hook_intercept),
+					default:$(cat /sys/devices/virtual/misc/mdnie/hook_intercept),
 					action:"generic /sys/devices/virtual/misc/mdnie/hook_intercept"
 				}},
 				{ SCheckBox:{
@@ -566,51 +628,51 @@ done)
 				}},
 				{ SCheckBox:{
 					label:"Enable Boeffla Sound",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/boeffla_sound),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/boeffla_sound",
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/boeffla_sound),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/boeffla_sound",
 				}},
 				{ SSeekBar:{
 					title:"Debug Level",
 					max:2, step:1,
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/debug_level),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/debug_level"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level"
 				}},
 				{ SCheckBox:{
 					label:"DAC Direct",
 					description:"Bypass the analog channel",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/dac_direct),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/dac_direct"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/dac_direct),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/dac_direct"
 				}},
 				{ SCheckBox:{
 					label:"DAC oversampling",
 					description:"128x Oversampling",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/dac_oversampling),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/dac_oversampling"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/dac_oversampling),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/dac_oversampling"
 				}},
 				{ SCheckBox:{
 					label:"FLL Tuning",
 					description:"Tune the chip clock for better quality",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/fll_tuning),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/fll_tuning"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/fll_tuning),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/fll_tuning"
 				}},
 				{ SCheckBox:{
 					label:"Speaker Tuning",
 					description:"Tune up the phone speaker",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/speaker_tuning),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/speaker_tuning"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/speaker_tuning),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/speaker_tuning"
 				}},
 				{ SCheckBox:{
 					label:"Mono Downmix",
 					description:"Convert stereo into mono",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mono_downmix),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mono_downmix"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mono_downmix),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mono_downmix"
 				}},
 				{ SSeekBar:{
 					title:"Stereo expansion",
 					description:"Improve sound deepness and clarity",
 					max:31, step:1,
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/stereo_expansion),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/stereo_expansion"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/stereo_expansion),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/stereo_expansion"
 				}},
 				{ SSeekBar:{
 					title:"Headphone Volume (Left)",
@@ -640,27 +702,27 @@ done)
 					title:"Microphone General Gain",
 					description:"General Microphone Volume",
 					max:31, step:1,
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_general),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_general"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_general),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_general"
 				}},
 				{ SSeekBar:{
 					title:"Microphone Call Gain",
 					description:"Call Microphone Volume",
 					max:31, step:1,
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_call),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_call"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_call),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_call"
 				}},
 				{ SSeekBar:{
 					title:"Change Delay",
 					max:5000000, step:1,
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/change_delay),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/change_delay"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay"
 				}},
 				{ SCheckBox:{
 					label:"HW Equalizer",
 					description:"Manually tune the frequencies",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/eq),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/eq"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/eq),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/eq"
 				}},
 				{ SPane:{
 					title:"Equalizer Gains"
@@ -824,8 +886,8 @@ done)
 				{ SCheckBox:{
 					label:"Privacy Mode",
 					description:"Quiet the phone speaker on Headphones plug",
-					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
-					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
 				}}
 			]
 		},
@@ -834,24 +896,37 @@ done)
 			elements:[
 				{ SOptionList:{
 					title:"Logger Mode",
+					description:"Logger mode controls Android logcat. [Enabled] is the normal state where Android logcat is fully functional. If you do not use logcat at all, setting this to [Disabled] is highly recommended as this can free up lots of memory. [Clear on screen-off] will clear(flush) Android logcat when the device screen has turned off; this means you can still debug your device while the kernel can regularly clean-up memories. [Disable &amp; clear on screen-off] is the default and takes one step further by disabling and clear(flush)ing Android logcat on screen-off state; no logcat will be written when the device screen has turned off.",
 					action:"generic /sys/kernel/logger_mode/logger_mode",
 					values:{ 0:"Disabled", 1:"Enabled", 2:"Enabled, clear on earlysuspend", 3:"Enabled, clear and disable on earlysuspend" }
 				}},
 				{ SOptionList:{
 					title:"TCP Congestion Control Algorithm",
+					description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times.",
 					action:"generic /proc/sys/net/ipv4/tcp_congestion_control",
 					values:[ $(for i in $(cat /proc/sys/net/ipv4/tcp_available_congestion_control); do echo $i,; done) ]
 				}},
 				{ SSeekBar:{
 					title:"Vibrator Intensity",
+					description:"Change the strength of vibration.",
 					max:100,
 					default:$(cat /sys/vibrator/pwm_val),
 					action:"generic /sys/vibrator/pwm_val"
 				}},
+				{ SPane:{
+					title:"Touchkeys"
+				}},
 				{ SCheckBox:{
 					label:"Enable Touchkeys",
+					description:"Enable or disable hardware keys (touchkeys).",
 					default:$(cat /sys/devices/virtual/sec/sec_touchkey/keypad_enable),
 					action:"generic /sys/devices/virtual/sec/sec_touchkey/keypad_enable"
+				}},
+				{ SCheckBox:{
+					label:"Led On Screen Touch",
+					description:"Touchkeys will light up on touchscreen touch.",
+					default:$(/res/synapse/actions/advanced -f 1 /sys/devices/virtual/sec/sec_touchkey/led_on_screen_touch),
+					action:"advanced -f 1 /sys/devices/virtual/sec/sec_touchkey/led_on_screen_touch"
 				}}
 			]
 		}
