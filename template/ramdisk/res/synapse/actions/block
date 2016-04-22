@@ -1,8 +1,10 @@
+PATH=$(echo "$(dirname $(which busybox)):$PATH")
+
 case "$1" in
+	-a) cat "$2" | sed -e 's/\[//;s/\]//';;
 	-s)
-		case "$3" in
-			-a) cat /sys/block/"$2"/queue/scheduler | busybox sed -e 's/\[//;s/\]//';;
-			-c) cat /sys/block/"$2"/queue/scheduler | busybox sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p';;
-		esac
+		if [[ ! -z "$3" ]]; then
+			echo "$3" > "$2"; fi
+		cat "$2" | sed -n -e '/\[[^]]/s/^[^[]*\[\([^]]*\)].*$/\1/p'
 	;;
 esac
