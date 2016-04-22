@@ -1,4 +1,6 @@
-cat << CTAG
+freq_list() { for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies); do echo $i:'"'$(($i / 1000)) MHz'"',; done; }
+
+cat << EOF0
 {
 	sections:[
 		{
@@ -29,21 +31,26 @@ cat << CTAG
 				}},
 				{ SSeekBar:{
 					title:"CPU Max Frequency",
-					description:"Set the maximum frequency the CPU scales up to",
+					description:"Set the maximum frequency the CPU scales up to.",
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
-					values:{ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies); do echo $i:'"'$(($i / 1000)) MHz'"',; done) }
+					values:{ $(freq_list) }
 				}},
 				{ SSeekBar:{
 					title:"CPU Min Frequency",
-					description:"Set the minimum frequency the CPU scales down to",
+					description:"Set the minimum frequency the CPU scales down to.",
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
-					values:{ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies); do echo $i:'"'$(($i / 1000)) MHz'"',; done) }
-				}},
+					values:{ $(freq_list) }
+				}}
+			]
+		},
+		{
+			name:Governor,
+			elements:[
 				{ SOptionList:{
 					title:"CPU Governor",
-					description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available",
+					description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available.",
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
 					values:[ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do echo $i,; done) ],
@@ -60,7 +67,7 @@ cat << CTAG
 				}},
 				{ SPane:{
 					title:"Governor Tunables",
-					description:"Auto-generated controls for the current governor"
+					description:"Auto-generated controls for the current governor."
 				}},
 				{ STreeDescriptor:{
 					path:"/sys/devices/system/cpu/cpufreq",
@@ -75,29 +82,76 @@ cat << CTAG
 									{ "sampling_rate":{
 										SSeekBar:{
 											title:"Sampling Rate",
-											min:10000, max:200000, step:10000, unit:"ms"
+											description:"How often the kernel look at the CPU usage and make decisions on what to do about the frequency. Higher values means CPU polls less often.",
+											min:10000, max:500000, step:1000, unit:" uS"
 										}
 									}},
 									{ "up_threshold":{
 										SSeekBar:{
 											title:"Up Threshold",
-											max:100, step:1
+											description:"When CPU load reaches this point, governor will scale CPU up. Higher value means less responsiveness and lower values corresponds to more responsiveness at the cost of battery.",
+											min:1, max:100, step:1
+										}
+									}},
+									{ "powersave_bias":{
+										SGeneric:{
+											title:"Powersave Bias",
+											description:"Default value is 0. Setting a higher value will bias the governor towards lower frequency steps. Use this if you want CPU to spend less time on higher frequencies. A better alternative would be to underclock to a lower frequency than using powersave bias."
+										}
+									}},
+									{ "sampling_down_factor":{
+										SGeneric:{
+											title:"Sampling Down Factor",
+											description:"Determines how often CPU should stay at higher frequencies when truly busy. Default behavior is fast switching to lower frequencies (1). Having sampling_down_factor set to 1 makes no changes from existing behavior (for the non-modified ondemand), but having sampling_down_factor set to a value greater than 1 causes it to act as a multiplier for the scheduling interval for re-evaluating the load when the CPU is at its highest clock frequency (which is scaling_max_freq) due to high load."
+										}
+									}},
+									{ "down_differential":{
+										SGeneric:{
+											title:"Down Differential",
+											description:"Indirectly calculates the 'down-threshold' of governor. After completing sampling-down-factor*sampling-rate at max frequency because of high load, governor samples the load again to calculate an estimate of the new target frequency in a way that the lowest frequency will be chosen that would not trigger up_threshold in the next sample. During this choice down_differential is taken into account as a breathing room value. Target frequency is calculated as max_load_freq / (up_threshold - down_differential)."
 										}
 									}},
 									{ "ignore_nice_load":{
 										SCheckBox:{
-											title:"Ignore Nice Load"
+											title:"Ignore Nice Load",
+											description:"Setting to 1 causes governor to ignore load resulted by nice processes while making scaling decisions. Nice processes are the one i/o scheduler refers to as low priority process."
 										}
 									}},
 									{ "io_is_busy":{
 										SCheckBox:{
-											title:"I/O Is Busy"
+											title:"I/O Is Busy",
+											description:"Setting to 1 causes treating i/o wait time as CPU busy time. I/O busy is just an indication that CPU is performance critical, and system is not actually idle. IO wait time is excluded from the CPU idle time value is 1."
 										}
 									}},
 									{ "freq_step":{
 										SSeekBar:{
 											title:"Freq Step",
+											description:"Whenever up-scaling logic is triggered the governor instructs the CPU to raise its frequency by freq_step percentage of max allowed frequency. (max policy * (freq step / 100)). Ex: max policy is 1600 and freq step 21%, it will scale 1600 * 21% = 336.",
 											max:100, step:1
+										}
+									}},
+									{ "version":{
+										SLiveLabel:{
+											title:"Governor Version",
+											refresh:0
+										}
+									}},
+									{ "version_profiles":{
+										SLiveLabel:{
+											title:"Governor Profiles Version",
+											refresh:0
+										}
+									}},
+									{ "profile":{
+										SLiveLabel:{
+											title:"Current Profile",
+											refresh:0
+										}
+									}},
+									{ "profile_list":{
+										SLiveLabel:{
+											title:"Profile List",
+											refresh:0
 										}
 									}}
 								]
@@ -105,10 +159,12 @@ cat << CTAG
 							exclude:[ "cpucore_table" ]
 						}}
 					},
-				}},
-				{ SPane:{
-					title:"Busfreq"
-				}},
+				}}
+			]
+		},
+		{
+			name:Busfreq,
+			elements:[
 				{ STreeDescriptor:{
 					path:"/sys/devices/system/cpu/busfreq",
 					generic:{
@@ -146,143 +202,78 @@ cat << CTAG
 
 			]
 		},
+$(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); do
+	case "$BLOCK" in
+		mmcblk0) NAME="Internal Storage";;
+		mmcblk1) NAME="SD Card";;
+		*) NAME="$BLOCK";;
+	esac
+	cat << EOF1
 		{
-			name:Block,
+			name:$NAME,
 			elements:[
-				{ SPane:{
-					title:"Internal Storage"
-				}},
 				{ SOptionList:{
-					title:"Internal Storage Scheduler",
-					default:$(/res/synapse/actions/block -s mmcblk0 -c),
-					action:"generic /sys/block/mmcblk0/queue/scheduler",
-					values:[ $(for i in $(/res/synapse/actions/block -s mmcblk0 -a); do echo "$i,"; done) ]
+					title:"I/O Scheduler",
+					default:$(/res/synapse/actions/block -s $BLOCK -c),
+					action:"generic /sys/block/$BLOCK/queue/scheduler",
+					values:[ $(for i in $(/res/synapse/actions/block -s $BLOCK -a); do echo "$i,"; done) ]
 				}},
 				{ SSeekBar:{
-					title:"Internal Storage Read-Ahead",
-					description:"The read-ahead value on the internal phone memory",
+					title:"Read-Ahead",
 					min:128, max:2048, unit:"kB", step:128,
-					default:$(cat /sys/block/mmcblk0/queue/read_ahead_kb),
-					action:"generic /sys/block/mmcblk0/queue/read_ahead_kb"
+					default:$(cat /sys/block/$BLOCK/queue/read_ahead_kb),
+					action:"generic /sys/block/$BLOCK/queue/read_ahead_kb"
+				}},
+				{ SCheckBox:{
+					label:"Add Random",
+					description:"Draw entropy from spinning (rotational) storage.",
+					default:$(cat /sys/block/$BLOCK/queue/add_random),
+					action:"generic /sys/block/$BLOCK/queue/add_random"
+				}},
+				{ SCheckBox:{
+					label:"I/O Stats",
+					description:"Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps.",
+					default:$(cat /sys/block/$BLOCK/queue/iostats),
+					action:"generic /sys/block/$BLOCK/queue/iostats"
+				}},
+				{ SSeekBar:{
+					title:"No Merges",
+					description:"Types of merges (prioritization) the scheduler queue for this storage device allows.",
+					default:$(cat /sys/block/$BLOCK/queue/nomerges),
+					action:"generic /sys/block/$BLOCK/queue/nomerges",
+					values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
+				}},
+				{ SSeekBar:{
+					title:"NR Requests",
+					description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer.",
+					min:128, max:2048, step:128,
+					default:$(cat /sys/block/$BLOCK/queue/nr_requests),
+					action:"generic /sys/block/$BLOCK/queue/nr_requests"
+				}},
+				{ SCheckBox:{
+					label:"Rotational",
+					description:"Treat device as rotational storage.",
+					default:$(cat /sys/block/$BLOCK/queue/rotational),
+					action:"generic /sys/block/$BLOCK/queue/rotational"
+				}},
+				{ SSeekBar:{
+					title:"RQ Affinity",
+					description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1.",
+					default:$(cat /sys/block/$BLOCK/queue/rq_affinity),
+					action:"generic /sys/block/$BLOCK/queue/rq_affinity",
+					values:{ 0:"0: Disabled", 1:"1", 2:"2" }
 				}},
 				{ STreeDescriptor:{
-					path:"/sys/block/mmcblk0/queue",
+					path:"/sys/block/$BLOCK/queue",
 					generic:{
 						element:{ SGeneric:{ title:"@NAME" }}
 					},
-					matched:{
-						elements:[
-							{ "nr_requests":{
-								SSeekBar:{
-									title:"NR Requests",
-									description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer",
-									min:128, max:2048, step:128
-								}
-							}},
-							{ "rq_affinity":{
-								SSeekBar:{
-									title:"RQ Affinity",
-									description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1",
-									values:{ 0:"0: Disabled", 1:"1", 2:"2" }
-								}
-							}},
-							{ "nomerges":{
-								SSeekBar:{
-									title:"No Merges",
-									description:"Types of merges (prioritization) the scheduler queue for this storage device allows",
-									values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
-								}
-							}},
-							{ "add_random":{
-								SCheckBox:{
-									label:"Add Random",
-									description:"Draw entropy from spinning (rotational) storage."
-								}
-							}},
-							{ "iostats":{
-								SCheckBox:{
-									label:"I/O Stats",
-									description:"Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps"
-								}
-							}},
-							{ "rotational":{
-								SCheckBox:{
-									label:"Rotational",
-									description:"Treat device as rotational storage."
-								}
-							}}
-						]
-					},
-					exclude:[ "iosched", "read_ahead_kb", "scheduler" ]
-				}},
-				{ SPane:{
-					title:"SD Card"
-				}},
-				{ SOptionList:{
-					title:"SD card Scheduler",
-					default:$(/res/synapse/actions/block -s mmcblk0 -c),
-					action:"generic /sys/block/mmcblk1/queue/scheduler",
-					values:[ $(for i in $(/res/synapse/actions/block -s mmcblk0 -a); do echo "$i,"; done) ]
-				}},
-				{ SSeekBar:{
-					title:"SD Card Read-Ahead",
-					description:"The read-ahead value on the external SD card",
-					min:128, max:2048, unit:"kB", step:128,
-					default:$(cat /sys/block/mmcblk1/queue/read_ahead_kb),
-					action:"generic /sys/block/mmcblk1/queue/read_ahead_kb"
-				}},
-				{ STreeDescriptor:{
-					path:"/sys/block/mmcblk1/queue",
-					generic:{
-						element:{ SGeneric:{ title:"@NAME" }}
-					},
-					matched:{
-						elements:[
-							{ "nr_requests":{
-								SSeekBar:{
-									title:"NR Requests",
-									description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer",
-									min:128, max:2048, step:128
-								}
-							}},
-							{ "rq_affinity":{
-								SSeekBar:{
-									title:"RQ Affinity",
-									description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1",
-									values:{ 0:"0: Disabled", 1:"1", 2:"2" }
-								}
-							}},
-							{ "nomerges":{
-								SSeekBar:{
-									title:"No Merges",
-									description:"Types of merges (prioritization) the scheduler queue for this storage device allows",
-									values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
-								}
-							}},
-							{ "add_random":{
-								SCheckBox:{
-									label:"Add Random",
-									description:"Draw entropy from spinning (rotational) storage."
-								}
-							}},
-							{ "iostats":{
-								SCheckBox:{
-									label:"I/O Stats",
-									description:"Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps"
-								}
-							}},
-							{ "rotational":{
-								SCheckBox:{
-									label:"Rotational",
-									description:"Treat device as rotational storage."
-								}
-							}}
-						]
-					},
-					exclude:[ "iosched", "read_ahead_kb", "scheduler" ]
+					exclude:[ "iosched", "scheduler", "read_ahead_kb", "add_random", "iostats", "nomerges", "nr_requests", "rotational", "rq_affinity" ]
 				}}
 			]
 		},
+EOF1
+done)
 		{
 			name:Power,
 			elements:[
@@ -329,63 +320,63 @@ cat << CTAG
 				}},
 				{ SSeekBar:{
 					title:"DCP and Mains AC Input Current",
-					description:"Dedicated Charging Port and Mains input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached",
+					description:"Dedicated Charging Port and Mains input current limit applied when detection of a standalone charger happens, or if a USB connector with shorted D+ and D- pins is attached.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/dcp_ac_input_curr),
 					action:"generic /sys/devices/platform/samsung-battery/dcp_ac_input_curr"
 				}},
 				{ SSeekBar:{
 					title:"DCP and Mains AC Charge Current",
-					description:"Dedicated Charging Port and Mains charge current supplied to battery during charging",
+					description:"Dedicated Charging Port and Mains charge current supplied to battery during charging.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/dcp_ac_chrg_curr),
 					action:"generic /sys/devices/platform/samsung-battery/dcp_ac_chrg_curr"
 				}},
 				{ SSeekBar:{
 					title:"SDP Input Current",
-					description:"Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports",
+					description:"Standard Downstream Port input current limit applied on plain and compliant USB data connectivity ports.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/sdp_input_curr),
 					action:"generic /sys/devices/platform/samsung-battery/sdp_input_curr"
 				}},
 				{ SSeekBar:{
 					title:"SDP Charge Current",
-					description:"Standard Downstream Port charge current supplied to battery during charging",
+					description:"Standard Downstream Port charge current supplied to battery during charging.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/sdp_chrg_curr),
 					action:"generic /sys/devices/platform/samsung-battery/sdp_chrg_curr"
 				}},
 				{ SSeekBar:{
 					title:"CDP Input Current",
-					description:"Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports",
+					description:"Charging Downstream Port input current limit applied on BCS 1.1 special charging USB data connectivity ports.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/cdp_input_curr),
 					action:"generic /sys/devices/platform/samsung-battery/cdp_input_curr"
 				}},
 				{ SSeekBar:{
 					title:"CDP Charge Current",
-					description:"Charging Downstream Port and Mains charge current supplied to battery during charging",
+					description:"Charging Downstream Port and Mains charge current supplied to battery during charging.",
 					max:2500, step:1, unit:"mA",
 					default:$(cat /sys/devices/platform/samsung-battery/cdp_chrg_curr),
 					action:"generic /sys/devices/platform/samsung-battery/cdp_chrg_curr"
 				}},
 				{ SSeekBar:{
 					title:"Charge Hard Voltage",
-					description:"Charger chip charge voltage supplied to the battery",
+					description:"Charger chip charge voltage supplied to the battery.",
 					default:$(cat /sys/devices/platform/samsung-battery/batt_chrg_hard_volt),
 					action:"generic /sys/devices/platform/samsung-battery/batt_chrg_hard_volt",
 					values:{ 1:"4.2", 2:"4.35-default", 3:"4.4" }
 				}},
 				{ SSeekBar:{
 					title:"Charge Soft Voltage",
-					description:"Charge voltage the battery has to reach until the charger regulation turns off charging, as measured by the fuelgauge",
+					description:"Charge voltage the battery has to reach until the charger regulation turns off charging, as measured by the fuelgauge.",
 					min:3600000, max:4500000, step:1,
 					default:$(cat /sys/devices/platform/samsung-battery/batt_chrg_soft_volt),
 					action:"generic /sys/devices/platform/samsung-battery/batt_chrg_soft_volt",
 				}},
 				{ SCheckBox:{
 					label:"Ignore 100mA Step Safety Margin",
-					description:"The charger chip is capable of detecting instabilities in the power supplied to the chip, it dinamically adjusts input currents until it reaches a stable power readout - at this point it reduces it further by an additional 100mA step as a safety margin. This ignores that margin",
+					description:"The charger chip is capable of detecting instabilities in the power supplied to the chip, it dinamically adjusts input currents until it reaches a stable power readout - at this point it reduces it further by an additional 100mA step as a safety margin. This ignores that margin.",
 					default:$(cat /sys/devices/platform/samsung-battery/ignore_stable_margin),
 					action:"generic /sys/devices/platform/samsung-battery/ignore_stable_margin"
 				}},
@@ -418,21 +409,21 @@ cat << CTAG
 				}},
 				{ SSeekBar:{
 					title:"Delay",
-					description:"Timeout after the screen goes off, set 0 for infinite mode",
+					description:"Timeout after the screen goes off, set 0 for infinite mode.",
 					max:3600, step:1, unit:" s",
 					default:$(cat /sys/devices/virtual/misc/touchwake/delay),
 					action:"generic /sys/devices/virtual/misc/touchwake/delay"
 				}},
 				{ SSeekBar:{
 					title:"Charging Delay",
-					description:"Timeout after the screen goes off during charge, set 0 for infinite mode",
+					description:"Timeout after the screen goes off during charge, set 0 for infinite mode.",
 					max:3600, step:1, unit:" s",
 					default:$(cat /sys/devices/virtual/misc/touchwake/charging_delay),
 					action:"generic /sys/devices/virtual/misc/touchwake/charging_delay"
 				}},
 				{ SCheckBox:{
 					label:"Keypower Mode",
-					description:"Enable Tap2wake/DoubleTap2wake also when the power key is pressed",
+					description:"Enable Tap2wake/DoubleTap2wake also when the power key is pressed.",
 					default:$(cat /sys/devices/virtual/misc/touchwake/keypower_mode),
 					action:"generic /sys/devices/virtual/misc/touchwake/keypower_mode"
 				}},
@@ -443,11 +434,13 @@ cat << CTAG
 				{ SCheckBox:{
 					label:"Enable register hook",
 					description:"Register intercept acts like a hook and will enable catching scenario settings and modifying them through delta controls. If a scenario does not have a setting (register) in its base sequence, then it cannot be modified by the hook.",
+					default:(cat /sys/devices/virtual/misc/mdnie/hook_intercept),
 					action:"generic /sys/devices/virtual/misc/mdnie/hook_intercept"
 				}},
 				{ SCheckBox:{
 					label:"Enable master sequence",
 					description:"Enabling the master sequence will disable and ignore Samsungs profiles and scenarios, the ROM controls will be disabled.",
+					default:$(cat /sys/devices/virtual/misc/mdnie/sequence_intercept),
 					action:"generic /sys/devices/virtual/misc/mdnie/sequence_intercept"
 				}},
 				{ SPane:{
@@ -496,13 +489,13 @@ cat << CTAG
 				}},
 				{ SSeekBar:{
 					title:"Low Light Environment Brightness",
-					min:1, max:120, unit:"mA",
+					min:1, max:120, unit:" mA",
 					default:$(cat /sys/devices/virtual/sec/led/led_lowpower_current),
 					action:"generic /sys/devices/virtual/sec/led/led_lowpower_current"
 				}},
 				{ SSeekBar:{
 					title:"Bright Light Environment Brightness",
-					min:1, max:120, unit:"mA",
+					min:1, max:120, unit:" mA",
 					default:$(cat /sys/devices/virtual/sec/led/led_highpower_current),
 					action:"generic /sys/devices/virtual/sec/led/led_highpower_current"
 				}},
@@ -511,21 +504,21 @@ cat << CTAG
 				}},
 				{ SCheckBox:{
 					label:"Enable LED Fading",
-					description:"If disabled, the controller bypasses slope generation",
+					description:"If disabled, the controller bypasses slope generation.",
 					default:$(cat /sys/devices/virtual/sec/led/led_fade),
 					action:"generic /sys/devices/virtual/sec/led/led_fade"
 				}},
 				{ SSeekBar:{
 					title:"Fade-in Time Period",
-					description:"Sets the time period of the rising slope",
-					max:2000, unit:"ms", step:50,
+					description:"Sets the time period of the rising slope.",
+					max:2000, unit:"ms", step:1,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_in_time),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_in_time"
 				}},
 				{ SSeekBar:{
 					title:"Fade-out Time Period",
-					description:"Sets the time period of the falling slope",
-					max:2000, unit:"ms", step:50,
+					description:"Sets the time period of the falling slope.",
+					max:2000, unit:"ms", step:1,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_out_time),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_out_time"
 				}},
@@ -554,14 +547,285 @@ cat << CTAG
 					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
 				}},
 				{ SPane:{
-					title:"LED Blink",
+					title:"LED Blink"
 				}},
 				{ SSeekBar:{
 					title:"Blink Delay Period",
-					description:"Sets the time period of low retention at zero PWM level",
-					max:6000, unit:"ms", step:250,
+					description:"Sets the time period of low retention at zero PWM level.",
+					max:6000, unit:"ms", step:1,
 					default:$(cat /sys/devices/virtual/sec/led/led_blink_delay),
 					action:"generic /sys/devices/virtual/sec/led/led_blink_delay"
+				}}
+			]
+		},
+		{
+			name:Sound,
+			elements:[
+				{ SPane:{
+					title:"Boeffla Sound $(cat /sys/devices/virtual/misc/boeffla_sound/version)"
+				}},
+				{ SCheckBox:{
+					label:"Enable Boeffla Sound",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/boeffla_sound),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/boeffla_sound",
+				}},
+				{ SSeekBar:{
+					title:"Debug Level",
+					max:2, step:1,
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/debug_level),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/debug_level"
+				}},
+				{ SCheckBox:{
+					label:"DAC Direct",
+					description:"Bypass the analog channel",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/dac_direct),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/dac_direct"
+				}},
+				{ SCheckBox:{
+					label:"DAC oversampling",
+					description:"128x Oversampling",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/dac_oversampling),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/dac_oversampling"
+				}},
+				{ SCheckBox:{
+					label:"FLL Tuning",
+					description:"Tune the chip clock for better quality",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/fll_tuning),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/fll_tuning"
+				}},
+				{ SCheckBox:{
+					label:"Speaker Tuning",
+					description:"Tune up the phone speaker",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/speaker_tuning),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/speaker_tuning"
+				}},
+				{ SCheckBox:{
+					label:"Mono Downmix",
+					description:"Convert stereo into mono",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mono_downmix),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mono_downmix"
+				}},
+				{ SSeekBar:{
+					title:"Stereo expansion",
+					description:"Improve sound deepness and clarity",
+					max:31, step:1,
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/stereo_expansion),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/stereo_expansion"
+				}},
+				{ SSeekBar:{
+					title:"Headphone Volume (Left)",
+					max:63, step:1,
+					default:$(/res/synapse/actions/sound -v /sys/devices/virtual/misc/boeffla_sound/headphone_volume left),
+					action:"sound -v /sys/devices/virtual/misc/boeffla_sound/headphone_volume left"
+				}},
+				{ SSeekBar:{
+					title:"Headphone Volume (Right)",
+					max:63, step:1,
+					default:$(/res/synapse/actions/sound -v /sys/devices/virtual/misc/boeffla_sound/headphone_volume right),
+					action:"sound -v /sys/devices/virtual/misc/boeffla_sound/headphone_volume right"
+				}},
+				{ SSeekBar:{
+					title:"Speaker Volume (Left)",
+					max:63, step:1,
+					default:$(/res/synapse/actions/sound -v /sys/devices/virtual/misc/boeffla_sound/speaker_volume left),
+					action:"sound -v /sys/devices/virtual/misc/boeffla_sound/speaker_volume left"
+				}},
+				{ SSeekBar:{
+					title:"Speaker Volume (Right)",
+					max:63, step:1,
+					default:$(/res/synapse/actions/sound -v /sys/devices/virtual/misc/boeffla_sound/speaker_volume right),
+					action:"sound -v /sys/devices/virtual/misc/boeffla_sound/speaker_volume right"
+				}},
+				{ SSeekBar:{
+					title:"Microphone General Gain",
+					description:"General Microphone Volume",
+					max:31, step:1,
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_general),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_general"
+				}},
+				{ SSeekBar:{
+					title:"Microphone Call Gain",
+					description:"Call Microphone Volume",
+					max:31, step:1,
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_call),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/mic_level_call"
+				}},
+				{ SSeekBar:{
+					title:"Change Delay",
+					max:5000000, step:1,
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/change_delay),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/change_delay"
+				}},
+				{ SCheckBox:{
+					label:"HW Equalizer",
+					description:"Manually tune the frequencies",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/eq),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/eq"
+				}},
+				{ SPane:{
+					title:"Equalizer Gains"
+				}},
+				{ SSeekBar:{
+					title:"Gain 1",
+					min:-12, max:12, step:1,
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 1),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 1"
+				}},
+				{ SSeekBar:{
+					title:"Gain 2",
+					min:-12, max:12, step:1,
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 2),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 2"
+				}},
+				{ SSeekBar:{
+					title:"Gain 3",
+					min:-12, max:12, step:1,
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 3),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 3"
+				}},
+				{ SSeekBar:{
+					title:"Gain 4",
+					min:-12, max:12, step:1,
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 4),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 4"
+				}},
+				{ SSeekBar:{
+					title:"Gain 5",
+					min:-12, max:12, step:1,
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 5),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 5"
+				}},
+				{ SPane:{
+					title:"Equalizer Bands"
+				}},
+				{ SSeekBar:{
+					title:"Band 1 A",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 1"
+				}},
+				{ SSeekBar:{
+					title:"Band 1 B",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 2"
+				}},
+				{ SSeekBar:{
+					title:"Band 1 C",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 3"
+				}},
+				{ SSeekBar:{
+					title:"Band 1 PG",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 4"
+				}},
+				{ SSeekBar:{
+					title:"Band 2 A",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 1"
+				}},
+				{ SSeekBar:{
+					title:"Band 2 B",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 2"
+				}},
+				{ SSeekBar:{
+					title:"Band 2 C",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 3"
+				}},
+				{ SSeekBar:{
+					title:"Band 2 PG",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 4"
+				}},
+				{ SSeekBar:{
+					title:"Band 3 A",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 1"
+				}},
+				{ SSeekBar:{
+					title:"Band 3 B",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 2"
+				}},
+				{ SSeekBar:{
+					title:"Band 3 C",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 3"
+				}},
+				{ SSeekBar:{
+					title:"Band 3 PG",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 4"
+				}},
+				{ SSeekBar:{
+					title:"Band 4 A",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 1"
+				}},
+				{ SSeekBar:{
+					title:"Band 4 B",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 2"
+				}},
+				{ SSeekBar:{
+					title:"Band 4 C",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 3"
+				}},
+				{ SSeekBar:{
+					title:"Band 4 PG",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 4"
+				}},
+				{ SSeekBar:{
+					title:"Band 5 A",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 1"
+				}},
+				{ SSeekBar:{
+					title:"Band 5 B",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 2"
+				}},
+				{ SSeekBar:{
+					title:"Band 5 C",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 3"
+				}},
+				{ SSeekBar:{
+					title:"Band 5 PG",
+					max:65535, step:1,
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 4"
+				}},
+				{ SPane:{
+					title:"Advanced"
+				}},
+				{ SCheckBox:{
+					label:"Privacy Mode",
+					description:"Quiet the phone speaker on Headphones plug",
+					default:$(/res/synapse/actions/sound -l /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
+					action:"sound -l /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
 				}}
 			]
 		},
@@ -593,4 +857,4 @@ cat << CTAG
 		}
 	]
 }
-CTAG
+EOF0
