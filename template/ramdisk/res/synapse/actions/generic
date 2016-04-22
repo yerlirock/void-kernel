@@ -1,4 +1,5 @@
-if [ -e "$1" ]; then
+# generic [path] [value]
+if [[ -e "$1" ]]; then
 	if [[ ! -z "$2" ]]; then
 		echo "$2" > "$1"; fi
 	cat "$1"
