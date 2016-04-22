@@ -1,6 +1,6 @@
-# sound [option] [path] [parameters]
+# sound [option] [file] [parameters]
 case "$1" in
-	-v) # sound -v [path] [left/right] [value]
+	-v) # sound -v [file] [left/right] [value]
 		FILE="$2"
 		TARGET="$3"
 		VALUE="$4"
@@ -21,7 +21,7 @@ case "$1" in
 			echo "$OUTPUT" > "$FILE"
 		fi
 	;;
-	-g) # sound -g [path] [gain] [value]
+	-g) # sound -g [file] [gain] [value]
 		FILE="$2"
 		TARGET="$3"
 		VALUE="$4"
@@ -41,7 +41,7 @@ case "$1" in
 			echo "$OUTPUT" > "$FILE"
 		fi
 	;;
-	-b) # sound -b [path] [x] [y] [value]
+	-b) # sound -b [file] [x] [y] [value]
 		FILE="$2"
 		TARGETY="$3"
 		TARGETX="$4"
