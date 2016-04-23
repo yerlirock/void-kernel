@@ -59,6 +59,8 @@ enum ipi_msg_type {
 	IPI_CPU_BACKTRACE,
 };
 
+static DECLARE_COMPLETION(cpu_running);
+
 int __cpuinit __cpu_up(unsigned int cpu)
 {
 	struct cpuinfo_arm *ci = &per_cpu(cpu_data, cpu);
@@ -126,20 +128,12 @@ int __cpuinit __cpu_up(unsigned int cpu)
 	 */
 	ret = boot_secondary(cpu, idle);
 	if (ret == 0) {
-		unsigned long timeout;
-
 		/*
 		 * CPU was successfully started, wait for it
 		 * to come online or time out.
 		 */
-		timeout = jiffies + HZ;
-		while (time_before(jiffies, timeout)) {
-			if (cpu_online(cpu))
-				break;
-
-			udelay(10);
-			barrier();
-		}
+		wait_for_completion_timeout(&cpu_running,
+						 msecs_to_jiffies(1000));
 
 		if (!cpu_online(cpu)) {
 			pr_crit("CPU%u: failed to come online\n", cpu);
@@ -347,9 +341,10 @@ asmlinkage void __cpuinit secondary_start_kernel(void)
 	/*
 	 * OK, now it's safe to let the boot CPU continue.  Wait for
 	 * the CPU migration code to notice that the CPU is online
-	 * before we continue.
+	 * before we continue - which happens after __cpu_up returns.
 	 */
 	set_cpu_online(cpu, true);
+	complete(&cpu_running);
 
 	/*
 	 * Setup the percpu timer for this CPU.
@@ -569,13 +564,15 @@ static void percpu_timer_stop(void)
 
 static DEFINE_SPINLOCK(stop_lock);
 
+static struct pt_regs __percpu regs_before_stop;
 /*
  * ipi_cpu_stop - handle IPI from smp_send_stop()
  */
-static void ipi_cpu_stop(unsigned int cpu)
+static void ipi_cpu_stop(unsigned int cpu, struct pt_regs *regs)
 {
 	if (system_state == SYSTEM_BOOTING ||
 	    system_state == SYSTEM_RUNNING) {
+		per_cpu(regs_before_stop, cpu) = *regs;
 		spin_lock(&stop_lock);
 		printk(KERN_CRIT "CPU%u: stopping\n", cpu);
 		dump_stack();
@@ -684,7 +681,7 @@ asmlinkage void __exception_irq_entry do_IPI(int ipinr, struct pt_regs *regs)
 
 	case IPI_CPU_STOP:
 		irq_enter();
-		ipi_cpu_stop(cpu);
+		ipi_cpu_stop(cpu, regs);
 		irq_exit();
 		break;
 

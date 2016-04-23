@@ -6,6 +6,7 @@ config ARM
 	select HAVE_IDE
 	select HAVE_DMA_CONTIGUOUS if (CPU_V6 || CPU_V6K || CPU_V7)
 	select HAVE_MEMBLOCK
+	select ARCH_USE_BUILTIN_BSWAP
 	select RTC_LIB
 	select SYS_SUPPORTS_APM_EMULATION
 	select GENERIC_ATOMIC64 if (CPU_V6 || !CPU_32v6K || !AEABI)
@@ -13,6 +14,7 @@ config ARM
 	select HAVE_ARCH_KGDB
 	select HAVE_KPROBES if (!XIP_KERNEL && !THUMB2_KERNEL)
 	select HAVE_KRETPROBES if (HAVE_KPROBES)
+	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
 	select HAVE_DYNAMIC_FTRACE if (!XIP_KERNEL)
@@ -744,7 +746,6 @@ config ARCH_S5PC100
 	select GENERIC_GPIO
 	select HAVE_CLK
 	select CPU_V7
-	select ARM_L1_CACHE_SHIFT_6
 	select ARCH_USES_GETTIMEOFFSET
 	select HAVE_S3C2410_I2C if I2C
 	select HAVE_S3C_RTC if RTC_CLASS
@@ -758,7 +759,6 @@ config ARCH_S5PV210
 	select ARCH_SPARSEMEM_ENABLE
 	select GENERIC_GPIO
 	select HAVE_CLK
-	select ARM_L1_CACHE_SHIFT_6
 	select ARCH_HAS_CPUFREQ
 	select GENERIC_CLOCKEVENTS
 	select HAVE_SCHED_CLOCK
@@ -2129,6 +2129,12 @@ config NEON
 	help
 	  Say Y to include support code for NEON, the ARMv7 Advanced SIMD
 	  Extension.
+
+config KERNEL_MODE_NEON
+	bool "Support for NEON in kernel mode"
+	depends on NEON && AEABI
+	help
+	  Say Y to include support for NEON in kernel mode.
 
 endmenu
 
