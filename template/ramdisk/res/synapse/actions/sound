@@ -10,9 +10,7 @@ case "$1" in
 			right) TARGET="3";;
 		esac
 
-		if [[ -z "$VALUE" ]]; then
-			awk "FNR == $TARGET {print \$NF}" < "$FILE"
-		else
+		if [[ ! -z "$VALUE" ]]; then
 			if [[ "$TARGET" -eq 2 ]]; then
 				OUTPUT="$VALUE $(awk 'FNR == 3 {print $NF}' < "$FILE")"
 			else
@@ -20,15 +18,14 @@ case "$1" in
 			fi
 			echo "$OUTPUT" > "$FILE"
 		fi
+		awk "FNR == $TARGET {print \$NF}" < "$FILE"
 	;;
 	-g) # sound -g [file] [gain] [value]
 		FILE="$2"
 		TARGET="$3"
 		VALUE="$4"
 
-		if [[ -z "$VALUE" ]]; then
-			tr -d '[:alpha:]' < "$FILE" | tr -d ':' | awk "{print \$${TARGET}}"
-		else
+		if [[ ! -z "$VALUE" ]]; then
 			COUNT=1
 			for GAIN in $(tr -d '[:alpha:]' < "$FILE" | tr -d ':'); do
 				if [[ "$COUNT" -eq "$TARGET" ]]; then
@@ -40,18 +37,15 @@ case "$1" in
 			done
 			echo "$OUTPUT" > "$FILE"
 		fi
+		tr -d '[:alpha:]' < "$FILE" | tr -d ':' | awk "{print \$${TARGET}}"
 	;;
-	-b) # sound -b [file] [x] [y] [value]
+	-b) # sound -b [file] [y] [x] [value]
 		FILE="$2"
 		TARGETY="$3"
 		TARGETX="$4"
 		VALUE="$5"
 
-		if [[ -z "$VALUE" ]]; then
-			((TARGETY++))
-			((TARGETX++))
-			awk "FNR == $TARGETY" < "$FILE" | cut -d ' ' -f "$TARGETX"
-		else
+		if [[ ! -z "$VALUE" ]]; then
 			OUTPUT="$TARGETY"
 			((TARGETY++))
 			ROW="$(awk "FNR == $TARGETY" < "$FILE" | cut -d ' ' -f 2-)"
@@ -66,5 +60,8 @@ case "$1" in
 			done
 			echo "$OUTPUT" > "$FILE"
 		fi
+		((TARGETY++))
+		((TARGETX++))
+		awk "FNR == $TARGETY" < "$FILE" | cut -d ' ' -f "$TARGETX"
 	;;
 esac
