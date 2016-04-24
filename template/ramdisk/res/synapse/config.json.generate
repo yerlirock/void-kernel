@@ -9,10 +9,6 @@ cat << EOF0
 				{ SPane:{
 					title:"Kernel Version",
 					description:"$(cat /proc/version)"
-				}},
-				{ SPane:{
-					title:"Uptime",
-					description:"$(uptime | cut -d , -f 1)"
 				}}
 			]
 		},
@@ -21,32 +17,39 @@ cat << EOF0
 			elements:[
 				{ SLiveLabel:{
 					title:"CPU Temperature",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/s5p-tmu/temperature) °C"
 				}},
-				{ SLiveLabel:{
-					title:"ASV Level",
-					description:"Chip quality. Level 0 is the worst, level 11 is the best.",
-					refresh:0,
-					action:"cat /sys/devices/system/abb/abb_info | grep ASV | awk '{print \$NF}'"
-				}},
 				{ SPane:{
-					title:"CPU Frequency Scaling"
+					title:"Frequency Scaling"
 				}},
 				{ SSeekBar:{
-					title:"CPU Max Frequency",
+					title:"Max Frequency",
 					description:"Set the maximum frequency the CPU scales up to.",
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
 					values:{ $(freq_list) }
 				}},
 				{ SSeekBar:{
-					title:"CPU Min Frequency",
+					title:"Min Frequency",
 					description:"Set the minimum frequency the CPU scales down to.",
 					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq),
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
 					values:{ $(freq_list) }
 				}},
+				{ SPane:{
+					title:"Voltages"
+				}},
+$(cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | while read FREQ VOLT; do
+	cat << EOF1
+				{ SSeekBar:{
+					title:"$FREQ MHz",
+					max:1500000, min:600000, unit:" uV", step:12500,
+					default:$VOLT,
+					action:"cpu -v /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table $FREQ"
+				}},
+EOF1
+done)
 				{ SPane:{
 					title:"Advanced"
 				}},
@@ -207,14 +210,14 @@ cat << EOF0
 				{ SDescription:{
 					description:"MIF/INT represent the SoCs memory interface and internal components. The DVFS logic controls both frequencies in pairwise steps, although the frequencies are independant, they are defined together in pairwise steps. MIF or Memory Interface is the direct voltage and frequency used on the C2C bus to the memory chip. INT or internal voltage and frequency are the internal bus and all components connected to it other than the CPU and GPU cores. This encompasses blocks like the camera interfaces, the ISP, the I/O controllers and the MFC (Hardware decoder). The configurables below control the scaling parameters of the DVFS logic of this block. The next target frequency is decided by the maximum of (Target DMC frequency ; Target CPU frequency ; Busfreq lock frequency)."
 				}},
+$(for i in 1 2; do
+	cat << EOF1
 				{ SLiveLabel:{
 					refresh:1000,
-					action:"cat /sys/devices/system/cpu/busfreq/curr_freq | awk 'NR==1'"
+					action:"cat /sys/devices/system/cpu/busfreq/curr_freq | awk 'NR==$i'"
 				}},
-				{ SLiveLabel:{
-					refresh:1000,
-					action:"cat /sys/devices/system/cpu/busfreq/curr_freq | awk 'NR==2'"
-				}},
+EOF1
+done)
 				{ SSeekBar:{
 					title:"Load History Size",
 					description:"The Platform Performance Monitoring Unit (PPMU) collects usage information on the bus on a hardware level from the CPU and the two memory controllers (DMCs). This dictates the size of the historic the kernel keeps in store.",
@@ -270,7 +273,7 @@ cat << EOF0
 				{ SLiveLabel:{
 					title:"Current GPU Voltage",
 					refresh:1000,
-					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_vol) mV"
+					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_vol) uV"
 				}},
 				{ SPane:{
 					title:"GPU Frequencies",
@@ -349,7 +352,7 @@ done)
 				{ SDescription:{
 					description:"Adaptive Body Bias is a secondary voltage applied onto the body of the transistor, where as the normal voltage is the gate voltage. Adjusting the body voltage in a differential to the gate voltage changes the characteristics of the transistor in how it switches. The body bias is the delta of the body voltage to the gate voltage, or difference between gate voltage minus body voltage. A positive body bias results in a Forward Body Bias (FBB) which lowers the transistor switching threshold and allows for higher clocks at the same voltage, or lower voltage at the same clocks. A negative body bias, or Reverse Body Bias (RBB) raises the switching threshold and can drastically improve leakage, but with the reverse effects of FBB in terms of voltage and clocks. WARNING: For advanced users only who understand the electrical physics behind it."
 				}},
-$(for i in 1 2 3 4 6 7; do
+$(for i in 1 2 3 4 6 7 8; do
 	cat << EOF1
 				{ SLiveLabel:{
 					refresh:0,
@@ -470,7 +473,8 @@ $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); 
 				}},
 				{ SSeekBar:{
 					title:"Read-Ahead",
-					min:128, max:2048, unit:"kB", step:128,
+					description:"Maximum number of kilobytes to read-ahead for filesystems on this block device.",
+					min:128, max:4096, unit:"kB", step:128,
 					default:$(cat /sys/block/$BLOCK/queue/read_ahead_kb),
 					action:"generic /sys/block/$BLOCK/queue/read_ahead_kb"
 				}},
@@ -487,16 +491,23 @@ $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); 
 					action:"generic /sys/block/$BLOCK/queue/iostats"
 				}},
 				{ SSeekBar:{
+					title:"Max Sectors",
+					description:"This is the maximum number of kilobytes that the block layer will allow for a filesystem request.",
+					min:128, max:$(cat /sys/block/$BLOCK/queue/max_hw_sectors_kb), unit:"kb", step:128,
+					default:$(cat /sys/block/$BLOCK/queue/max_sectors_kb),
+					action:"generic /sys/block/$BLOCK/queue/max_sectors_kb"
+				}},
+				{ SOptionList:{
 					title:"No Merges",
-					description:"Types of merges (prioritization) the scheduler queue for this storage device allows.",
+					description:"This enables the user to disable the lookup logic involved with IO merging requests in the block layer. By default (0) all merges are enabled. When set to 1 only simple one-hit merges will be tried. When set to 2 no merge algorithms will be tried (including one-hit or more complex tree/hash lookups).",
 					default:$(cat /sys/block/$BLOCK/queue/nomerges),
 					action:"generic /sys/block/$BLOCK/queue/nomerges",
-					values:{ 0:"0: All", 1:"1: Simple Only", 2:"2: None" }
+					values:{ 0:"0: All merges", 1:"1: Only simple one-hit", 2:"2: No merges" }
 				}},
 				{ SSeekBar:{
 					title:"NR Requests",
-					description:"Maximum number of read (or write) requests that can be queued to the scheduler in the block layer.",
-					min:128, max:2048, step:128,
+					description:"This controls how many requests may be allocated in the block layer for read or write requests. Note that the total allocated number may be twice this amount, since it applies only to reads or writes (not the accumulated sum).",
+					min:128, max:4096, step:128,
 					default:$(cat /sys/block/$BLOCK/queue/nr_requests),
 					action:"generic /sys/block/$BLOCK/queue/nr_requests"
 				}},
@@ -506,12 +517,12 @@ $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); 
 					default:$(cat /sys/block/$BLOCK/queue/rotational),
 					action:"generic /sys/block/$BLOCK/queue/rotational"
 				}},
-				{ SSeekBar:{
+				{ SOptionList:{
 					title:"RQ Affinity",
-					description:"Try to have scheduler requests complete on the CPU core they were made from. Higher is more aggressive. Some kernels only support 0-1.",
+					description:"If this option is enabled, the block layer will migrate request completions to the CPU that originally submitted the request. For some workloads this provides a significant reduction in CPU cycles due to caching effects.",
 					default:$(cat /sys/block/$BLOCK/queue/rq_affinity),
 					action:"generic /sys/block/$BLOCK/queue/rq_affinity",
-					values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+					values:{ 0:"Disabled", 1:"Enabled", 2:"Aggressive" }
 				}}
 			]
 		},
