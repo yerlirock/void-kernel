@@ -1,5 +1,3 @@
-PATH=$(echo "$(dirname $(which busybox)):$PATH")
-
 case "$1" in
 	-a) cat "$2" | sed -e 's/\[//;s/\]//';;
 	-s)

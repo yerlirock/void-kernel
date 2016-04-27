@@ -9,6 +9,10 @@ cat << EOF0
 				{ SPane:{
 					title:"Kernel Version",
 					description:"$(cat /proc/version)"
+				}},
+				{ SPane:{
+					title:"Cmdline",
+					description:"$(cat /proc/cmdline)"
 				}}
 			]
 		},
@@ -95,112 +99,114 @@ done)
 				}},
 				{ STreeDescriptor:{
 					path:"/sys/devices/system/cpu/cpufreq",
-					generic:{ directory:
-						{ STreeDescriptor:{
-							generic:{ 
-								directory:{ },
-								element:{ SGeneric:{ title:"@NAME" }}
-							},
-							matched:{
-								elements:[
-									{ "sampling_rate":{
-										SSeekBar:{
-											title:"Sampling Rate",
-											description:"How often the kernel look at the CPU usage and make decisions on what to do about the frequency. Higher values means CPU polls less often.",
-											min:10000, max:500000, step:1000, unit:" uS"
-										}
-									}},
-									{ "up_threshold":{
-										SSeekBar:{
-											title:"Up Threshold",
-											description:"When CPU load reaches this point, governor will scale CPU up. Higher value means less responsiveness and lower values corresponds to more responsiveness at the cost of battery.",
-											min:1, max:100, unit:"%"
-										}
-									}},
-									{ "powersave_bias":{
-										SGeneric:{
-											title:"Powersave Bias",
-											description:"Default value is 0. Setting a higher value will bias the governor towards lower frequency steps. Use this if you want CPU to spend less time on higher frequencies. A better alternative would be to underclock to a lower frequency than using powersave bias."
-										}
-									}},
-									{ "sampling_down_factor":{
-										SGeneric:{
-											title:"Sampling Down Factor",
-											description:"Determines how often CPU should stay at higher frequencies when truly busy. Default behavior is fast switching to lower frequencies (1). Having sampling_down_factor set to 1 makes no changes from existing behavior (for the non-modified ondemand), but having sampling_down_factor set to a value greater than 1 causes it to act as a multiplier for the scheduling interval for re-evaluating the load when the CPU is at its highest clock frequency (which is scaling_max_freq) due to high load."
-										}
-									}},
-									{ "down_differential":{
-										SGeneric:{
-											title:"Down Differential",
-											description:"Indirectly calculates the 'down-threshold' of governor. After completing sampling-down-factor*sampling-rate at max frequency because of high load, governor samples the load again to calculate an estimate of the new target frequency in a way that the lowest frequency will be chosen that would not trigger up_threshold in the next sample. During this choice down_differential is taken into account as a breathing room value. Target frequency is calculated as max_load_freq / (up_threshold - down_differential)."
-										}
-									}},
-									{ "ignore_nice_load":{
-										SCheckBox:{
-											label:"Ignore Nice Load",
-											description:"Setting to 1 causes governor to ignore load resulted by nice processes while making scaling decisions. Nice processes are the one i/o scheduler refers to as low priority process."
-										}
-									}},
-									{ "io_is_busy":{
-										SCheckBox:{
-											label:"I/O Is Busy",
-											description:"Setting to 1 causes treating i/o wait time as CPU busy time. I/O busy is just an indication that CPU is performance critical, and system is not actually idle. IO wait time is excluded from the CPU idle time value is 1."
-										}
-									}},
-									{ "freq_step":{
-										SSeekBar:{
-											label:"Freq Step",
-											description:"Whenever up-scaling logic is triggered the governor instructs the CPU to raise its frequency by freq_step percentage of max allowed frequency. (max policy * (freq step / 100)). Ex: max policy is 1600 and freq step 21%, it will scale 1600 * 21% = 336.",
-											max:100
-										}
-									}},
-									{ "version":{
-										SLiveLabel:{
-											title:"Governor Version",
-											refresh:0
-										}
-									}},
-									{ "version_profiles":{
-										SLiveLabel:{
-											title:"Governor Profiles Version",
-											refresh:0
-										}
-									}},
-									{ "profile":{
-										SLiveLabel:{
-											title:"Current Profile",
-											refresh:0
-										}
-									}},
-									{ "profile_list":{
-										SLiveLabel:{
-											title:"Profile List",
-											refresh:0
-										}
-									}},
-									{ "hispeed_freq":{
-										SSeekBar:{
-											label:"Hispeed Freq",
-											values:{ $(freq_list) }
-										}
-									}},
-									{ "sync_freq":{
-										SSeekBar:{
-											label:"Sync Freq",
-											values:{ $(freq_list) }
-										}
-									}},
-									{ "go_hispeed_load":{
-										SSeekBar:{
-											title:"Go Hispeed Load",
-											min:1, max:100, unit:"%"
-										}
-									}}
-								]
-							},
-							exclude:[ "cpucore_table", "boostpulse" ]
-						}}
-					},
+					generic:{
+						directory:{
+							STreeDescriptor:{
+								generic:{ 
+									directory:{ },
+									element:{ SGeneric:{ title:"@NAME" }}
+								},
+								matched:{
+									elements:[
+										{ "sampling_rate":{
+											SSeekBar:{
+												title:"Sampling Rate",
+												description:"How often the kernel look at the CPU usage and make decisions on what to do about the frequency. Higher values means CPU polls less often.",
+												min:10000, max:500000, step:1000, unit:" uS"
+											}
+										}},
+										{ "up_threshold":{
+											SSeekBar:{
+												title:"Up Threshold",
+												description:"When CPU load reaches this point, governor will scale CPU up. Higher value means less responsiveness and lower values corresponds to more responsiveness at the cost of battery.",
+												min:1, max:100, unit:"%"
+											}
+										}},
+										{ "powersave_bias":{
+											SGeneric:{
+												title:"Powersave Bias",
+												description:"Default value is 0. Setting a higher value will bias the governor towards lower frequency steps. Use this if you want CPU to spend less time on higher frequencies. A better alternative would be to underclock to a lower frequency than using powersave bias."
+											}
+										}},
+										{ "sampling_down_factor":{
+											SGeneric:{
+												title:"Sampling Down Factor",
+												description:"Determines how often CPU should stay at higher frequencies when truly busy. Default behavior is fast switching to lower frequencies (1). Having sampling_down_factor set to 1 makes no changes from existing behavior (for the non-modified ondemand), but having sampling_down_factor set to a value greater than 1 causes it to act as a multiplier for the scheduling interval for re-evaluating the load when the CPU is at its highest clock frequency (which is scaling_max_freq) due to high load."
+											}
+										}},
+										{ "down_differential":{
+											SGeneric:{
+												title:"Down Differential",
+												description:"Indirectly calculates the 'down-threshold' of governor. After completing sampling-down-factor*sampling-rate at max frequency because of high load, governor samples the load again to calculate an estimate of the new target frequency in a way that the lowest frequency will be chosen that would not trigger up_threshold in the next sample. During this choice down_differential is taken into account as a breathing room value. Target frequency is calculated as max_load_freq / (up_threshold - down_differential)."
+											}
+										}},
+										{ "ignore_nice_load":{
+											SCheckBox:{
+												label:"Ignore Nice Load",
+												description:"Setting to 1 causes governor to ignore load resulted by nice processes while making scaling decisions. Nice processes are the one i/o scheduler refers to as low priority process."
+											}
+										}},
+										{ "io_is_busy":{
+											SCheckBox:{
+												label:"I/O Is Busy",
+												description:"Setting to 1 causes treating i/o wait time as CPU busy time. I/O busy is just an indication that CPU is performance critical, and system is not actually idle. IO wait time is excluded from the CPU idle time value is 1."
+											}
+										}},
+										{ "freq_step":{
+											SSeekBar:{
+												label:"Freq Step",
+												description:"Whenever up-scaling logic is triggered the governor instructs the CPU to raise its frequency by freq_step percentage of max allowed frequency. (max policy * (freq step / 100)). Ex: max policy is 1600 and freq step 21%, it will scale 1600 * 21% = 336.",
+												max:100
+											}
+										}},
+										{ "version":{
+											SLiveLabel:{
+												title:"Governor Version",
+												refresh:0
+											}
+										}},
+										{ "version_profiles":{
+											SLiveLabel:{
+												title:"Governor Profiles Version",
+												refresh:0
+											}
+										}},
+										{ "profile":{
+											SLiveLabel:{
+												title:"Current Profile",
+												refresh:0
+											}
+										}},
+										{ "profile_list":{
+											SLiveLabel:{
+												title:"Profile List",
+												refresh:0
+											}
+										}},
+										{ "hispeed_freq":{
+											SSeekBar:{
+												label:"Hispeed Freq",
+												values:{ $(freq_list) }
+											}
+										}},
+										{ "sync_freq":{
+											SSeekBar:{
+												label:"Sync Freq",
+												values:{ $(freq_list) }
+											}
+										}},
+										{ "go_hispeed_load":{
+											SSeekBar:{
+												title:"Go Hispeed Load",
+												min:1, max:100, unit:"%"
+											}
+										}}
+									]
+								},
+								exclude:[ "cpucore_table", "boostpulse" ]
+							}
+						}
+					}
 				}}
 			]
 		},
@@ -210,14 +216,10 @@ done)
 				{ SDescription:{
 					description:"MIF/INT represent the SoCs memory interface and internal components. The DVFS logic controls both frequencies in pairwise steps, although the frequencies are independant, they are defined together in pairwise steps. MIF or Memory Interface is the direct voltage and frequency used on the C2C bus to the memory chip. INT or internal voltage and frequency are the internal bus and all components connected to it other than the CPU and GPU cores. This encompasses blocks like the camera interfaces, the ISP, the I/O controllers and the MFC (Hardware decoder). The configurables below control the scaling parameters of the DVFS logic of this block. The next target frequency is decided by the maximum of (Target DMC frequency ; Target CPU frequency ; Busfreq lock frequency)."
 				}},
-$(for i in 1 2; do
-	cat << EOF1
 				{ SLiveLabel:{
 					refresh:1000,
-					action:"cat /sys/devices/system/cpu/busfreq/curr_freq | awk 'NR==$i'"
+					action:"cat /sys/devices/system/cpu/busfreq/curr_freq | while read LINE; do echo \$LINE@n; done"
 				}},
-EOF1
-done)
 				{ SSeekBar:{
 					title:"Load History Size",
 					description:"The Platform Performance Monitoring Unit (PPMU) collects usage information on the bus on a hardware level from the CPU and the two memory controllers (DMCs). This dictates the size of the historic the kernel keeps in store.",
@@ -314,7 +316,7 @@ $(COUNT=1; HELP_COUNT=1; HELP_DIRECTION="->"; for THRESHOLD in $(/res/synapse/ac
 	cat << EOF1
 				{ SSeekBar:{
 					title:"GPU threshold $HELP_COUNT $HELP_DIRECTION $((HELP_COUNT + 1))",
-					max:100, unit:" %",
+					max:100, unit:"%",
 					default:$THRESHOLD,
 					action:"gpu -t /sys/devices/virtual/misc/gpu_clock_control/gpu_control $COUNT"
 				}},
@@ -352,14 +354,10 @@ done)
 				{ SDescription:{
 					description:"Adaptive Body Bias is a secondary voltage applied onto the body of the transistor, where as the normal voltage is the gate voltage. Adjusting the body voltage in a differential to the gate voltage changes the characteristics of the transistor in how it switches. The body bias is the delta of the body voltage to the gate voltage, or difference between gate voltage minus body voltage. A positive body bias results in a Forward Body Bias (FBB) which lowers the transistor switching threshold and allows for higher clocks at the same voltage, or lower voltage at the same clocks. A negative body bias, or Reverse Body Bias (RBB) raises the switching threshold and can drastically improve leakage, but with the reverse effects of FBB in terms of voltage and clocks. WARNING: For advanced users only who understand the electrical physics behind it."
 				}},
-$(for i in 1 2 3 4 6 7 8; do
-	cat << EOF1
 				{ SLiveLabel:{
 					refresh:0,
-					action:"cat /sys/devices/system/abb/abb_info | awk 'NR==$i'"
+					action:"cat /sys/devices/system/abb/abb_info | while read LINE; do if [[ ! -z \$LINE ]]; then echo \$LINE@n; fi; done"
 				}},
-EOF1
-done)
 				{ SPane:{
 					title:"CPU",
 					description:"ARM (CPU) body bias voltages."
@@ -1023,26 +1021,10 @@ done)
 			]
 		},
 		{
-			name:Led,
+			name:LED,
 			elements:[
-				{ SPane:{
-					title:"Brightness",
-					description:"The notification LED has two brightness modes, depending on the external brightness detected by the light sensor."
-				}},
-				{ SSeekBar:{
-					title:"Low Light Environment Brightness",
-					min:1, max:120, unit:" mA",
-					default:$(cat /sys/devices/virtual/sec/led/led_lowpower_current),
-					action:"generic /sys/devices/virtual/sec/led/led_lowpower_current"
-				}},
-				{ SSeekBar:{
-					title:"Bright Light Environment Brightness",
-					min:1, max:120, unit:" mA",
-					default:$(cat /sys/devices/virtual/sec/led/led_highpower_current),
-					action:"generic /sys/devices/virtual/sec/led/led_highpower_current"
-				}},
-				{ SPane:{
-					title:"LED Fading",
+				{ SDescription:{
+					description:"Control the way the LED blinks. The LED controller has 4 type of slopes in its waveform, 2 rising slopes, and two falling slopes. The following configurables can control the blinking waveform. The LED is controlled by PWM/pulse wave modulation, the detention time dictates how long the controller spends time on a single step in its slope. One time-unit is equivalent to 4ms."
 				}},
 				{ SCheckBox:{
 					label:"Enable LED Fading",
@@ -1052,44 +1034,41 @@ done)
 				}},
 				{ SSeekBar:{
 					title:"Fade-in Time Period",
-					description:"Sets the time period of the rising slope.",
-					max:2000, unit:"ms",
+					description:"Sets the time period of the two rising slopes (1,2), one time-unit is equal to 0.5 seconds.",
+					max:12,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_in_time),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_in_time"
 				}},
 				{ SSeekBar:{
 					title:"Fade-out Time Period",
-					description:"Sets the time period of the falling slope.",
-					max:2000, unit:"ms",
+					description:"Sets the time period of the two falling slopes (3,4), one time-unit is equal to 0.5 seconds.",
+					max:12,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_out_time),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_out_time"
 				}},
 				{ SSeekBar:{
-					title:"Fade DT1",
-					max:10,
+					title:"Slope 1 detention time",
+					max:4,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
 				}},
 				{ SSeekBar:{
-					title:"Fade DT2",
-					max:10,
+					title:"Slope 2 detention time",
+					max:4,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
 				}},
 				{ SSeekBar:{
-					title:"Fade DT3",
-					max:10,
+					title:"Slope 3 detention time",
+					max:4,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
 				}},
 				{ SSeekBar:{
-					title:"Fade DT4",
-					max:10,
+					title:"Slope 4 detention time",
+					max:4,
 					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
 					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
-				}},
-				{ SPane:{
-					title:"LED Blink"
 				}},
 				{ SSeekBar:{
 					title:"Blink Delay Period",
@@ -1207,159 +1186,47 @@ done)
 				{ SPane:{
 					title:"Equalizer Gains"
 				}},
+$(for GAIN in 1 2 3 4 5; do
+	cat << EOF1
 				{ SSeekBar:{
-					title:"Gain 1",
+					title:"Gain $GAIN",
 					min:-12, max:12,
-					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 1),
-					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 1"
+					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains $GAIN),
+					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains $GAIN"
 				}},
-				{ SSeekBar:{
-					title:"Gain 2",
-					min:-12, max:12,
-					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 2),
-					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 2"
-				}},
-				{ SSeekBar:{
-					title:"Gain 3",
-					min:-12, max:12,
-					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 3),
-					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 3"
-				}},
-				{ SSeekBar:{
-					title:"Gain 4",
-					min:-12, max:12,
-					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 4),
-					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 4"
-				}},
-				{ SSeekBar:{
-					title:"Gain 5",
-					min:-12, max:12,
-					default:$(/res/synapse/actions/sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 5),
-					action:"sound -g /sys/devices/virtual/misc/boeffla_sound/eq_gains 5"
-				}},
+EOF1
+done)
 				{ SPane:{
 					title:"Equalizer Bands"
 				}},
+$(for BAND in 1 2 3 4 5; do
+	cat << EOF1
 				{ SSeekBar:{
-					title:"Band 1 A",
+					title:"Band $BAND A",
 					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 1),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 1"
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 1),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 1"
 				}},
 				{ SSeekBar:{
-					title:"Band 1 B",
+					title:"Band $BAND B",
 					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 2),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 2"
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 2),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 2"
 				}},
 				{ SSeekBar:{
-					title:"Band 1 C",
+					title:"Band $BAND C",
 					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 3),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 3"
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 3),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 3"
 				}},
 				{ SSeekBar:{
-					title:"Band 1 PG",
+					title:"Band $BAND PG",
 					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 4),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 1 4"
+					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 4),
+					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands $BAND 4"
 				}},
-				{ SSeekBar:{
-					title:"Band 2 A",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 1),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 1"
-				}},
-				{ SSeekBar:{
-					title:"Band 2 B",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 2),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 2"
-				}},
-				{ SSeekBar:{
-					title:"Band 2 C",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 3),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 3"
-				}},
-				{ SSeekBar:{
-					title:"Band 2 PG",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 4),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 2 4"
-				}},
-				{ SSeekBar:{
-					title:"Band 3 A",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 1),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 1"
-				}},
-				{ SSeekBar:{
-					title:"Band 3 B",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 2),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 2"
-				}},
-				{ SSeekBar:{
-					title:"Band 3 C",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 3),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 3"
-				}},
-				{ SSeekBar:{
-					title:"Band 3 PG",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 4),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 3 4"
-				}},
-				{ SSeekBar:{
-					title:"Band 4 A",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 1),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 1"
-				}},
-				{ SSeekBar:{
-					title:"Band 4 B",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 2),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 2"
-				}},
-				{ SSeekBar:{
-					title:"Band 4 C",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 3),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 3"
-				}},
-				{ SSeekBar:{
-					title:"Band 4 PG",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 4),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 4 4"
-				}},
-				{ SSeekBar:{
-					title:"Band 5 A",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 1),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 1"
-				}},
-				{ SSeekBar:{
-					title:"Band 5 B",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 2),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 2"
-				}},
-				{ SSeekBar:{
-					title:"Band 5 C",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 3),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 3"
-				}},
-				{ SSeekBar:{
-					title:"Band 5 PG",
-					max:65535,
-					default:$(/res/synapse/actions/sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 4),
-					action:"sound -b /sys/devices/virtual/misc/boeffla_sound/eq_bands 5 4"
-				}},
+EOF1
+done)
 				{ SPane:{
 					title:"Advanced"
 				}},
@@ -1368,6 +1235,168 @@ done)
 					description:"Quiet the phone speaker on Headphones plug",
 					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
 					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
+				}}
+			]
+		},
+		{
+			name:KSM,
+			elements:[
+				{ SCheckBox:{
+					label:"Kernel Samepage Merging",
+					description:"The KSM daemon ksmd periodically scans those areas of user memory which have been registered with it, looking for pages of identical content which can be replaced by a single write-protected page (which is automatically copied if a process later wants to update its content).",
+					default:$(cat /sys/kernel/mm/ksm/run),
+					action:"generic /sys/kernel/mm/ksm/run"
+				}},
+				{ SCheckBox:{
+					label:"Deferred Timer",
+					description:"Reduces some CPU usage in return for less memory savings.",
+					default:$(cat /sys/kernel/mm/ksm/deferred_timer),
+					action:"generic /sys/kernel/mm/ksm/deferred_timer"
+				}},
+				{ SSeekBar:{
+					title:"Pages To Scan",
+					description:"How many present pages to scan before ksmd goes to sleep. Google recommend a value of 100.",
+					max:1024, unit:" pages",
+					default:$(cat /sys/kernel/mm/ksm/pages_to_scan),
+					action:"generic /sys/kernel/mm/ksm/pages_to_scan"
+				}},
+				{ SSeekBar:{
+					title:"Sleep",
+					description:"How many milliseconds ksmd should sleep before next scan. Google recommend a value of 500.",
+					max:5000, unit:" ms",
+					default:$(cat /sys/kernel/mm/ksm/sleep_millisecs),
+					action:"generic /sys/kernel/mm/ksm/sleep_millisecs"
+				}},
+				{ SPane:{
+					title:"Monitor",
+					description:"A high ratio of Pages Sharing to Pages Shared indicates good sharing, but a high ratio of Pages Unshared to Pages Sharing indicates wasted effort. Pages Volatile embraces several different kinds of activity, but a high proportion there would also indicate poor use of madvise MADV_MERGEABLE."
+				}},
+				{ SLiveLabel:{
+					title:"Pages Shared",
+					description:"How many shared pages are being used.",
+					refresh:1000,
+					action:"cat /sys/kernel/mm/ksm/pages_shared"
+				}},
+				{ SLiveLabel:{
+					title:"Pages Sharing",
+					description:"How many more sites are sharing them i.e. how much saved.",
+					refresh:1000,
+					action:"cat /sys/kernel/mm/ksm/pages_sharing"
+				}},
+				{ SLiveLabel:{
+					title:"Pages Unshared",
+					description:"How many pages unique but repeatedly checked for merging.",
+					refresh:1000,
+					action:"cat /sys/kernel/mm/ksm/pages_unshared"
+				}},
+				{ SLiveLabel:{
+					title:"Pages Volatile",
+					description:"How many pages changing too fast to be placed in a tree.",
+					refresh:1000,
+					action:"cat /sys/kernel/mm/ksm/pages_volatile"
+				}},
+				{ SLiveLabel:{
+					title:"Full Scans",
+					description:"How many times all mergeable areas have been scanned.",
+					refresh:1000,
+					action:"cat /sys/kernel/mm/ksm/full_scans"
+				}}
+			]
+		},
+		{
+			name:LMK,
+			elements:[
+				{ SLiveLabel:{
+					title:"Count",
+					description:"Number of processes killed by lmk since last boot",
+					refresh:1000,
+					action:"cat /sys/module/lowmemorykiller/parameters/lmkcount"
+				}},
+				{ SPane:{
+					title:"Low Memory Killer Parameters",
+					description:"For example, setting adj to 8 and minfree to 4096 will kill processes with a oom_adj value of 8 or higher when the free memory drops below 4096 pages."
+				}},
+				{ SPane:{
+					title:"Adj"
+				}},
+$(for ADJ in 1 2 3 4 5 6; do
+	echo '				{ SSeekBar:{'
+	case "$ADJ" in
+		1) echo '					title:"Foreground App",';;
+		2) echo '					title:"Visible App",';;
+		3) echo '					title:"Secondary Server",';;
+		4) echo '					title:"Hidden App",';;
+		5) echo '					title:"Content Provider",';;
+		6) echo '					title:"Empty App",';;
+        esac
+        echo '					min:-1000, max:1000,
+					default:'$(/res/synapse/actions/lmk /sys/module/lowmemorykiller/parameters/adj $ADJ)',
+					action:"lmk /sys/module/lowmemorykiller/parameters/adj '$ADJ'"
+				}},'
+done)
+				{ SPane:{
+					title:"Minfree"
+				}},
+$(for MINFREE in 1 2 3 4 5 6; do
+	echo '				{ SSeekBar:{'
+	case "$MINFREE" in
+		1) echo '					title:"Foreground App",';;
+		2) echo '					title:"Visible App",';;
+		3) echo '					title:"Secondary Server",';;
+		4) echo '					title:"Hidden App",';;
+		5) echo '					title:"Content Provider",';;
+		6) echo '					title:"Empty App",';;
+        esac
+        echo '					max:262144, unit:" pages",
+					default:'$(/res/synapse/actions/lmk /sys/module/lowmemorykiller/parameters/minfree $MINFREE)',
+					action:"lmk /sys/module/lowmemorykiller/parameters/minfree '$MINFREE'"
+				}},'
+done)
+				{ SGeneric:{
+					title:"Cost",
+					default:$(cat /sys/module/lowmemorykiller/parameters/cost),
+					action:"generic /sys/module/lowmemorykiller/parameters/cost"
+				}},
+				{ SSeekBar:{
+					title:"Debug Level",
+					description:"Set 0 to disable debug, an higher value increases verbosity.",
+					max:5,
+					default:$(cat /sys/module/lowmemorykiller/parameters/debug_level),
+					action:"generic /sys/module/lowmemorykiller/parameters/debug_level"
+				}}
+			]
+		},
+		{
+			name:Random,
+			elements:[
+				{ SLiveLabel:{
+					title:"Entropy Available",
+					refresh:1000,
+					action:"echo \$(cat /proc/sys/kernel/random/entropy_avail)/\$(cat /proc/sys/kernel/random/poolsize)"
+				}},
+				{ SSeekBar:{
+					title:"Random Read Wakeup Threshold",
+					min:64, max:4096,
+					default:$(cat /proc/sys/kernel/random/read_wakeup_threshold),
+					action:"generic /proc/sys/kernel/random/read_wakeup_threshold"
+				}},
+				{ SSeekBar:{
+					title:"Random Write Wakeup Threshold",
+					min:64, max:4096,
+					default:$(cat /proc/sys/kernel/random/write_wakeup_threshold),
+					action:"generic /proc/sys/kernel/random/write_wakeup_threshold"
+				}},
+				{ SSeekBar:{
+					title:"Urandom Min Reseed",
+					max:3600, unit:" s",
+					default:$(cat /proc/sys/kernel/random/urandom_min_reseed_secs),
+					action:"generic /proc/sys/kernel/random/urandom_min_reseed_secs"
+				}},
+				{ SCheckBox:{
+					label:"Force Enable Frandom/Erandom",
+					description:"Frandom is enabled but since is not present in the default linux kernel the system/programs doesn't use it, so we can symlink frandom/erandom over random/urandom dev files so the system/programs will use frandom/erandom instead. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
+					default:$(/res/synapse/actions/frandom),
+					action:"frandom"
 				}}
 			]
 		},

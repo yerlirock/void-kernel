@@ -1,0 +1,21 @@
+# symlink frandom/erandom over random/urandom
+if [[ ! -z "$1" ]]; then
+	case "$1" in
+		1)
+			chmod 666 /dev/frandom /dev/erandom
+			mv /dev/random /dev/.random
+			mv /dev/urandom /dev/.urandom
+			ln -s /dev/frandom /dev/random
+			ln -s /dev/erandom /dev/urandom
+		;;
+		0)
+			mv -f /dev/.random /dev/random
+			mv -f /dev/.urandom /dev/urandom
+		;;
+	esac
+fi
+
+if [[ ! -L /dev/random && ! -L /dev/urandom ]]; then
+	echo "0"
+elif [[ -L /dev/random && -L /dev/urandom ]]; then
+	echo "1"; fi
