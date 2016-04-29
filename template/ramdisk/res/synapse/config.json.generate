@@ -527,6 +527,44 @@ $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); 
 EOF1
 done)
 		{
+			name:LED,
+			elements:[
+				{ SCheckBox:{
+					label:"Enable LED Fading",
+					default:$(/res/synapse/actions/advanced -f 1 /sys/devices/virtual/sec/led/led_fade),
+					action:"advanced -f 1 /sys/devices/virtual/sec/led/led_fade"
+				}},
+				{ SSeekBar:{
+					title:"Intensity (brightness)",
+					max:255, unit:"", step:1,
+					default:$(/res/synapse/actions/advanced -f 1 /sys/devices/virtual/sec/led/led_intensity),
+					action:"advanced -f 1 /sys/devices/virtual/sec/led/led_intensity"
+				}},
+				{ SSeekBar:{
+					title:"LED speed",
+					description:"This setting will multiply speed of fading/blinking LED by given value. 0 means continuous light",
+					max:15, unit:"x", step:1,
+					default:$(/res/synapse/actions/advanced -f 1 /sys/devices/virtual/sec/led/led_speed),
+					action:"advanced -f 1 /sys/devices/virtual/sec/led/led_speed"
+				}},
+$(for SLOPE in 1 2 3 4; do
+	case "$SLOPE" in
+		1|2) TYPE="up";;
+		3|4) TYPE="down";;
+	esac
+	cat << EOF1
+				{ SSeekBar:{
+					title:"Slope $TYPE operation $SLOPE",
+					description:"This value determines the time during slope $TYPE operation $SLOPE",
+					max:5, unit:" ms",
+					default:$(/res/synapse/actions/led -s /sys/devices/virtual/sec/led/led_slope $SLOPE),
+					action:"led -s /sys/devices/virtual/sec/led/led_slope $SLOPE"
+				}},
+EOF1
+done)
+			]
+		},
+		{
 			name:Power,
 			elements:[
 				{ SPane:{
@@ -1021,65 +1059,6 @@ done)
 			]
 		},
 		{
-			name:LED,
-			elements:[
-				{ SDescription:{
-					description:"Control the way the LED blinks. The LED controller has 4 type of slopes in its waveform, 2 rising slopes, and two falling slopes. The following configurables can control the blinking waveform. The LED is controlled by PWM/pulse wave modulation, the detention time dictates how long the controller spends time on a single step in its slope. One time-unit is equivalent to 4ms."
-				}},
-				{ SCheckBox:{
-					label:"Enable LED Fading",
-					description:"If disabled, the controller bypasses slope generation.",
-					default:$(cat /sys/devices/virtual/sec/led/led_fade),
-					action:"generic /sys/devices/virtual/sec/led/led_fade"
-				}},
-				{ SSeekBar:{
-					title:"Fade-in Time Period",
-					description:"Sets the time period of the two rising slopes (1,2), one time-unit is equal to 0.5 seconds.",
-					max:12,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_in_time),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_in_time"
-				}},
-				{ SSeekBar:{
-					title:"Fade-out Time Period",
-					description:"Sets the time period of the two falling slopes (3,4), one time-unit is equal to 0.5 seconds.",
-					max:12,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_out_time),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_out_time"
-				}},
-				{ SSeekBar:{
-					title:"Slope 1 detention time",
-					max:4,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
-				}},
-				{ SSeekBar:{
-					title:"Slope 2 detention time",
-					max:4,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
-				}},
-				{ SSeekBar:{
-					title:"Slope 3 detention time",
-					max:4,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
-				}},
-				{ SSeekBar:{
-					title:"Slope 4 detention time",
-					max:4,
-					default:$(cat /sys/devices/virtual/sec/led/led_fade_dt1),
-					action:"generic /sys/devices/virtual/sec/led/led_fade_dt1"
-				}},
-				{ SSeekBar:{
-					title:"Blink Delay Period",
-					description:"Sets the time period of low retention at zero PWM level.",
-					max:6000, unit:"ms",
-					default:$(cat /sys/devices/virtual/sec/led/led_blink_delay),
-					action:"generic /sys/devices/virtual/sec/led/led_blink_delay"
-				}}
-			]
-		},
-		{
 			name:Sound,
 			elements:[
 				{ SPane:{
@@ -1089,12 +1068,6 @@ done)
 					label:"Enable Boeffla Sound",
 					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/boeffla_sound),
 					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/boeffla_sound",
-				}},
-				{ SSeekBar:{
-					title:"Debug Level",
-					max:2,
-					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level),
-					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level"
 				}},
 				{ SCheckBox:{
 					label:"DAC Direct",
@@ -1235,140 +1208,42 @@ done)
 					description:"Quiet the phone speaker on Headphones plug",
 					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
 					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
-				}}
-			]
-		},
-		{
-			name:KSM,
-			elements:[
-				{ SCheckBox:{
-					label:"Kernel Samepage Merging",
-					description:"The KSM daemon ksmd periodically scans those areas of user memory which have been registered with it, looking for pages of identical content which can be replaced by a single write-protected page (which is automatically copied if a process later wants to update its content).",
-					default:$(cat /sys/kernel/mm/ksm/run),
-					action:"generic /sys/kernel/mm/ksm/run"
-				}},
-				{ SCheckBox:{
-					label:"Deferred Timer",
-					description:"Reduces some CPU usage in return for less memory savings.",
-					default:$(cat /sys/kernel/mm/ksm/deferred_timer),
-					action:"generic /sys/kernel/mm/ksm/deferred_timer"
-				}},
-				{ SSeekBar:{
-					title:"Pages To Scan",
-					description:"How many present pages to scan before ksmd goes to sleep. Google recommend a value of 100.",
-					max:1024, unit:" pages",
-					default:$(cat /sys/kernel/mm/ksm/pages_to_scan),
-					action:"generic /sys/kernel/mm/ksm/pages_to_scan"
-				}},
-				{ SSeekBar:{
-					title:"Sleep",
-					description:"How many milliseconds ksmd should sleep before next scan. Google recommend a value of 500.",
-					max:5000, unit:" ms",
-					default:$(cat /sys/kernel/mm/ksm/sleep_millisecs),
-					action:"generic /sys/kernel/mm/ksm/sleep_millisecs"
-				}},
-				{ SPane:{
-					title:"Monitor",
-					description:"A high ratio of Pages Sharing to Pages Shared indicates good sharing, but a high ratio of Pages Unshared to Pages Sharing indicates wasted effort. Pages Volatile embraces several different kinds of activity, but a high proportion there would also indicate poor use of madvise MADV_MERGEABLE."
-				}},
-				{ SLiveLabel:{
-					title:"Pages Shared",
-					description:"How many shared pages are being used.",
-					refresh:1000,
-					action:"cat /sys/kernel/mm/ksm/pages_shared"
-				}},
-				{ SLiveLabel:{
-					title:"Pages Sharing",
-					description:"How many more sites are sharing them i.e. how much saved.",
-					refresh:1000,
-					action:"cat /sys/kernel/mm/ksm/pages_sharing"
-				}},
-				{ SLiveLabel:{
-					title:"Pages Unshared",
-					description:"How many pages unique but repeatedly checked for merging.",
-					refresh:1000,
-					action:"cat /sys/kernel/mm/ksm/pages_unshared"
-				}},
-				{ SLiveLabel:{
-					title:"Pages Volatile",
-					description:"How many pages changing too fast to be placed in a tree.",
-					refresh:1000,
-					action:"cat /sys/kernel/mm/ksm/pages_volatile"
-				}},
-				{ SLiveLabel:{
-					title:"Full Scans",
-					description:"How many times all mergeable areas have been scanned.",
-					refresh:1000,
-					action:"cat /sys/kernel/mm/ksm/full_scans"
-				}}
-			]
-		},
-		{
-			name:LMK,
-			elements:[
-				{ SLiveLabel:{
-					title:"Count",
-					description:"Number of processes killed by lmk since last boot",
-					refresh:1000,
-					action:"cat /sys/module/lowmemorykiller/parameters/lmkcount"
-				}},
-				{ SPane:{
-					title:"Low Memory Killer Parameters",
-					description:"For example, setting adj to 8 and minfree to 4096 will kill processes with a oom_adj value of 8 or higher when the free memory drops below 4096 pages."
-				}},
-				{ SPane:{
-					title:"Adj"
-				}},
-$(for ADJ in 1 2 3 4 5 6; do
-	echo '				{ SSeekBar:{'
-	case "$ADJ" in
-		1) echo '					title:"Foreground App",';;
-		2) echo '					title:"Visible App",';;
-		3) echo '					title:"Secondary Server",';;
-		4) echo '					title:"Hidden App",';;
-		5) echo '					title:"Content Provider",';;
-		6) echo '					title:"Empty App",';;
-        esac
-        echo '					min:-1000, max:1000,
-					default:'$(/res/synapse/actions/lmk /sys/module/lowmemorykiller/parameters/adj $ADJ)',
-					action:"lmk /sys/module/lowmemorykiller/parameters/adj '$ADJ'"
-				}},'
-done)
-				{ SPane:{
-					title:"Minfree"
-				}},
-$(for MINFREE in 1 2 3 4 5 6; do
-	echo '				{ SSeekBar:{'
-	case "$MINFREE" in
-		1) echo '					title:"Foreground App",';;
-		2) echo '					title:"Visible App",';;
-		3) echo '					title:"Secondary Server",';;
-		4) echo '					title:"Hidden App",';;
-		5) echo '					title:"Content Provider",';;
-		6) echo '					title:"Empty App",';;
-        esac
-        echo '					max:262144, unit:" pages",
-					default:'$(/res/synapse/actions/lmk /sys/module/lowmemorykiller/parameters/minfree $MINFREE)',
-					action:"lmk /sys/module/lowmemorykiller/parameters/minfree '$MINFREE'"
-				}},'
-done)
-				{ SGeneric:{
-					title:"Cost",
-					default:$(cat /sys/module/lowmemorykiller/parameters/cost),
-					action:"generic /sys/module/lowmemorykiller/parameters/cost"
 				}},
 				{ SSeekBar:{
 					title:"Debug Level",
 					description:"Set 0 to disable debug, an higher value increases verbosity.",
-					max:5,
-					default:$(cat /sys/module/lowmemorykiller/parameters/debug_level),
-					action:"generic /sys/module/lowmemorykiller/parameters/debug_level"
+					max:2,
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level"
 				}}
 			]
 		},
 		{
-			name:Random,
+			name:Misc,
 			elements:[
+				{ SOptionList:{
+					title:"TCP Congestion Control Algorithm",
+					description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times.",
+					action:"generic /proc/sys/net/ipv4/tcp_congestion_control",
+					values:[ $(for i in $(cat /proc/sys/net/ipv4/tcp_available_congestion_control); do echo $i,; done) ]
+				}},
+				{ SSeekBar:{
+					title:"Vibrator Intensity",
+					description:"Change the strength of vibration.",
+					max:100,
+					default:$(cat /sys/vibrator/pwm_val),
+					action:"generic /sys/vibrator/pwm_val"
+				}},
+				{ SCheckBox:{
+					label:"Camera Shutter Sound",
+					description:"Disabling this will set the speaker volume to 0 when rear camera sensor is active. This is implemented from the kernel, so does not need any ROM side support.",
+					default:$(cat /sys/devices/virtual/camera/rear/camera_speaker_enabled),
+					action:"generic /sys/devices/virtual/camera/rear/camera_speaker_enabled"
+				}},
+				{ SPane:{
+					title:"Random",
+					description:"Random number generator settings"
+				}},
 				{ SLiveLabel:{
 					title:"Entropy Available",
 					refresh:1000,
@@ -1395,38 +1270,8 @@ done)
 				{ SCheckBox:{
 					label:"Force Enable Frandom/Erandom",
 					description:"Frandom is enabled but since is not present in the default linux kernel the system/programs doesn't use it, so we can symlink frandom/erandom over random/urandom dev files so the system/programs will use frandom/erandom instead. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
-					default:$(/res/synapse/actions/frandom),
-					action:"frandom"
-				}}
-			]
-		},
-		{
-			name:Misc,
-			elements:[
-				{ SOptionList:{
-					title:"Logger Mode",
-					description:"Logger mode controls Android logcat. [Enabled] is the normal state where Android logcat is fully functional. If you do not use logcat at all, setting this to [Disabled] is highly recommended as this can free up lots of memory. [Clear on screen-off] will clear(flush) Android logcat when the device screen has turned off; this means you can still debug your device while the kernel can regularly clean-up memories. [Disable, clear on screen-off] is the default and takes one step further by disabling and clear(flush)ing Android logcat on screen-off state; no logcat will be written when the device screen has turned off.",
-					action:"generic /sys/kernel/logger_mode/logger_mode",
-					values:{ 0:"Disabled", 1:"Enabled", 2:"Enabled, clear on earlysuspend", 3:"Enabled, clear and disable on earlysuspend" }
-				}},
-				{ SOptionList:{
-					title:"TCP Congestion Control Algorithm",
-					description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times.",
-					action:"generic /proc/sys/net/ipv4/tcp_congestion_control",
-					values:[ $(for i in $(cat /proc/sys/net/ipv4/tcp_available_congestion_control); do echo $i,; done) ]
-				}},
-				{ SSeekBar:{
-					title:"Vibrator Intensity",
-					description:"Change the strength of vibration.",
-					max:100,
-					default:$(cat /sys/vibrator/pwm_val),
-					action:"generic /sys/vibrator/pwm_val"
-				}},
-				{ SCheckBox:{
-					label:"Camera Shutter Sound",
-					description:"Disabling this will set the speaker volume to 0 when rear camera sensor is active. This is implemented from the kernel, so does not need any ROM side support.",
-					default:$(cat /sys/devices/virtual/camera/rear/camera_speaker_enabled),
-					action:"generic /sys/devices/virtual/camera/rear/camera_speaker_enabled"
+					default:$(/res/synapse/actions/advanced -r),
+					action:"advanced -r"
 				}},
 				{ SPane:{
 					title:"Touchkeys"
