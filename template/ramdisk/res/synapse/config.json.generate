@@ -1144,12 +1144,6 @@ done)
 					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_call),
 					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/mic_level_call"
 				}},
-				{ SSeekBar:{
-					title:"Change Delay",
-					max:5000000,
-					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay),
-					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay"
-				}},
 				{ SCheckBox:{
 					label:"HW Equalizer",
 					description:"Manually tune the frequencies",
@@ -1203,11 +1197,11 @@ done)
 				{ SPane:{
 					title:"Advanced"
 				}},
-				{ SCheckBox:{
-					label:"Privacy Mode",
-					description:"Quiet the phone speaker on Headphones plug",
-					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
-					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
+				{ SSeekBar:{
+					title:"Change Delay",
+					max:5000000,
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/change_delay"
 				}},
 				{ SSeekBar:{
 					title:"Debug Level",
@@ -1215,7 +1209,14 @@ done)
 					max:2,
 					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level),
 					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/debug_level"
+				}},
+				{ SCheckBox:{
+					label:"Privacy Mode",
+					description:"Quiet the phone speaker on Headphones plug",
+					default:$(/res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode),
+					action:"advanced -f NF /sys/devices/virtual/misc/boeffla_sound/privacy_mode"
 				}}
+				
 			]
 		},
 		{
