@@ -20,9 +20,14 @@ cat << EOF0
 			name:CPU,
 			elements:[
 				{ SLiveLabel:{
-					title:"CPU Temperature",
+					title:"Temperature",
 					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/s5p-tmu/temperature) °C"
+				}},
+				{ SLiveLabel:{
+					title:"Frequency",
+					refresh:1000,
+					action:"CPU=0; while [[ \$CPU -lt 4 ]]; do if [[ -e /sys/devices/system/cpu/cpu\$CPU/cpufreq/cpuinfo_cur_freq ]]; then echo CPU\$CPU: \$((\$(cat /sys/devices/system/cpu/cpu\$CPU/cpufreq/cpuinfo_cur_freq) / 1000)) MHz@n; else echo CPU\$CPU: Offline@n; fi; ((CPU++)); done"
 				}},
 				{ SPane:{
 					title:"Frequency Scaling"
@@ -717,6 +722,12 @@ done)
 					default:$(cat /sys/devices/virtual/misc/touchwake/keypower_mode),
 					action:"generic /sys/devices/virtual/misc/touchwake/keypower_mode"
 				}},
+				{ SCheckBox:{
+					label:"Charging Mode",
+					description:"Enable Tap2wake/DoubleTap2wake only when the device is charging.",
+					default:$(cat /sys/devices/virtual/misc/touchwake/charging_mode),
+					action:"generic /sys/devices/virtual/misc/touchwake/charging_mode"
+				}},
 				{ SPane:{
 					title:"mDNIe global controls",
 					description:"mobile Digital Natural Image engine control. Samsungs hardware image post-processor controls virtually any image manipulation. All control master switches, if left as delta controls, will negate the sequence setting if checked. Master sequence has SCR and CS enabled by default."
@@ -1270,7 +1281,7 @@ done)
 				}},
 				{ SCheckBox:{
 					label:"Force Enable Frandom/Erandom",
-					description:"Frandom is enabled but since is not present in the default linux kernel the system/programs doesn't use it, so we can symlink frandom/erandom over random/urandom dev files so the system/programs will use frandom/erandom instead. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
+					description:"Frandom is enabled but is not used by the system, so we can symlink frandom/erandom over random/urandom dev files to force the system to use it. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
 					default:$(/res/synapse/actions/advanced -r),
 					action:"advanced -r"
 				}},
