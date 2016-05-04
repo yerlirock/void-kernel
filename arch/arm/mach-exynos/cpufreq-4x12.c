@@ -26,6 +26,8 @@
 #include <plat/clock.h>
 #include <plat/cpu.h>
 
+#define CPUFREQ_LEVEL_END	(L17 + 1)
+
 #undef PRINT_DIV_VAL
 
 #undef ENABLE_CLKOUT
@@ -44,7 +46,7 @@ struct cpufreq_clkdiv {
 	unsigned int	clkdiv1;
 };
 
-unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
+static unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	{L0, 1800*1000},
