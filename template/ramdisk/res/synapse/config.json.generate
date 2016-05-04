@@ -47,24 +47,11 @@ cat << EOF0
 					values:{ $(freq_list) }
 				}},
 				{ SPane:{
-					title:"Voltages"
-				}},
-$(cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | while read FREQ VOLT; do
-	cat << EOF1
-				{ SSeekBar:{
-					title:"$FREQ MHz",
-					max:1500000, min:600000, unit:" uV", step:12500,
-					default:$VOLT,
-					action:"cpu -v /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table $FREQ"
-				}},
-EOF1
-done)
-				{ SPane:{
 					title:"Advanced"
 				}},
 				{ SOptionList:{
 					title:"Multicore Power Savings",
-					description:"Try to group tasks into the least cores possible. The higher the value, the more aggressive the grouping.",
+					description:"Try to group tasks into the least cores possible.",
 					default:$(cat /sys/devices/system/cpu/sched_mc_power_savings),
 					action:"generic /sys/devices/system/cpu/sched_mc_power_savings",
 					values:{ 0:"Disabled", 1:"Enabled", 2:"Aggressive" }
@@ -164,30 +151,6 @@ done)
 												max:100
 											}
 										}},
-										{ "version":{
-											SLiveLabel:{
-												title:"Governor Version",
-												refresh:0
-											}
-										}},
-										{ "version_profiles":{
-											SLiveLabel:{
-												title:"Governor Profiles Version",
-												refresh:0
-											}
-										}},
-										{ "profile":{
-											SLiveLabel:{
-												title:"Current Profile",
-												refresh:0
-											}
-										}},
-										{ "profile_list":{
-											SLiveLabel:{
-												title:"Profile List",
-												refresh:0
-											}
-										}},
 										{ "hispeed_freq":{
 											SSeekBar:{
 												label:"Hispeed Freq",
@@ -283,58 +246,6 @@ done)
 					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_vol) uV"
 				}},
 				{ SPane:{
-					title:"GPU Frequencies",
-					description:"These values control GPU frequencies on each step. Please keep in mind that higher frequencies require also more power, so don't forget to adjust voltages accordingly!"
-				}},
-$(COUNT=1; /res/synapse/actions/gpu -f "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0" | while read FREQ; do
-	cat << EOF1
-				{ SOptionList:{
-					title:"GPU step $COUNT frequency",
-					unit:" MHz",
-					default:$FREQ,
-					action:"gpu -f /sys/devices/virtual/misc/gpu_clock_control/gpu_control $COUNT",
-					values:[ 54, 108, 160, 266, 275, 300, 333, 350, 440, 533, 600, 640, 666, 700 ]
-				}},
-EOF1
-	((COUNT++))
-done)
-				{ SPane:{
-					title:"GPU voltages",
-					description:"These values control GPU voltages on each step. Higher voltages consume more battery and produce more heat, but also increase GPU stability"
-				}},
-$(COUNT=1; /res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/gpu_voltage_control/gpu_control | while read VOLTAGE; do
-	cat << EOF1
-				{ SSeekBar:{
-					title:"GPU step $COUNT voltage",
-					max:1300000, min:500000, unit:" uV", step:12500,
-					default:$VOLTAGE,
-					action:"gpu -v /sys/devices/virtual/misc/gpu_voltage_control/gpu_control $COUNT"
-				}},
-EOF1
-	((COUNT++))
-done)
-				{ SPane:{
-					title:"GPU Thresholds",
-					description:"These values specify GPU load thresholds for GPU governor, which increases/decreases current frequency. Thresholds specify how high, or how low current GPU load must be to increase/decrease to given frequency"
-				}},
-$(COUNT=1; HELP_COUNT=1; HELP_DIRECTION="->"; for THRESHOLD in $(/res/synapse/actions/gpu -t "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0"); do
-	cat << EOF1
-				{ SSeekBar:{
-					title:"GPU threshold $HELP_COUNT $HELP_DIRECTION $((HELP_COUNT + 1))",
-					max:100, unit:"%",
-					default:$THRESHOLD,
-					action:"gpu -t /sys/devices/virtual/misc/gpu_clock_control/gpu_control $COUNT"
-				}},
-EOF1
-	((COUNT++))
-	if [[ "$HELP_DIRECTION" = "->" ]]; then
-		HELP_DIRECTION="<-"
-	else
-		HELP_DIRECTION="->"
-		((HELP_COUNT++))
-	fi
-done)
-				{ SPane:{
 					title:"Debug",
 					description:"[0] Disable Debug, [1:2] Is messages with highest priority, indicate possible errors, [3:4] Is messages with medium priority, output important variables, [5:6] Is messages with low priority, used during extensive debugging.",
 				}},
@@ -351,111 +262,6 @@ done)
 					action:"generic /sys/module/ump/parameters/ump_debug_level"
 				}}
 				
-			]
-		},
-		{
-			name:ABB,
-			elements:[
-				{ SDescription:{
-					description:"Adaptive Body Bias is a secondary voltage applied onto the body of the transistor, where as the normal voltage is the gate voltage. Adjusting the body voltage in a differential to the gate voltage changes the characteristics of the transistor in how it switches. The body bias is the delta of the body voltage to the gate voltage, or difference between gate voltage minus body voltage. A positive body bias results in a Forward Body Bias (FBB) which lowers the transistor switching threshold and allows for higher clocks at the same voltage, or lower voltage at the same clocks. A negative body bias, or Reverse Body Bias (RBB) raises the switching threshold and can drastically improve leakage, but with the reverse effects of FBB in terms of voltage and clocks. WARNING: For advanced users only who understand the electrical physics behind it."
-				}},
-				{ SLiveLabel:{
-					refresh:0,
-					action:"cat /sys/devices/system/abb/abb_info | while read LINE; do if [[ ! -z \$LINE ]]; then echo \$LINE@n; fi; done"
-				}},
-				{ SPane:{
-					title:"CPU",
-					description:"ARM (CPU) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_1_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_2_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_2_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 3 voltage",
-					description:"Slice 3 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_3_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_3_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_3_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 4 voltage",
-					description:"Slice 4 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_3_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_4_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_4_volt"
-				}},
-				{ SPane:{
-					title:"GPU",
-					description:"G3D (GPU) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_1_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_2_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_2_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 3 voltage",
-					description:"Slice 3 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_3_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_3_volt"
-				}},
-				{ SPane:{
-					title:"MIF",
-					description:"MIF (Memory interface) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/mif/mif_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/mif/mif_slice_1_volt),
-					action:"generic /sys/devices/system/abb/mif/mif_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/mif/mif_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/mif/mif_slice_2_volt),
-					action:"generic /sys/devices/system/abb/mif/mif_slice_2_volt"
-				}},
-				{ SPane:{
-					title:"INT",
-					description:"INT (Internal SoC) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/int/int_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/int/int_slice_1_volt),
-					action:"generic /sys/devices/system/abb/int/int_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/int/int_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/int/int_slice_2_volt),
-					action:"generic /sys/devices/system/abb/int/int_slice_2_volt"
-				}}
 			]
 		},
 $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); do
@@ -577,37 +383,37 @@ done)
 				}},
 				{ SLiveLabel:{
 					title:"Capacity",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/capacity)%"
 				}},
 				{ SLiveLabel:{
 					title:"Temperature",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$((\$(cat /sys/devices/platform/samsung-battery/power_supply/battery/temp) / 10 )) °C"
 				}},
 				{ SLiveLabel:{
 					title:"Status",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/status"
 				}},
 				{ SLiveLabel:{
 					title:"Charge Type",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/charge_type"
 				}},
 				{ SLiveLabel:{
 					title:"Health",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/health"
 				}},
 				{ SLiveLabel:{
 					title:"Voltage Now",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/voltage_now"
 				}},
 				{ SLiveLabel:{
 					title:"Current Now",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/current_now) mA"
 				}},
 				{ SPane:{
@@ -1278,12 +1084,6 @@ done)
 					max:3600, unit:" s",
 					default:$(cat /proc/sys/kernel/random/urandom_min_reseed_secs),
 					action:"generic /proc/sys/kernel/random/urandom_min_reseed_secs"
-				}},
-				{ SCheckBox:{
-					label:"Force Enable Frandom/Erandom",
-					description:"Frandom is enabled but is not used by the system, so we can symlink frandom/erandom over random/urandom dev files to force the system to use it. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
-					default:$(/res/synapse/actions/advanced -r),
-					action:"advanced -r"
 				}},
 				{ SPane:{
 					title:"Touchkeys"
