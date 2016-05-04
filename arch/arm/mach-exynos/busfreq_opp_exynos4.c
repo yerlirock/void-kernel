@@ -498,17 +498,23 @@ static ssize_t store_load_history_size(struct device *device,
 	return count;
 }
 
-static DEVICE_ATTR(min_freq, S_IRUGO | S_IWUGO, show_min_freq, store_min_freq);
-static DEVICE_ATTR(curr_freq, S_IRUGO | S_IWUGO, show_level_lock, store_level_lock);
-static DEVICE_ATTR(freq_table, S_IRUGO | S_IWUGO, show_freq_table, NULL);
-static DEVICE_ATTR(lock_list, S_IRUGO, show_locklist, NULL);
-static DEVICE_ATTR(time_in_state, S_IRUGO, show_time_in_state, NULL);
-static DEVICE_ATTR(idle_threshold, S_IRUGO | S_IWUGO, show_idle_threshold, store_idle_threshold);
-static DEVICE_ATTR(up_cpu_threshold, S_IRUGO | S_IWUGO, show_up_cpu_threshold, store_up_cpu_threshold);
-static DEVICE_ATTR(max_cpu_threshold, S_IRUGO | S_IWUGO, show_max_cpu_threshold, store_max_cpu_threshold);
-static DEVICE_ATTR(cpu_slope_size, S_IRUGO | S_IWUGO, show_cpu_slope_size, store_cpu_slope_size);
-static DEVICE_ATTR(dmc_max_threshold, S_IRUGO | S_IWUGO, show_dmc_max_threshold, store_dmc_max_threshold);
-static DEVICE_ATTR(load_history_size, S_IRUGO | S_IWUGO, show_load_history_size, store_load_history_size);
+static DEVICE_ATTR(min_freq, 0664, show_min_freq, store_min_freq);
+static DEVICE_ATTR(curr_freq, 0664, show_level_lock, store_level_lock);
+static DEVICE_ATTR(freq_table, 0664, show_freq_table, NULL);
+static DEVICE_ATTR(lock_list, 0664, show_locklist, NULL);
+static DEVICE_ATTR(time_in_state, 0664, show_time_in_state, NULL);
+static DEVICE_ATTR(idle_threshold, 0664, show_idle_threshold,
+					store_idle_threshold);
+static DEVICE_ATTR(up_cpu_threshold, 0664, show_up_cpu_threshold,
+					store_up_cpu_threshold);
+static DEVICE_ATTR(max_cpu_threshold, 0664, show_max_cpu_threshold,
+					store_max_cpu_threshold);
+static DEVICE_ATTR(cpu_slope_size, 0664, show_cpu_slope_size,
+					store_cpu_slope_size);
+static DEVICE_ATTR(dmc_max_threshold, 0664, show_dmc_max_threshold,
+					store_dmc_max_threshold);
+static DEVICE_ATTR(load_history_size, 0664, show_load_history_size,
+					store_load_history_size);
 
 static struct attribute *busfreq_attributes[] = {
 	&dev_attr_min_freq.attr,
