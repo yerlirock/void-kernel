@@ -64,7 +64,7 @@ done)
 				}},
 				{ SOptionList:{
 					title:"Multicore Power Savings",
-					description:"Try to group tasks into the least cores possible. The higher the value, the more aggressive the grouping.",
+					description:"Try to group tasks into the least cores possible.",
 					default:$(cat /sys/devices/system/cpu/sched_mc_power_savings),
 					action:"generic /sys/devices/system/cpu/sched_mc_power_savings",
 					values:{ 0:"Disabled", 1:"Enabled", 2:"Aggressive" }
@@ -577,37 +577,37 @@ done)
 				}},
 				{ SLiveLabel:{
 					title:"Capacity",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/capacity)%"
 				}},
 				{ SLiveLabel:{
 					title:"Temperature",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$((\$(cat /sys/devices/platform/samsung-battery/power_supply/battery/temp) / 10 )) °C"
 				}},
 				{ SLiveLabel:{
 					title:"Status",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/status"
 				}},
 				{ SLiveLabel:{
 					title:"Charge Type",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/charge_type"
 				}},
 				{ SLiveLabel:{
 					title:"Health",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/health"
 				}},
 				{ SLiveLabel:{
 					title:"Voltage Now",
-					refresh:5000,
+					refresh:1000,
 					action:"cat /sys/devices/platform/samsung-battery/power_supply/battery/voltage_now"
 				}},
 				{ SLiveLabel:{
 					title:"Current Now",
-					refresh:5000,
+					refresh:1000,
 					action:"echo \$(cat /sys/devices/platform/samsung-battery/power_supply/battery/current_now) mA"
 				}},
 				{ SPane:{
