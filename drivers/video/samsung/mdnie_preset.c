@@ -42,7 +42,7 @@ extern int mdnie_preset;
 static ssize_t mdnie_preset_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	// return value of current preset
-	return sprintf(buf, "%d\n", mdnie_preset);
+	return sprintf(buf, "MDNIE preset: %d", mdnie_preset);
 }
 
 
