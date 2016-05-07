@@ -1119,12 +1119,10 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 #endif
 
 #ifdef SUPPORT_LPM_PAN_DISPLAY
-SAMSUNGROM {
 	/* support LPM (off charging mode) display based on FBIOPAN_DISPLAY */
 	s3cfb_check_var(var, fb);
 	s3cfb_set_par(fb);
 	s3cfb_enable_window(fbdev, win->id);
-}
 #endif
 
 	if (var->yoffset + var->yres > var->yres_virtual) {
@@ -1574,8 +1572,6 @@ void s3c_fb_update_regs(struct s3cfb_global *fbdev, struct s3c_reg_data *regs)
 	unsigned int pre_num_of_win = 0;
 	unsigned int shadow_regs = 0;
 	unsigned int clkval = 0;
-
-SAMSUNGROM {
 	memset(&old_fence, 0, sizeof(old_fence));
 
 	for (i = 0; i < pdata->nr_wins; i++) {
@@ -1583,7 +1579,6 @@ SAMSUNGROM {
 		if (regs->fence[i])
 			s3c_fd_fence_wait(fbdev, regs->fence[i]);
 	}
-}
 
 	for (i = 0; i < pdata->nr_wins; i++)
 		if (regs->shadowcon & SHADOWCON_CHx_ENABLE(i))
@@ -1652,13 +1647,11 @@ SAMSUNGROM {
 			}
 		}
 	} while (wait_for_vsync);
-
-SAMSUNGROM {
+	
 		for (i = 0; i < pdata->nr_wins; i++) {
 			if (old_fence[i])
 				sync_fence_put(old_fence[i]);
 		}
-}
 		sw_sync_timeline_inc(fbdev->timeline, 1);
 	}
 
@@ -1800,14 +1793,12 @@ static int s3c_fb_set_win_buffer(struct s3cfb_global *fbdev,
 		ret = -EINVAL;
 		goto err_invalid;
 	}
-
+	
 	if (!s3c_fb_validate_x_alignment(fbdev, win_config->x, win_config->w,
 			fb->var.bits_per_pixel)) {
 		ret = -EINVAL;
 		goto err_invalid;
 	}
-
-SAMSUNGROM {
 	if (win_config->fence_fd >= 0) {
 		regs->fence[win_no] = sync_fence_fdget(win_config->fence_fd);
 		if (!regs->fence[win_no]) {
@@ -1817,7 +1808,6 @@ SAMSUNGROM {
 		}
 	} else
 		regs->fence[win_no] = NULL;
-}
 
 	window_size = win_config->stride * win_config->h;
 
@@ -1944,17 +1934,12 @@ static int s3c_fb_set_win_config(struct s3cfb_global *fbdev,
 			fbdev->timeline_max++;
 			pt = sw_sync_pt_create(fbdev->timeline, fbdev->timeline_max);
 			fence = sync_fence_create("display", pt);
-SAMSUNGROM {
 			if (fence != NULL) {
 				sync_fence_install(fence, fd);
 				win_data->fence = fd;
 			} else
 				dev_err(fbdev->dev, "creating fence is failed");
-} else {
-			sync_fence_install(fence, fd);
-			win_data->fence = fd;
-}
-
+ 
 			sw_sync_timeline_inc(fbdev->timeline, 1);
 		}
 		mutex_unlock(&fbdev->output_lock);
@@ -2017,16 +2002,11 @@ SAMSUNGROM {
 			fbdev->timeline_max++;
 			pt = sw_sync_pt_create(fbdev->timeline, fbdev->timeline_max);
 			fence = sync_fence_create("display", pt);
-SAMSUNGROM {
 			if (fence != NULL) {
 				sync_fence_install(fence, fd);
 				win_data->fence = fd;
 			} else
 				dev_err(fbdev->dev, "creating fence is failed");
-} else {
-			sync_fence_install(fence, fd);
-			win_data->fence = fd;
-}
 
 			list_add_tail(&regs->list, &fbdev->update_regs_list);
 			mutex_unlock(&fbdev->update_regs_list_lock);
