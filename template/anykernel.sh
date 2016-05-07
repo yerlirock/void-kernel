@@ -233,6 +233,9 @@ remove_section init.smdk4x12.rc "# Powersave" "performance"
 remove_line init.smdk4x12.rc "write /sys/class/mdnie/mdnie/scenario 0"
 remove_line init.smdk4x12.rc "write /sys/class/mdnie/mdnie/mode 0"
 
+# synapse support
+append_file init.smdk4x12.rc "/sbin/uci" synapse
+
 # remove older modules
 if [ -e "lib/modules" ]; then
   rm -rf "lib/modules"; fi
