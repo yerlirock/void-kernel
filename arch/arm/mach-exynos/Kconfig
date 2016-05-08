@@ -2181,6 +2181,11 @@ config PM_DEBUG_WAKEUP_RESET
 	help
 	  This configuratoin is only for debugging the PM interrupt issue.
 
+config CPU_CONTROL
+	bool "Enable CPU Overclock/Underclock and CPU Voltage Interface"
+	depends on EXYNOS4_CPUFREQ && CPU_EXYNOS4412
+	default n
+
 config ABB_CONTROL
 	bool "Adaptive body bias control"
 	depends on EXYNOS4_CPUFREQ && CPU_EXYNOS4412

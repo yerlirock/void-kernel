@@ -21,7 +21,9 @@
 #include <linux/suspend.h>
 #include <linux/reboot.h>
 #include <linux/pm_qos_params.h>
+#ifdef CONFIG_CPU_CONTROL
 #include <linux/sysfs_helpers.h>
+#endif
 
 #include <mach/map.h>
 #include <mach/regs-clock.h>
@@ -892,6 +894,7 @@ err_vdd_arm:
 }
 late_initcall(exynos_cpufreq_init);
 
+#ifdef CONFIG_CPU_CONTROL
 ssize_t show_UV_uV_table(struct cpufreq_policy *policy, char *buf) {
 	int i, len = 0;
 	if (buf)
@@ -994,3 +997,4 @@ ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 	
 	return count;
 }
+#endif
