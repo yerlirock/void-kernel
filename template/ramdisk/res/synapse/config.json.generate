@@ -1283,16 +1283,15 @@ done)
 					title:"Touchkeys"
 				}},
 				{ SCheckBox:{
-					label:"Enable Touchkeys",
-					description:"Enable or disable hardware keys (touchkeys).",
-					default:$(cat /sys/devices/virtual/sec/sec_touchkey/keypad_enable),
-					action:"generic /sys/devices/virtual/sec/sec_touchkey/keypad_enable"
+					label:"Force Disable Touchkeys",
+					default:$(cat /sys/devices/virtual/sec/sec_touchkey/force_disable),
+					action:"generic /sys/devices/virtual/sec/sec_touchkey/force_disable"
 				}},
 				{ SCheckBox:{
 					label:"Led On Screen Touch",
 					description:"Touchkeys will light up on touchscreen touch.",
-					default:$(/res/synapse/actions/advanced -f 1 /sys/devices/virtual/sec/sec_touchkey/led_on_screen_touch),
-					action:"advanced -f 1 /sys/devices/virtual/sec/sec_touchkey/led_on_screen_touch"
+					default:$(cat /sys/devices/virtual/sec/sec_touchkey/touch_led_on_screen_touch),
+					action:"generic /sys/devices/virtual/sec/sec_touchkey/touch_led_on_screen_touch"
 				}}
 			]
 		}
