@@ -46,19 +46,23 @@ cat << EOF0
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
 					values:{ $(freq_list) }
 				}},
+$(if [[ -e /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table ]]; then
+	cat << EOF1
 				{ SPane:{
 					title:"Voltages"
 				}},
-$(cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | while read FREQ VOLT; do
-	cat << EOF1
+	$(cat /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table | while read FREQ VOLT; do
+		cat << EOF2
 				{ SSeekBar:{
 					title:"$FREQ MHz",
 					max:1500000, min:600000, unit:" uV", step:12500,
 					default:$VOLT,
 					action:"cpu -v /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table $FREQ"
 				}},
+EOF2
+	done)
 EOF1
-done)
+fi)
 				{ SPane:{
 					title:"Advanced"
 				}},
@@ -88,14 +92,8 @@ done)
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
 					values:[ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do echo $i,; done) ],
 					notify:[
-						{ on:APPLY,
-							do:[ REFRESH, CANCEL ],
-							to:"/sys/devices/system/cpu/cpufreq"
-						},
-						{ on:REFRESH,
-							do:REFRESH,
-							to:"/sys/devices/system/cpu/cpufreq"
-						}
+						{ on:APPLY, do:[ REFRESH, CANCEL ], to:"/sys/devices/system/cpu/cpufreq" },
+						{ on:REFRESH, do:REFRESH, to:"/sys/devices/system/cpu/cpufreq" }
 					]
 				}},
 				{ SPane:{
@@ -113,55 +111,15 @@ done)
 								},
 								matched:{
 									elements:[
-										{ "sampling_rate":{
-											SSeekBar:{
-												title:"Sampling Rate",
-												description:"How often the kernel look at the CPU usage and make decisions on what to do about the frequency. Higher values means CPU polls less often.",
-												min:10000, max:500000, step:1000, unit:" uS"
-											}
-										}},
-										{ "up_threshold":{
-											SSeekBar:{
-												title:"Up Threshold",
-												description:"When CPU load reaches this point, governor will scale CPU up. Higher value means less responsiveness and lower values corresponds to more responsiveness at the cost of battery.",
-												min:1, max:100, unit:"%"
-											}
-										}},
-										{ "powersave_bias":{
-											SGeneric:{
-												title:"Powersave Bias",
-												description:"Default value is 0. Setting a higher value will bias the governor towards lower frequency steps. Use this if you want CPU to spend less time on higher frequencies. A better alternative would be to underclock to a lower frequency than using powersave bias."
-											}
-										}},
-										{ "sampling_down_factor":{
-											SGeneric:{
-												title:"Sampling Down Factor",
-												description:"Determines how often CPU should stay at higher frequencies when truly busy. Default behavior is fast switching to lower frequencies (1). Having sampling_down_factor set to 1 makes no changes from existing behavior (for the non-modified ondemand), but having sampling_down_factor set to a value greater than 1 causes it to act as a multiplier for the scheduling interval for re-evaluating the load when the CPU is at its highest clock frequency (which is scaling_max_freq) due to high load."
-											}
-										}},
-										{ "down_differential":{
-											SGeneric:{
-												title:"Down Differential",
-												description:"Indirectly calculates the 'down-threshold' of governor. After completing sampling-down-factor*sampling-rate at max frequency because of high load, governor samples the load again to calculate an estimate of the new target frequency in a way that the lowest frequency will be chosen that would not trigger up_threshold in the next sample. During this choice down_differential is taken into account as a breathing room value. Target frequency is calculated as max_load_freq / (up_threshold - down_differential)."
-											}
-										}},
-										{ "ignore_nice_load":{
-											SCheckBox:{
-												label:"Ignore Nice Load",
-												description:"Setting to 1 causes governor to ignore load resulted by nice processes while making scaling decisions. Nice processes are the one i/o scheduler refers to as low priority process."
-											}
-										}},
-										{ "io_is_busy":{
-											SCheckBox:{
-												label:"I/O Is Busy",
-												description:"Setting to 1 causes treating i/o wait time as CPU busy time. I/O busy is just an indication that CPU is performance critical, and system is not actually idle. IO wait time is excluded from the CPU idle time value is 1."
-											}
-										}},
-										{ "freq_step":{
-											SSeekBar:{
-												label:"Freq Step",
-												description:"Whenever up-scaling logic is triggered the governor instructs the CPU to raise its frequency by freq_step percentage of max allowed frequency. (max policy * (freq step / 100)). Ex: max policy is 1600 and freq step 21%, it will scale 1600 * 21% = 336.",
-												max:100
+										{ "profile_number":{
+											SOptionList:{
+												label:"Profile",
+												description:"More info <a href='https://github.com/4rch0x0/void-kernel/blob/master/drivers/cpufreq/cpufreq_zzmoove_profiles.h'>here</a>",
+												values:{ 0:"Custom", 1:"Default", 2:"Yank Battery", 3:"Yank Battery Extreme", 4:"ZaneZam Battery", 5:"ZaneZam Battery Plus", 6:"ZaneZam Optimized", 7:"ZaneZam Moderate", 8:"ZaneZam Performance", 9:"ZaneZam InZane", 10:"ZaneZam Gaming", 11:"ZaneZam Relax" }
+												notify:[
+													{ on:APPLY, do:[ REFRESH, CANCEL ], to:"/sys/devices/system/cpu/cpufreq" },
+													{ on:REFRESH, do:REFRESH, to:"/sys/devices/system/cpu/cpufreq" }
+												]
 											}
 										}},
 										{ "version":{
@@ -169,46 +127,10 @@ done)
 												title:"Governor Version",
 												refresh:0
 											}
-										}},
-										{ "version_profiles":{
-											SLiveLabel:{
-												title:"Governor Profiles Version",
-												refresh:0
-											}
-										}},
-										{ "profile":{
-											SLiveLabel:{
-												title:"Current Profile",
-												refresh:0
-											}
-										}},
-										{ "profile_list":{
-											SLiveLabel:{
-												title:"Profile List",
-												refresh:0
-											}
-										}},
-										{ "hispeed_freq":{
-											SSeekBar:{
-												label:"Hispeed Freq",
-												values:{ $(freq_list) }
-											}
-										}},
-										{ "sync_freq":{
-											SSeekBar:{
-												label:"Sync Freq",
-												values:{ $(freq_list) }
-											}
-										}},
-										{ "go_hispeed_load":{
-											SSeekBar:{
-												title:"Go Hispeed Load",
-												min:1, max:100, unit:"%"
-											}
 										}}
 									]
 								},
-								exclude:[ "cpucore_table", "boostpulse" ]
+								exclude:[ "cpucore_table", "boostpulse", "profile_list", "profile", "version_profiles" ]
 							}
 						}
 					}
@@ -282,12 +204,14 @@ done)
 					refresh:1000,
 					action:"echo \$(cat /sys/module/mali/parameters/mali_gpu_vol) uV"
 				}},
+$(if [[ -e /sys/devices/virtual/misc/gpu_clock_control && -e /sys/devices/virtual/misc/gpu_voltage_control ]]; then
+	cat << EOF1
 				{ SPane:{
 					title:"GPU Frequencies",
 					description:"These values control GPU frequencies on each step. Please keep in mind that higher frequencies require also more power, so don't forget to adjust voltages accordingly!"
 				}},
-$(COUNT=1; /res/synapse/actions/gpu -f "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0" | while read FREQ; do
-	cat << EOF1
+	$(COUNT=1; /res/synapse/actions/gpu -f "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0" | while read FREQ; do
+		cat << EOF2
 				{ SOptionList:{
 					title:"GPU step $COUNT frequency",
 					unit:" MHz",
@@ -295,45 +219,47 @@ $(COUNT=1; /res/synapse/actions/gpu -f "/sys/devices/virtual/misc/gpu_clock_cont
 					action:"gpu -f /sys/devices/virtual/misc/gpu_clock_control/gpu_control $COUNT",
 					values:[ 54, 108, 160, 266, 275, 300, 333, 350, 440, 533, 600, 640, 666, 700 ]
 				}},
-EOF1
-	((COUNT++))
-done)
+EOF2
+		((COUNT++))
+	done)
 				{ SPane:{
 					title:"GPU voltages",
 					description:"These values control GPU voltages on each step. Higher voltages consume more battery and produce more heat, but also increase GPU stability"
 				}},
-$(COUNT=1; /res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/gpu_voltage_control/gpu_control | while read VOLTAGE; do
-	cat << EOF1
+	$(COUNT=1; /res/synapse/actions/advanced -f NF /sys/devices/virtual/misc/gpu_voltage_control/gpu_control | while read VOLTAGE; do
+		cat << EOF2
 				{ SSeekBar:{
 					title:"GPU step $COUNT voltage",
 					max:1300000, min:500000, unit:" uV", step:12500,
 					default:$VOLTAGE,
 					action:"gpu -v /sys/devices/virtual/misc/gpu_voltage_control/gpu_control $COUNT"
 				}},
-EOF1
-	((COUNT++))
-done)
+EOF2
+		((COUNT++))
+	done)
 				{ SPane:{
 					title:"GPU Thresholds",
 					description:"These values specify GPU load thresholds for GPU governor, which increases/decreases current frequency. Thresholds specify how high, or how low current GPU load must be to increase/decrease to given frequency"
 				}},
-$(COUNT=1; HELP_COUNT=1; HELP_DIRECTION="->"; for THRESHOLD in $(/res/synapse/actions/gpu -t "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0"); do
-	cat << EOF1
+	$(COUNT=1; HELP_COUNT=1; HELP_DIRECTION="->"; for THRESHOLD in $(/res/synapse/actions/gpu -t "/sys/devices/virtual/misc/gpu_clock_control/gpu_control" "0"); do
+		cat << EOF2
 				{ SSeekBar:{
 					title:"GPU threshold $HELP_COUNT $HELP_DIRECTION $((HELP_COUNT + 1))",
 					max:100, unit:"%",
 					default:$THRESHOLD,
 					action:"gpu -t /sys/devices/virtual/misc/gpu_clock_control/gpu_control $COUNT"
 				}},
+EOF2
+		((COUNT++))
+		if [[ "$HELP_DIRECTION" = "->" ]]; then
+			HELP_DIRECTION="<-"
+		else
+			HELP_DIRECTION="->"
+			((HELP_COUNT++))
+		fi
+	done)
 EOF1
-	((COUNT++))
-	if [[ "$HELP_DIRECTION" = "->" ]]; then
-		HELP_DIRECTION="<-"
-	else
-		HELP_DIRECTION="->"
-		((HELP_COUNT++))
-	fi
-done)
+fi)
 				{ SPane:{
 					title:"Debug",
 					description:"[0] Disable Debug, [1:2] Is messages with highest priority, indicate possible errors, [3:4] Is messages with medium priority, output important variables, [5:6] Is messages with low priority, used during extensive debugging.",
@@ -353,6 +279,8 @@ done)
 				
 			]
 		},
+$(if [[ -e /sys/devices/system/abb ]]; then
+	cat << EOF1
 		{
 			name:ABB,
 			elements:[
@@ -458,10 +386,12 @@ done)
 				}}
 			]
 		},
+EOF1
+fi)
 $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); do
 	case "$BLOCK" in
 		mmcblk0) NAME="Internal Storage";;
-		mmcblk1) NAME="SD Card";;
+		mmcblk1) NAME="External Storage";;
 		*) NAME="$BLOCK";;
 	esac
 	cat << EOF1
