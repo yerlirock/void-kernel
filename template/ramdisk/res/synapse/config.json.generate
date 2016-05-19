@@ -46,6 +46,13 @@ cat << EOF0
 					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
 					values:{ $(freq_list) }
 				}},
+				{ SOptionList:{
+					title:"CPU Governor",
+					description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available.",
+					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor),
+					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+					values:[ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do echo $i,; done) ],
+				}},
 $(if [[ -e /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table ]]; then
 	cat << EOF1
 				{ SPane:{
@@ -79,63 +86,6 @@ fi)
 					default:$(/res/synapse/actions/generic /sys/module/cpuidle_exynos4/parameters/enable_mask),
 					action:"generic /sys/module/cpuidle_exynos4/parameters/enable_mask",
 					values:{ 0:"IDLE only", 1:"AFTR only", 2:"IDLE + LPA", 3:"AFTR + LPA" }
-				}}
-			]
-		},
-		{
-			name:Governor,
-			elements:[
-				{ SOptionList:{
-					title:"CPU Governor",
-					description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available.",
-					default:$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor),
-					action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-					values:[ $(for i in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do echo $i,; done) ],
-					notify:[
-						{ on:APPLY,
-							do:[ REFRESH, CANCEL ],
-							to:"/sys/devices/system/cpu/cpufreq"
-						},
-						{ on:REFRESH,
-							do:REFRESH,
-							to:"/sys/devices/system/cpu/cpufreq"
-						}
-					]
-				}},
-				{ SPane:{
-					title:"Governor Tunables",
-					description:"Auto-generated controls for the current governor."
-				}},
-				{ STreeDescriptor:{
-					path:"/sys/devices/system/cpu/cpufreq",
-					generic:{
-						directory:{
-							STreeDescriptor:{
-								generic:{ 
-									directory:{ },
-									element:{ SGeneric:{ title:"@NAME" }}
-								},
-								matched:{
-									elements:[
-										{ "profile_number":{
-											SOptionList:{
-												title:"Profile",
-												description:"More info <a href='https://github.com/4rch0x0/void-kernel/blob/master/drivers/cpufreq/cpufreq_zzmoove_profiles.h'>here</a>. WARNING: to load new settings after a profile change you need to restart synapse",
-												values:{ 0:"Custom", 1:"Default", 2:"Yank Battery", 3:"Yank Battery Extreme", 4:"ZaneZam Battery", 5:"ZaneZam Battery Plus", 6:"ZaneZam Optimized", 7:"ZaneZam Moderate", 8:"ZaneZam Performance", 9:"ZaneZam InZane", 10:"ZaneZam Gaming", 11:"ZaneZam Relax" }
-											}
-										}},
-										{ "version":{
-											SLiveLabel:{
-												title:"Governor Version",
-												refresh:0
-											}
-										}}
-									]
-								},
-								exclude:[ "cpucore_table", "boostpulse", "profile_list", "profile", "version_profiles" ]
-							}
-						}
-					}
 				}}
 			]
 		},
