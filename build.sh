@@ -9,7 +9,7 @@
 if [[ ! "$1" = "zip" ]]; then
 	if [[ ! "$1" = ".config" ]]; then
 		make n7100_defconfig; fi
-	make -j16 ARCH="arm" CROSS_COMPILE="../gcc-arm-none-eabi-5_3-2016q1/bin/arm-none-eabi-"
+	make -j16 ARCH="arm"
 fi
 
 cp arch/arm/boot/zImage template/zImage
