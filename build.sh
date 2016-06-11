@@ -9,7 +9,7 @@
 if [[ ! "$1" = "zip" ]]; then
 	if [[ ! "$1" = ".config" ]]; then
 		make n7100_defconfig; fi
-	make -j16 ARCH="arm"
+	make -j8
 fi
 
 cp arch/arm/boot/zImage template/zImage
