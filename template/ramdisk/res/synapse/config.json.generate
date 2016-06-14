@@ -113,102 +113,22 @@ done)
 								},
 								matched:{
 									elements:[
-										{ "sampling_rate":{
-											SSeekBar:{
-												title:"Sampling Rate",
-												description:"How often the kernel look at the CPU usage and make decisions on what to do about the frequency. Higher values means CPU polls less often.",
-												min:10000, max:500000, step:1000, unit:" uS"
-											}
-										}},
-										{ "up_threshold":{
-											SSeekBar:{
-												title:"Up Threshold",
-												description:"When CPU load reaches this point, governor will scale CPU up. Higher value means less responsiveness and lower values corresponds to more responsiveness at the cost of battery.",
-												min:1, max:100, unit:"%"
-											}
-										}},
-										{ "powersave_bias":{
-											SGeneric:{
-												title:"Powersave Bias",
-												description:"Default value is 0. Setting a higher value will bias the governor towards lower frequency steps. Use this if you want CPU to spend less time on higher frequencies. A better alternative would be to underclock to a lower frequency than using powersave bias."
-											}
-										}},
-										{ "sampling_down_factor":{
-											SGeneric:{
-												title:"Sampling Down Factor",
-												description:"Determines how often CPU should stay at higher frequencies when truly busy. Default behavior is fast switching to lower frequencies (1). Having sampling_down_factor set to 1 makes no changes from existing behavior (for the non-modified ondemand), but having sampling_down_factor set to a value greater than 1 causes it to act as a multiplier for the scheduling interval for re-evaluating the load when the CPU is at its highest clock frequency (which is scaling_max_freq) due to high load."
-											}
-										}},
-										{ "down_differential":{
-											SGeneric:{
-												title:"Down Differential",
-												description:"Indirectly calculates the 'down-threshold' of governor. After completing sampling-down-factor*sampling-rate at max frequency because of high load, governor samples the load again to calculate an estimate of the new target frequency in a way that the lowest frequency will be chosen that would not trigger up_threshold in the next sample. During this choice down_differential is taken into account as a breathing room value. Target frequency is calculated as max_load_freq / (up_threshold - down_differential)."
-											}
-										}},
-										{ "ignore_nice_load":{
-											SCheckBox:{
-												label:"Ignore Nice Load",
-												description:"Setting to 1 causes governor to ignore load resulted by nice processes while making scaling decisions. Nice processes are the one i/o scheduler refers to as low priority process."
-											}
-										}},
-										{ "io_is_busy":{
-											SCheckBox:{
-												label:"I/O Is Busy",
-												description:"Setting to 1 causes treating i/o wait time as CPU busy time. I/O busy is just an indication that CPU is performance critical, and system is not actually idle. IO wait time is excluded from the CPU idle time value is 1."
-											}
-										}},
-										{ "freq_step":{
-											SSeekBar:{
-												label:"Freq Step",
-												description:"Whenever up-scaling logic is triggered the governor instructs the CPU to raise its frequency by freq_step percentage of max allowed frequency. (max policy * (freq step / 100)). Ex: max policy is 1600 and freq step 21%, it will scale 1600 * 21% = 336.",
-												max:100
-											}
-										}},
-										{ "version":{
-											SLiveLabel:{
-												title:"Governor Version",
-												refresh:0
-											}
-										}},
-										{ "version_profiles":{
-											SLiveLabel:{
-												title:"Governor Profiles Version",
-												refresh:0
-											}
-										}},
-										{ "profile":{
-											SLiveLabel:{
-												title:"Current Profile",
-												refresh:0
-											}
-										}},
-										{ "profile_list":{
-											SLiveLabel:{
-												title:"Profile List",
-												refresh:0
-											}
-										}},
-										{ "hispeed_freq":{
-											SSeekBar:{
-												label:"Hispeed Freq",
-												values:{ $(freq_list) }
-											}
-										}},
-										{ "sync_freq":{
-											SSeekBar:{
-												label:"Sync Freq",
-												values:{ $(freq_list) }
-											}
-										}},
-										{ "go_hispeed_load":{
-											SSeekBar:{
-												title:"Go Hispeed Load",
-												min:1, max:100, unit:"%"
+										{ "profile_number":{
+											SOptionList:{
+												label:"Profile",
+												description:"More info <a href='https://github.com/ParanoidNote/void-kernel/blob/master/drivers/cpufreq/cpufreq_zzmoove_profiles.h'>here</a>",
+												values:{ 0:"Custom", 1:"Default", 2:"Yank Battery", 3:"Yank Battery Extreme", 4:"ZaneZam Battery", 5:"ZaneZam Battery Plus", 6:"ZaneZam Optimized", 7:"ZaneZam Moderate", 8:"ZaneZam Performance", 9:"ZaneZam InZane", 10:"ZaneZam Gaming", 11:"ZaneZam Relax" },
+												notify:[
+													{ on:APPLY,
+														do:[ REFRESH, CANCEL ],
+														to:"/sys/devices/system/cpu/cpufreq"
+													}
+												]
 											}
 										}}
 									]
 								},
-								exclude:[ "cpucore_table", "boostpulse" ]
+								exclude:[ "cpucore_table", "boostpulse", "profile_list", "profile", "version_profiles" ]
 							}
 						}
 					}
@@ -353,115 +273,10 @@ done)
 				
 			]
 		},
-		{
-			name:ABB,
-			elements:[
-				{ SDescription:{
-					description:"Adaptive Body Bias is a secondary voltage applied onto the body of the transistor, where as the normal voltage is the gate voltage. Adjusting the body voltage in a differential to the gate voltage changes the characteristics of the transistor in how it switches. The body bias is the delta of the body voltage to the gate voltage, or difference between gate voltage minus body voltage. A positive body bias results in a Forward Body Bias (FBB) which lowers the transistor switching threshold and allows for higher clocks at the same voltage, or lower voltage at the same clocks. A negative body bias, or Reverse Body Bias (RBB) raises the switching threshold and can drastically improve leakage, but with the reverse effects of FBB in terms of voltage and clocks. WARNING: For advanced users only who understand the electrical physics behind it."
-				}},
-				{ SLiveLabel:{
-					refresh:0,
-					action:"cat /sys/devices/system/abb/abb_info | while read LINE; do if [[ ! -z \$LINE ]]; then echo \$LINE@n; fi; done"
-				}},
-				{ SPane:{
-					title:"CPU",
-					description:"ARM (CPU) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_1_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_2_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_2_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 3 voltage",
-					description:"Slice 3 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_3_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_3_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_3_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 4 voltage",
-					description:"Slice 4 frequency: $(cat /sys/devices/system/abb/arm/arm_slice_3_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/arm/arm_slice_4_volt),
-					action:"generic /sys/devices/system/abb/arm/arm_slice_4_volt"
-				}},
-				{ SPane:{
-					title:"GPU",
-					description:"G3D (GPU) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_1_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_2_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_2_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 3 voltage",
-					description:"Slice 3 frequency: $(cat /sys/devices/system/abb/g3d/g3d_slice_2_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/g3d/g3d_slice_3_volt),
-					action:"generic /sys/devices/system/abb/g3d/g3d_slice_3_volt"
-				}},
-				{ SPane:{
-					title:"MIF",
-					description:"MIF (Memory interface) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/mif/mif_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/mif/mif_slice_1_volt),
-					action:"generic /sys/devices/system/abb/mif/mif_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/mif/mif_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/mif/mif_slice_2_volt),
-					action:"generic /sys/devices/system/abb/mif/mif_slice_2_volt"
-				}},
-				{ SPane:{
-					title:"INT",
-					description:"INT (Internal SoC) body bias voltages."
-				}},
-				{ SSeekBar:{
-					title:"Slice 1 voltage",
-					description:"Slice 1 frequency: $(cat /sys/devices/system/abb/int/int_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/int/int_slice_1_volt),
-					action:"generic /sys/devices/system/abb/int/int_slice_1_volt"
-				}},
-				{ SSeekBar:{
-					title:"Slice 2 voltage",
-					description:"Slice 2 frequency: $(cat /sys/devices/system/abb/int/int_slice_1_freq)",
-					min:600, max:1600, unit:"mV", step:50,
-					default:$(cat /sys/devices/system/abb/int/int_slice_2_volt),
-					action:"generic /sys/devices/system/abb/int/int_slice_2_volt"
-				}}
-			]
-		},
 $(for BLOCK in $(find /sys/block/mmcblk* -maxdepth 0 | awk -F / '{print $NF}'); do
 	case "$BLOCK" in
 		mmcblk0) NAME="Internal Storage";;
-		mmcblk1) NAME="SD Card";;
+		mmcblk1) NAME="External Storage";;
 		*) NAME="$BLOCK";;
 	esac
 	cat << EOF1
