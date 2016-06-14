@@ -117,18 +117,12 @@ done)
 											SOptionList:{
 												label:"Profile",
 												description:"More info <a href='https://github.com/ParanoidNote/void-kernel/blob/master/drivers/cpufreq/cpufreq_zzmoove_profiles.h'>here</a>",
-												values:{ 0:"Custom", 1:"Default", 2:"Yank Battery", 3:"Yank Battery Extreme", 4:"ZaneZam Battery", 5:"ZaneZam Battery Plus", 6:"ZaneZam Optimized", 7:"ZaneZam Moderate", 8:"ZaneZam Performance", 9:"ZaneZam InZane", 10:"ZaneZam Gaming", 11:"ZaneZam Relax" },
-												notify:[
-													{ on:APPLY,
-														do:REFRESH,
-														to:"/sys/devices/system/cpu/cpufreq"
-													}
-												]
+												values:{ 0:"Custom", 1:"Default", 2:"Yank Battery", 3:"Yank Battery Extreme", 4:"ZaneZam Battery", 5:"ZaneZam Battery Plus", 6:"ZaneZam Optimized", 7:"ZaneZam Moderate", 8:"ZaneZam Performance", 9:"ZaneZam InZane", 10:"ZaneZam Gaming", 11:"ZaneZam Relax" }
 											}
 										}}
 									]
 								},
-								exclude:[ "cpucore_table", "boostpulse", "profile_list", "profile", "version_profiles" ]
+								exclude:[ "cpucore_table", "boostpulse", "profile_list", "profile", "version_profiles", "sampling_rate_min" ]
 							}
 						}
 					}
