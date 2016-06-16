@@ -1088,6 +1088,12 @@ done)
 					default:$(cat /proc/sys/kernel/random/urandom_min_reseed_secs),
 					action:"generic /proc/sys/kernel/random/urandom_min_reseed_secs"
 				}},
+				{ SCheckBox:{
+					label:"Force Enable Frandom/Erandom",
+					description:"Force the system to use frandom/erandom instead of random/urandom. WARNING: frandom is 10-50 times faster but is not secure as linux default random number generator (More info <a href='http://billauer.co.il/frandom.html'>here</a>) .",
+					default:$(/res/synapse/actions/advanced -r),
+					action:"advanced -r"
+				}},
 				{ SPane:{
 					title:"Touchkeys"
 				}},
