@@ -159,6 +159,4 @@ source "drivers/staging/altera-stapl/Kconfig"
 source "drivers/staging/mei/Kconfig"
 
 source "drivers/staging/nvec/Kconfig"
-
-source "drivers/staging/vnswap/Kconfig"
 endif # STAGING

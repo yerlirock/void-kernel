@@ -43,11 +43,6 @@
 
 #include <linux/ratelimit.h>
 
-#ifdef CONFIG_ZSWAP
-#include <linux/fs.h>
-#include <linux/swap.h>
-#endif
-
 static uint32_t lowmem_debug_level = 1;
 static int lowmem_adj[6] = {
 	0,
@@ -116,10 +111,6 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 #endif
 	int other_file = global_page_state(NR_FILE_PAGES) -
 						global_page_state(NR_SHMEM);
-
-#if defined(CONFIG_ZSWAP)
-	other_file -= total_swapcache_pages;
-#endif /* CONFIG_ZSWAP */
 
 	/*
 	 * If we already have a death outstanding, then
