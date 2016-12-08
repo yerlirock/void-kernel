@@ -6,7 +6,7 @@
 kernel.string=void kernel
 do.devicecheck=1
 do.initd=0
-do.modules=1
+do.modules=0
 do.cleanup=1
 device.name1=t03g
 device.name2=n7100
@@ -239,7 +239,6 @@ mount -o remount,rw /system
 # remove older modules
 rm -rf lib/modules
 rm -rf /system/lib/modules
-mkdir -p /system/lib/modules
 
 # remove power hal
 rm -rf /system/lib/hw/power.*.so

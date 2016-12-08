@@ -13,6 +13,5 @@ if [[ ! "$1" = "zip" ]]; then
 fi
 
 cp arch/arm/boot/zImage template/zImage
-find . -name "*.ko" -exec cp {} template/modules \;
 cd template
 zip -r9 ../"arter97-kernel-$(cat ../version)-new-g$(git rev-parse --short HEAD)-n7100.zip" * -x ".gitignore" "modules/placeholder"
