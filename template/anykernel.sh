@@ -6,7 +6,7 @@
 kernel.string=void kernel
 do.devicecheck=1
 do.initd=0
-do.modules=1
+do.modules=0
 do.cleanup=1
 device.name1=t03g
 device.name2=n7100
@@ -224,8 +224,6 @@ mount -o remount,rw /system
 # if we are on aosp the add only synapse don't flash kernel or modules
 if grep -q "aosp_n7100-userdebug" /system/build.prop; then
   rm -f /tmp/anykernel/zImage # remove zImage script will fallback to original one
-  rm -rf /tmp/anykernel/modules # remove modules (not really needed)
-  sed -i 's/do.modules=1/do.modules=0/g' /tmp/anykernel/anykernel.sh # disable modules injection
 else # generic configuration
   # f2fs support
   sed -i '/f2fs/d' fstab.smdk4x12
@@ -245,7 +243,6 @@ else # generic configuration
   # remove older modules
   rm -rf lib/modules
   rm -rf /system/lib/modules
-  mkdir -p /system/lib/modules
 
   # remove power hal
   rm -rf /system/lib/hw/power.*.so
