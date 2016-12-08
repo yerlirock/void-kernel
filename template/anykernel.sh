@@ -238,7 +238,7 @@ mount -o remount,rw /system
 
 # remove older modules
 rm -rf lib/modules
-rm -rf /system/lib/module
+rm -rf /system/lib/modules
 mkdir -p /system/lib/modules
 
 # remove power hal
